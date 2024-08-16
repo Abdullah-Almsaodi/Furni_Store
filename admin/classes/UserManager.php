@@ -1,85 +1,106 @@
 <?php
 // admin/classes/UserManager.php 
-class UsertManager
+
+class UserManager
 {
     private $conn;
-    // private $name;
-    // private $email;
-    // private $password;
-    // private $password1;
-
-
-
 
     public function __construct(Database $db)
     {
         $this->conn = $db->connect();
     }
 
-    // function for adding users 
-    public function addUser($name, $email, $password, $password1, $role_type)
+    public function isEmailExist($email)
     {
-        // start prepare after all checks
         $query = "SELECT user_id FROM users WHERE email = :email";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':email', $email);
         $stmt->execute();
 
-        if ($stmt->rowCount() > 0) {
-            $errors['emailE'] =  "A user with that email already exists.";
-        } else {
-            $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
-            $activation_token = bin2hex(random_bytes(16));
+        return $stmt->rowCount() > 0;
+    }
 
-            $query = "INSERT INTO users (name, email, password, activation_token) VALUES (:name, :email, :password, :activation_token)";
-            $stmt = $this->conn->prepare($query);
-            $stmt->bindParam(':name', $name);
-            $stmt->bindParam(':email', $email);
-            $stmt->bindParam(':password', $hashedPassword);
-            $stmt->bindParam(':activation_token', $activation_token);
+    public function hashPassword($password)
+    {
+        return password_hash($password, PASSWORD_BCRYPT);
+    }
 
-            if ($stmt->execute()) {
+    public function generateActivationToken()
+    {
+        return bin2hex(random_bytes(16));
+    }
 
-                // Get the last inserted user ID
-                $userId = $this->conn->lastInsertId();
-
-                // Insert the role into the "role" table
-                $roleQuery = "INSERT INTO Roles (type, role_id) VALUES (:type, :role_id)";
-                $roleStmt = $this->conn->prepare($roleQuery);
-                $roleStmt->bindParam(':type', $role_type);
-                $roleStmt->bindParam(':role_id', $userId);
-
-                if ($roleStmt->execute()) {
-                    echo '<script type="text/javascript">
-                    $(document).ready(function() {
-                        $(function() {
-                            // Show Bootstrap modal
-                            $("#successModal").modal("show");
-                        });
-                    });
-                    </script>';
-                } else {
-                    $errorInfo = $this->conn->errorInfo();
-                    echo "Error: " . $errorInfo[2];
-                }
-            } else {
-                $errorInfo = $this->conn->errorInfo();
-                echo "Error: " . $errorInfo[2];
-            }
+    public function addUser($name, $email, $password, $role_type)
+    {
+        // Validate inputs
+        if ($this->isEmailExist($email)) {
+            throw new Exception("A user with that email already exists.");
         }
 
-        // Logic to add user
+        // Hash password and generate token
+        $hashedPassword = $this->hashPassword($password);
+        $activationToken = $this->generateActivationToken();
+
+        // Insert user
+        $query = "INSERT INTO users (name, email, password, activation_token) 
+                  VALUES (:name, :email, :password, :activation_token)";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':name', $name);
+        $stmt->bindParam(':email', $email);
+        $stmt->bindParam(':password', $hashedPassword);
+        $stmt->bindParam(':activation_token', $activationToken);
+
+        if (!$stmt->execute()) {
+            throw new Exception("Failed to add user: " . $this->conn->errorInfo()[2]);
+        }
+
+        $userId = $this->conn->lastInsertId();
+
+        // Insert role
+        $this->addUserRole($role_type, $userId);
+
+        // Show success modal
+        $this->showSuccessModal();
+    }
+
+    private function addUserRole($role_type, $userId)
+    {
+        $roleQuery = "INSERT INTO Roles (type, user_id) VALUES (:type, :user_id)";
+        $roleStmt = $this->conn->prepare($roleQuery);
+        $roleStmt->bindParam(':type', $role_type);
+        $roleStmt->bindParam(':user_id', $userId);
+
+        if (!$roleStmt->execute()) {
+            throw new Exception("Failed to assign role: " . $this->conn->errorInfo()[2]);
+        }
+    }
+
+    private function showSuccessModal()
+    {
+        echo '<script type="text/javascript">
+            $(document).ready(function() {
+                $("#successModal").modal("show");
+            });
+            </script>';
     }
 
     public function getUsers()
     {
-        // Logic to fetch users
+        $query = "SELECT * FROM users";
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function deleteUser($id)
     {
-        // Logic to delete user
-    }
+        // Ensure cascading deletes work correctly with related tables
+        $query = "DELETE FROM users WHERE user_id = :id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':id', $id);
 
-    // More methods as needed
+        if (!$stmt->execute()) {
+            throw new Exception("Failed to delete user: " . $this->conn->errorInfo()[2]);
+        }
+    }
 }
