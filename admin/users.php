@@ -74,10 +74,10 @@
     ?>
 
     echo '<script type="text/javascript">
-        $(function() {
-            // Show Bootstrap modal
-            $("#successModal").modal("show");
-        });
+$(function() {
+    // Show Bootstrap modal
+    $("#successModal").modal("show");
+});
     </script>';
 
     ?>
@@ -250,34 +250,34 @@
                                                     $is_active = $row['is_active'];
                                                     $role_type = htmlspecialchars($row['role_type']);
                                         ?>
-                                                    <tr class="odd gradeX">
-                                                        <td><?php echo $id; ?></td>
-                                                        <td><?php echo $name; ?></td>
-                                                        <td><?php echo $email; ?></td>
-                                                        <td><?php echo $role_type; ?></td>
-                                                        <td>
-                                                            <?php
+                                        <tr class="odd gradeX">
+                                            <td><?php echo $id; ?></td>
+                                            <td><?php echo $name; ?></td>
+                                            <td><?php echo $email; ?></td>
+                                            <td><?php echo $role_type; ?></td>
+                                            <td>
+                                                <?php
                                                             if ($is_active == 1) {
                                                                 echo "Active";
                                                             } elseif ($is_active == 2) {
                                                                 echo "Non-Active";
                                                             }
                                                             ?>
-                                                        </td>
-                                                        <td>
-                                                            <a href="editusers.php?action=edit&id=<?php echo $id; ?>"
-                                                                class='btn btn-success'>Edit</a>
-                                                            <a href="?action=delete&id=<?php echo $id; ?>"
-                                                                class='btn btn-danger'>Delete</a>
-                                                        </td>
-                                                    </tr>
-                                                <?php
+                                            </td>
+                                            <td>
+                                                <a href="editusers.php?action=edit&id=<?php echo $id; ?>"
+                                                    class='btn btn-success'>Edit</a>
+                                                <a href="?action=delete&id=<?php echo $id; ?>"
+                                                    class='btn btn-danger'>Delete</a>
+                                            </td>
+                                        </tr>
+                                        <?php
                                                 }
                                             } else {
                                                 ?>
-                                                <tr>
-                                                    <td colspan='6'>No users found.</td>
-                                                </tr>
+                                        <tr>
+                                            <td colspan='6'>No users found.</td>
+                                        </tr>
                                         <?php
                                             }
                                         } catch (PDOException $e) {
@@ -304,9 +304,9 @@
     ?>
 
     <script>
-        $(document).ready(function() {
-            $('.delete').click(function() {
-                return confirm('Are You Sure !!');
-            });
-        });
+$(document).ready(function() {
+    $('.delete').click(function() {
+        return confirm('Are You Sure !!');
+    });
+});
     </script>

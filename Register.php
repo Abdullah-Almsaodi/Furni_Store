@@ -73,13 +73,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 // Check if the role type already exists in the "Roles" table
                 $role_type = "User"; // Replace with the desired role type
-                $role_id = getRoleIdByType($db, $role_type);
+                $role_id = getRoleIdByType($db, $role_name);
 
                 // If the role type doesn't exist, insert it into the "Roles" table
                 if ($role_id === null) {
-                    $query = "INSERT INTO Roles (type) VALUES (:type)";
+                    $query = "INSERT INTO Roles (role_name) VALUES (:role_name)";
                     $stmt = $db->prepare($query);
-                    $stmt->bindParam(':type', $role_type);
+                    $stmt->bindParam(':role_name', $role_type);
                     $stmt->execute();
 
                     $role_id = $db->lastInsertId();
@@ -195,8 +195,10 @@ include_once 'include\Header.php';
                 <div class="col-md-6 col-md-offset-3">
                     <div class="block text-center">
                         <a href="/">
-                            <svg width="250px" height="29px" viewBox="0 0 200 29" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                                <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" font-size="40" font-family="AustinBold, Austin" font-weight="bold">
+                            <svg width="250px" height="29px" viewBox="0 0 200 29" version="1.1"
+                                xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                                <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"
+                                    font-size="40" font-family="AustinBold, Austin" font-weight="bold">
                                     <g id="Group" transform="translate(-108.000000, -297.000000)" fill="#000000">
                                         <text id="AVIATO">
                                             <tspan x="150.94" y="325">Furin</tspan>
@@ -205,9 +207,11 @@ include_once 'include\Header.php';
                                 </g>
                             </svg>
                         </a>
-                        <form class="text-left clearfix" method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
+                        <form class="text-left clearfix" method="POST"
+                            action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
                             <div class="form-group">
-                                <input type="text" name="name" class="form-control" value="<?php echo $name; ?>" placeholder=" Enter your name">
+                                <input type="text" name="name" class="form-control" value="<?php echo $name; ?>"
+                                    placeholder=" Enter your name">
                                 <span style="color:red">
                                     <?php
                                     if (isset($errors['nameE'])) echo  $errors['nameE']
@@ -215,7 +219,8 @@ include_once 'include\Header.php';
                                 </span>
                             </div>
                             <div class="form-group">
-                                <input type="email" name="email" class="form-control" value="<?php echo $email; ?>" placeholder=" Enter your email">
+                                <input type="email" name="email" class="form-control" value="<?php echo $email; ?>"
+                                    placeholder=" Enter your email">
                                 <span style="color:red">
                                     <?php
                                     if (isset($errors['emailE'])) echo  $errors['emailE'];
@@ -236,7 +241,8 @@ include_once 'include\Header.php';
                                 </span>
                             </div>
                             <div class="form-group">
-                                <input type="password" name="password1" class="form-control" placeholder="Confirm your password">
+                                <input type="password" name="password1" class="form-control"
+                                    placeholder="Confirm your password">
                                 <span style="color:red">
                                     <?php
                                     if (isset($errors['passE'])) echo  $errors['passE'];

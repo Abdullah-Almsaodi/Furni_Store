@@ -40,10 +40,8 @@ if (isset($_POST['login'])) {
         // $stmt = $db->prepare($query);
         // $stmt->bindParam(':email', $email);
         // $stmt->execute();
-        $query = "SELECT Users.*, Roles.type AS role_type 
-        FROM Users 
-        INNER JOIN Roles ON Users.role_id = Roles.role_id
-        WHERE email = :email";
+        $query = "SELECT *  FROM Users , roles
+        WHERE email =:email";
 
         $stmt = $db->prepare($query);
         $stmt->bindParam(':email', $email);
@@ -54,22 +52,22 @@ if (isset($_POST['login'])) {
             // $user = $stmt->fetch(PDO::FETCH_ASSOC);
             // $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            if (password_verify($password, $user['password']) and $user['email'] == $email and $user['role_type'] == "Admin"  and $user['is_active'] == "1") {
+            if (password_verify($password, $user['password']) and $user['email'] == $email and $user['role_name'] == "Admin"  and $user['is_active'] == "1") {
                 $_SESSION['user_id'] = $user['user_id'];
                 $_SESSION['username'] = $user['name'];
                 $_SESSION['useremail'] = $user['email'];
-                $_SESSION['role'] = $user['role_type'];
+                $_SESSION['role'] = $user['role_name'];
                 // Successful login
                 // Redirect to the desired page or perform any other actions
                 Header("Location:Admin/index.php");
                 exit();
-            } elseif (password_verify($password, $user['password']) and $user['email'] == $email  and $user['role_type'] == "User" and $user['is_active'] == "1") {
+            } elseif (password_verify($password, $user['password']) and $user['email'] == $email  and $user['role_name'] == "User" and $user['is_active'] == "1") {
 
 
                 $_SESSION['user_id'] = $user['user_id'];
                 $_SESSION['username'] = $user['name'];
                 $_SESSION['useremail'] = $user['email'];
-                $_SESSION['role'] = $user['type'];
+                $_SESSION['role'] = $user['role_name'];
                 // Successful login
                 // Redirect to the desired page or perform any other actions
                 Header("Location:index.php");
@@ -142,33 +140,33 @@ include_once 'include\Header.php';
     <link rel="stylesheet" href="css/style1.css">
 
     <style>
-        #bout {
-            background-color: #3b5d50;
-            border: none;
-            border-radius: 6px;
-            font-size: 20px;
-            font-weight: bold;
-            height: 50px;
-            width: 100px;
-            padding: 0;
-            margin: 10px;
-        }
+    #bout {
+        background-color: #3b5d50;
+        border: none;
+        border-radius: 6px;
+        font-size: 20px;
+        font-weight: bold;
+        height: 50px;
+        width: 100px;
+        padding: 0;
+        margin: 10px;
+    }
 
-        #bout:hover {
+    #bout:hover {
 
-            background-color: black;
-            color: white;
-        }
+        background-color: black;
+        color: white;
+    }
 
-        #cont {
-            box-shadow: 0px 0 30px rgba(5, 1, 5, 0.3);
-            border-radius: 6px;
+    #cont {
+        box-shadow: 0px 0 30px rgba(5, 1, 5, 0.3);
+        border-radius: 6px;
 
-        }
+    }
 
-        #h2 {
-            font-size: 35px;
-        }
+    #h2 {
+        font-size: 35px;
+    }
     </style>
 
 </head>
@@ -183,8 +181,10 @@ include_once 'include\Header.php';
                 <div class="col-md-6 col-md-offset-3">
                     <div id="cont" class="block text-center">
                         <a href="/">
-                            <svg width="250px" height="29px" viewBox="0 0 200 29" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                                <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" font-size="40" font-family="AustinBold, Austin" font-weight="bold">
+                            <svg width="250px" height="29px" viewBox="0 0 200 29" version="1.1"
+                                xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                                <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"
+                                    font-size="40" font-family="AustinBold, Austin" font-weight="bold">
                                     <g id="Group" transform="translate(-108.000000, -297.000000)" fill="#000000">
                                         <text id="AVIATO">
                                             <tspan x="150.94" y="325"> Furin </tspan>
@@ -225,7 +225,8 @@ include_once 'include\Header.php';
                             </div>
 
                             <div class="text-center">
-                                <button id="bout" name=" login" type="submit" class="btn btn-main text-center">Login</button>
+                                <button id="bout" name=" login" type="submit"
+                                    class="btn btn-main text-center">Login</button>
                             </div>
                         </form>
                         <p class="mt-20">Don't have an account ?<a href="Register.php"> Create New Account</a></p>
@@ -259,7 +260,8 @@ include_once 'include\Header.php';
 
     <!-- slick Carousel -->
     <script src="plugins/slick/slick.min.js"></script>
-    <scriptApologies for the abrupt end of the response. Here's the continuation of the converted front-end code: ```html src="plugins/slick/slick-animation.min.js">
+    <scriptApologies for the abrupt end of the response. Here's the continuation of the converted front-end code:
+        ```html src="plugins/slick/slick-animation.min.js">
         </script>
 
         <!-- Main Js File -->
