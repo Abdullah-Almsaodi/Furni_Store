@@ -40,8 +40,8 @@ if (isset($_POST['login'])) {
         // $stmt = $db->prepare($query);
         // $stmt->bindParam(':email', $email);
         // $stmt->execute();
-        $query = "SELECT *  FROM Users , roles
-        WHERE email =:email";
+        $query = "SELECT *  FROM Users u , roles r
+        WHERE email =:email and u.role_id = r.role_id;";
 
         $stmt = $db->prepare($query);
         $stmt->bindParam(':email', $email);
@@ -140,33 +140,33 @@ include_once 'include\Header.php';
     <link rel="stylesheet" href="css/style1.css">
 
     <style>
-    #bout {
-        background-color: #3b5d50;
-        border: none;
-        border-radius: 6px;
-        font-size: 20px;
-        font-weight: bold;
-        height: 50px;
-        width: 100px;
-        padding: 0;
-        margin: 10px;
-    }
+        #bout {
+            background-color: #3b5d50;
+            border: none;
+            border-radius: 6px;
+            font-size: 20px;
+            font-weight: bold;
+            height: 50px;
+            width: 100px;
+            padding: 0;
+            margin: 10px;
+        }
 
-    #bout:hover {
+        #bout:hover {
 
-        background-color: black;
-        color: white;
-    }
+            background-color: black;
+            color: white;
+        }
 
-    #cont {
-        box-shadow: 0px 0 30px rgba(5, 1, 5, 0.3);
-        border-radius: 6px;
+        #cont {
+            box-shadow: 0px 0 30px rgba(5, 1, 5, 0.3);
+            border-radius: 6px;
 
-    }
+        }
 
-    #h2 {
-        font-size: 35px;
-    }
+        #h2 {
+            font-size: 35px;
+        }
     </style>
 
 </head>

@@ -49,7 +49,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 
         // start prepare after all checks
-
+        $role = 2;
         $query = "SELECT user_id FROM users WHERE email = :email";
         $stmt = $db->prepare($query);
         $stmt->bindParam(':email', $email);
@@ -61,36 +61,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
             $activation_token = bin2hex(random_bytes(16));
 
-            $query = "INSERT INTO Users (name, email, password, activation_token) VALUES (:name, :email, :password, :activation_token)";
+            $query = "INSERT INTO Users (name, email,role_id, password, activation_token) VALUES (:name, :email, :role_type, :password, :activation_token)";
             $stmt = $db->prepare($query);
             $stmt->bindParam(':name', $name);
             $stmt->bindParam(':email', $email);
+            $stmt->bindParam(':role_type', $role);
             $stmt->bindParam(':password', $hashedPassword);
             $stmt->bindParam(':activation_token', $activation_token);
 
             if ($stmt->execute()) {
-                $user_id = $db->lastInsertId();
 
-                // Check if the role type already exists in the "Roles" table
-                $role_type = "User"; // Replace with the desired role type
-                $role_id = getRoleIdByType($db, $role_name);
-
-                // If the role type doesn't exist, insert it into the "Roles" table
-                if ($role_id === null) {
-                    $query = "INSERT INTO Roles (role_name) VALUES (:role_name)";
-                    $stmt = $db->prepare($query);
-                    $stmt->bindParam(':role_name', $role_type);
-                    $stmt->execute();
-
-                    $role_id = $db->lastInsertId();
-                }
-
-                // Update the role_id in the "Users" table
-                $query = "UPDATE Users SET role_id = :role_id WHERE user_id = :user_id";
-                $stmt = $db->prepare($query);
-                $stmt->bindParam(':role_id', $role_id);
-                $stmt->bindParam(':user_id', $user_id);
-                $stmt->execute();
 
                 // Redirect the user to the login page with a success message
                 $_SESSION['message'] = 'User registration successful. Please log in.';

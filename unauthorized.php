@@ -76,7 +76,7 @@
 <body>
     <div class="container">
         <span class="warning-icon">&#9888;</span>
-        <h1>Unauthorized Access (-__-)</h1>
+        <h1>Unauthorized Access</h1>
         <p>Sorry, you do not have permission to access this page.</p>
         <a href="index.php"><button>Back to Home </button></a>
     </div>
