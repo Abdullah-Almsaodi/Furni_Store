@@ -1,5 +1,4 @@
 <?php
-// admin/classes/UserRepository.php
 
 class UserRepository
 {
@@ -10,7 +9,7 @@ class UserRepository
         $this->conn = $conn;
     }
 
-    public function isEmailExist($email)
+    public function isEmailExist($email): bool
     {
         $query = "SELECT user_id FROM users WHERE email = :email";
         $stmt = $this->conn->prepare($query);
@@ -20,29 +19,71 @@ class UserRepository
         return $stmt->rowCount() > 0;
     }
 
-    public function addUser($name, $email, $hashedPassword, $activationToken)
+    public function addUser($username, $email, $hashedPassword, $activationToken, $role_id)
     {
-        $query = "INSERT INTO users (name, email, password, activation_token) 
-                  VALUES (:name, :email, :password, :activation_token)";
+        $query = "INSERT INTO users (username, email, password, activation_token, role_id) 
+                  VALUES (:username, :email, :password, :activation_token, :role_id)";
         $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':name', $name);
+        $stmt->bindParam(':username', $username);
         $stmt->bindParam(':email', $email);
         $stmt->bindParam(':password', $hashedPassword);
         $stmt->bindParam(':activation_token', $activationToken);
+        $stmt->bindParam(':role_id', $role_id);
 
         if (!$stmt->execute()) {
-            throw new Exception("Failed to add user: " . $this->conn->errorInfo()[2]);
+            throw new Exception("Failed to add user: " . $stmt->errorInfo()[2]);
         }
 
         return $this->conn->lastInsertId();
     }
 
-    public function getAllUsers()
+
+
+    public function updateUser($id, $name, $email, $password, $role, $active)
     {
-        $query = "SELECT * FROM users";
+        $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+
+        $query = "UPDATE users SET username = :name, email = :email, password = :password, role_id = :role, is_active = :active WHERE user_id = :id";
+        $stmt = $this->conn->prepare($query);
+
+        $stmt->bindParam(':name', $name);
+        $stmt->bindParam(':email', $email);
+        $stmt->bindParam(':password', $hashedPassword);
+        $stmt->bindParam(':role', $role);
+        $stmt->bindParam(':active', $active);
+        $stmt->bindParam(':id', $id);
+
+        return $stmt->execute();
+    }
+
+    public function getUserById($id)
+    {
+        $stmt = $this->conn->prepare("SELECT * FROM users WHERE user_id = :id");
+        $stmt->execute(['id' => $id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+
+    public function getAllUsers(): array
+    {
+        $query = "SELECT u.user_id, u.username, u.email, u.is_active, r.role_name 
+                  FROM users u 
+                  JOIN roles r ON u.role_id = r.role_id";
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
+
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function softDeleteUser($id)
+    {
+        $query = "UPDATE users SET delete_at = NOW() WHERE user_id = :id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':id', $id);
+
+        if (!$stmt->execute()) {
+            throw new Exception("Failed to soft delete user: " . $stmt->errorInfo()[2]);
+        }
     }
 
     public function deleteUser($id)
@@ -52,7 +93,30 @@ class UserRepository
         $stmt->bindParam(':id', $id);
 
         if (!$stmt->execute()) {
-            throw new Exception("Failed to delete user: " . $this->conn->errorInfo()[2]);
+            throw new Exception("Failed to delete user: " . $stmt->errorInfo()[2]);
+        }
+    }
+
+    public function updateUserRole($user_id, $role_id)
+    {
+        $query = "UPDATE users SET role_id = :role_id WHERE user_id = :user_id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':role_id', $role_id);
+        $stmt->bindParam(':user_id', $user_id);
+
+        if (!$stmt->execute()) {
+            throw new Exception("Failed to update user role: " . $stmt->errorInfo()[2]);
+        }
+    }
+
+    public function reactivateUser($user_id)
+    {
+        $query = "UPDATE users SET delete_at = NULL WHERE user_id = :user_id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':user_id', $user_id);
+
+        if (!$stmt->execute()) {
+            throw new Exception("Failed to reactivate user: " . $stmt->errorInfo()[2]);
         }
     }
 }
