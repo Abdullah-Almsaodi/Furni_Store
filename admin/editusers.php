@@ -1,7 +1,16 @@
     <?php
     include('upload/header.php');
-    require('db_connect.php');
+    require_once 'config.php'; // Database configuration
+    require_once 'classes/Database.php';
+    require_once 'classes/UserManager.php';
+    require_once 'classes/UserRepository.php';
+    require_once 'classes/RoleManager.php';
 
+
+    $db = new Database();
+    $conn = $db->connect();
+    $userRepository = new UserRepository($conn);
+    $userManager = new UserManager($userRepository);
 
     echo '<script type="text/javascript">
    
@@ -16,6 +25,7 @@
 
     if (isset($_GET['action'], $_GET['id']) && $_GET['action'] == 'edit') {
         $id = $_GET['id'];
+        $user = $userManager->getUserById($id);
     }
 
     ?>
@@ -40,7 +50,7 @@
                         </div>
                         <?php
                         // define variables and set to empty values
-                        $name = $email = $role = $active = "";
+                        $name = $email = $role_type = $active = $password = $password1 =  "";
                         $errors = array();
 
                         if (isset($_POST['submitUser'])) {
@@ -50,82 +60,14 @@
 
 
 
-
-                                if (empty($_POST["name"])) {
-                                    $errors['nameE'] = " Name is required";
-                                } else {
-                                    $name = test_input($_POST["name"]);
-                                    // check if name only contains letters and whitespace
-                                    if (!preg_match("/^[a-zA-Z-' ]*$/", $name)) {
-                                        $errors['nameE'] = "Only letters and white space allowed";
-                                    }
-                                }
-
-                                if (empty($_POST["email"])) {
-                                    $errors['emailE'] = " Email is required";
-                                } else {
-                                    $email = test_input($_POST["email"]);
-                                    // check if e-mail address is well-formed
-                                    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                                        $errors['emailE'] = "Invalid email format";
-                                    }
-                                }
-                                if (empty($_POST["role"])) {
-                                    $errors['roleE'] = " Role is required";
-                                } else {
-                                    $role = test_input($_POST["role"]);
-                                }
-
-                                if (empty($_POST["password"] || $_POST["password1"])) {
-                                    $errors['passE'] =  " Password is required";
-                                } else {
-
-                                    $password = test_input($_POST["password"]);
-                                    $password1 = test_input($_POST["password1"]);
-
-                                    // check if Passwords do  match
-                                    if ($_POST["password"] != $_POST["password1"]) {
-                                        $errors['passEM'] =  "Passwords do not match.";
-                                    }
-                                }
-
-
-
-
-                                if (empty($_POST["active"])) {
-                                    $errors['activeE'] = " Active is required ";
-                                } else {
-
-
-                                    $active = test_input($_POST["active"]);
-                                }
-
-
-
+                                $errors = $userManager->validateUserData($name, $email, $password, $password1, $role_type, $active);
 
                                 if (empty($errors)) {
 
 
-                                    // start prepare after all checks
+                                    $result = $userManager->updateUser($id, $name, $email, $password, $role_type, $active);
 
-                                    // start prepare after all checks
-                                    $query = "SELECT user_id FROM users WHERE email = :email";
-                                    $stmt = $db->prepare($query);
-                                    $stmt->bindParam(':email', $email);
-                                    $stmt->execute();
-
-                                    $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
-                                    $activation_token = bin2hex(random_bytes(16));
-
-
-
-
-
-                                    $query = " UPDATE Users set name=? , email=? ,password=? ,role_id=? ,	is_active=? where user_id=?";
-
-                                    $stmt = $db->prepare($query);
-                                    $stmt->execute(array($name, $email, $hashedPassword, $role, $active, $id));
-                                    if ($stmt->rowCount()) {
+                                    if ($result['success']) {
                                         $_SESSION['message'] = "<div class='alert alert-success'>One Row   Insert </div>";
                                         echo "<script>
                            
@@ -141,14 +83,6 @@
 
 
 
-
-                        function test_input($data)
-                        {
-                            $data = trim($data);
-                            $data = stripslashes($data);
-                            $data = htmlspecialchars($data);
-                            return $data;
-                        }
 
 
 
@@ -185,12 +119,10 @@
                                 </div>
                                 <div class="col-md-12">
                                     <?php
-                                    $stmt = $db->prepare("SELECT * FROM users WHERE user_id=:user_id");
-                                    $stmt->execute(array("user_id" => $id));
-                                    $row = $stmt->fetch(PDO::FETCH_ASSOC);
-                                    $name = $row['name'];
-                                    $email = $row['email'];
-                                    $password = $row['password']; // Assuming the password column name is 'password'
+
+                                    $name = $user['username'];
+                                    $email = $user['email'];
+                                    $password = $user['password']; // Assuming the password column name is 'password'
 
                                     ?>
 
@@ -271,7 +203,7 @@
                                             </span>
                                         </div>
                                         <div style="float:right;">
-                                            <button name="submitUser" type="submit" class="btn btn-primary">Add
+                                            <button name="submitUser" type="submit" class="btn btn-primary">Update
                                                 User</button>
                                             <button type="reset" class="btn btn-danger">Cancel</button>
                                         </div>
