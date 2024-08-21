@@ -1,21 +1,27 @@
 <?php
+
 class UserManagementFacade
 {
     private $userManager;
     private $roleManager;
     private $profileManager;
 
-    public function __construct()
+    public function __construct(UserManager $userManager, RoleManager $roleManager, ProfileManager $profileManager)
     {
-        $this->userManager = new UserManager();
-        $this->roleManager = new RoleManager();
-        $this->profileManager = new ProfileManager();
+        $this->userManager = $userManager;
+        $this->roleManager = $roleManager;
+        $this->profileManager = $profileManager;
     }
 
     public function registerUser($userData)
     {
-        $user = $this->userManager->createUser($userData);
-        $this->roleManager->assignDefaultRole($user['id']);
+        $user = $this->userManager->addUser(
+            $userData['username'],
+            $userData['email'],
+            $userData['password'],
+            $userData['role_id']
+        );
+        $this->roleManager->assignRoleToUser($user['id'], $user['role_id']);
         $this->profileManager->initializeProfile($user['id']);
         return $user;
     }
