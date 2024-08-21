@@ -1,123 +1,125 @@
 <?php
-// admin/classes/UserManager.php 
 
 class UserManager
 {
-    private $conn;
+    private $userRepository;
 
-    public function __construct(Database $db)
+    public function __construct(UserRepository $userRepository)
     {
-        $this->conn = $db->connect();
+        $this->userRepository = $userRepository;
     }
 
-    // Check if the email already exists in the database
+    public function validateUserData($name, $email, $password, $password1, $role_type, $active = null)
+    {
+        $errors = [];
+
+        if (empty($name)) {
+            $errors['nameE'] = "Name is required";
+        } elseif (!preg_match("/^[a-zA-Z-' ]*$/", $name)) {
+            $errors['nameE'] = "Only letters and white space allowed";
+        }
+
+        if (empty($email)) {
+            $errors['emailE'] = "Email is required";
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors['emailE'] = "Invalid email format";
+        }
+
+
+        if (empty($password) || empty($password1)) {
+            $errors['passE'] = "Password is required";
+        } elseif ($password !== $password1) {
+            $errors['passEM'] = "Passwords do not match.";
+        }
+
+        if (empty($role_type)) {
+            $errors['roleE'] = "Role is required";
+        }
+
+        if (!in_array($active, ['1', '0'], true)) {
+            $errors['activeE'] = "Active status is required.";
+        }
+
+        return $errors;
+    }
+
     public function isEmailExist(string $email): bool
     {
-        $query = "SELECT user_id FROM users WHERE email = :email";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':email', $email);
-        $stmt->execute();
-
-        return $stmt->rowCount() > 0;
+        return $this->userRepository->isEmailExist($email);
     }
 
-    // Hash the password using bcrypt
     public function hashPassword(string $password): string
     {
         return password_hash($password, PASSWORD_BCRYPT);
     }
 
-    // Generate an activation token
     public function generateActivationToken(): string
     {
         return bin2hex(random_bytes(16));
     }
 
-    // Add a new user with the given details
     public function addUser(string $username, string $email, string $password, int $role_id): void
     {
-        // Validate email uniqueness
         if ($this->isEmailExist($email)) {
             throw new Exception("A user with that email already exists.");
         }
 
-        // Hash the password and generate an activation token
         $hashedPassword = $this->hashPassword($password);
         $activationToken = $this->generateActivationToken();
 
-        // Insert the new user into the database
-        $query = "INSERT INTO users (username, email, password, activation_token, role_id) 
-                  VALUES (:username, :email, :password, :activation_token, :role_id)";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':username', $username);
-        $stmt->bindParam(':email', $email);
-        $stmt->bindParam(':password', $hashedPassword);
-        $stmt->bindParam(':activation_token', $activationToken);
-        $stmt->bindParam(':role_id', $role_id);
+        $this->userRepository->addUser($username, $email, $hashedPassword, $activationToken, $role_id);
+    }
 
-        if (!$stmt->execute()) {
-            throw new Exception("Failed to add user: " . implode(', ', $stmt->errorInfo()));
+    public function updateUser($id, $name, $email, $password, $role, $active)
+    {
+        // Validate the inputs
+        $errors = $this->validateUserData($name, $email, $password, $role, $active);
+        if (!empty($errors)) {
+            return ['success' => false, 'errors' => $errors];
+        }
+
+        // Update user
+        $updated = $this->userRepository->updateUser($id, $name, $email, $password, $role, $active);
+        if ($updated) {
+            return ['success' => true];
+        } else {
+            return ['success' => false, 'errors' => ['general' => 'Failed to update user']];
         }
     }
 
-    // Retrieve all users from the database
+    public function getUserById($id) {
+        return $this->userRepository->getUserById($id);
+    }
+
+
+
     public function getUsers(): array
     {
-        $query = "SELECT u.user_id, u.username, u.email, u.is_active, r.role_name 
-                  FROM users u 
-                  JOIN roles r ON u.role_id = r.role_id";
-        $stmt = $this->conn->prepare($query);
-        $stmt->execute();
-
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $this->userRepository->getAllUsers();
     }
 
-    // Soft delete a user by setting the delete_at timestamp
     public function softDeleteUser(int $user_id): void
     {
-        $query = "UPDATE users SET delete_at = NOW() WHERE user_id = :user_id";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':user_id', $user_id);
-
-        if (!$stmt->execute()) {
-            throw new Exception("Failed to soft delete user: " . implode(', ', $stmt->errorInfo()));
-        }
+        $this->userRepository->softDeleteUser($user_id);
     }
 
-    // Permanently delete a user from the database
     public function deleteUser(int $user_id): void
     {
-        $query = "DELETE FROM users WHERE user_id = :user_id";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':user_id', $user_id);
-
-        if (!$stmt->execute()) {
-            throw new Exception("Failed to delete user: " . implode(', ', $stmt->errorInfo()));
-        }
+        $this->userRepository->deleteUser($user_id);
     }
 
-    // Update a user's role
     public function updateUserRole(int $user_id, int $role_id): void
     {
-        $query = "UPDATE users SET role_id = :role_id WHERE user_id = :user_id";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':role_id', $role_id);
-        $stmt->bindParam(':user_id', $user_id);
-
-        if (!$stmt->execute()) {
-            throw new Exception("Failed to update user role: " . implode(', ', $stmt->errorInfo()));
-        }
+        $this->userRepository->updateUserRole($user_id, $role_id);
     }
 
-    // Reactivate a user by clearing the delete_at timestamp
     public function reactivateUser(int $user_id): void
     {
-        $query = "UPDATE users SET delete_at = NULL WHERE user_id = :user_id";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':user_id', $user_id);
+        $this->userRepository->reactivateUser($user_id);
+    }
 
-        if (!$stmt->execute()) {
-            throw new Exception("Failed to reactivate user: " . implode(', ', $stmt->errorInfo()));
-        }
+    public function testInput($data)
+    {
+        return htmlspecialchars(stripslashes(trim($data)));
     }
 }
