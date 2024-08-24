@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $email = $_POST['email'];
             $password = $_POST['password'];
             $password1 = $_POST['password1'];
-            $role_type = $_POST['role_type'];
+            $role_type = $_POST['role'];
 
             // Validate the data
             $errors = $userManager->validateUserData($name, $email, $password, $password1, $role_type);
@@ -153,82 +153,43 @@ $(function() {
                     </div>
                     <?php
                     // define variables and set to empty values
-                    $name = $email = $password = $password1 = $role = "";
-                    $errors = array();
+                    $name = $email = $password = $password1 = $role_type = $active = "";
+                    $errors = [];
+                    $successMessage = '';
+
+
                     if (isset($_POST['submitUser'])) {
 
-                        if (isset($_POST['submitUser'])) {
+                        // Handle form submission for adding a new user
 
 
+                        if ($_SERVER["REQUEST_METHOD"] == "POST") {
+                            $name = $_POST['name'] ?? '';
+                            $email = $_POST['email'] ?? '';
+                            $password = $_POST['password'] ?? '';
+                            $password1 = $_POST['password1'] ?? '';
+                            $role = $_POST['role'] ?? '';
 
-
-                            if (empty($_POST["name"])) {
-                                $errors['nameE'] = " Name is required";
-                            } else {
-                                $name = test_input($_POST["name"]);
-                                // check if name only contains letters and whitespace
-                                if (!preg_match("/^[a-zA-Z-' ]*$/", $name)) {
-                                    $errors['nameE'] = "Only letters and white space allowed";
-                                }
-                            }
-
-                            if (empty($_POST["email"])) {
-                                $errors['emailE'] = " Email is required";
-                            } else {
-                                $email = test_input($_POST["email"]);
-                                // check if e-mail address is well-formed
-                                if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                                    $errors['emailE'] = "Invalid email format";
-                                }
-                            }
-                            if (empty($_POST["role"])) {
-                                $errors['roleE'] = " Role is required";
-                            } else {
-                                $role = test_input($_POST["role"]);
-                            }
-
-                            if (empty($_POST["email"])) {
-                                $errors['emailE'] = " Email is required";
-                            } else {
-                                $email = test_input($_POST["email"]);
-                                // check if e-mail address is well-formed
-                                if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                                    $errors['emailE'] = "Invalid email format";
-                                }
-                            }
-
-                            if (empty($_POST["password"] || $_POST["password1"])) {
-                                $errors['passE'] =  " Password is required";
-                            } else {
-
-                                $password = test_input($_POST["password"]);
-                                $password1 = test_input($_POST["password1"]);
-
-                                // check if Passwords do  match
-                                if ($_POST["password"] != $_POST["password1"]) {
-                                    $errors['passEM'] =  "Passwords do not match.";
-                                }
-                            }
-
-                            // echo $role . "<br>";
-                            // var_dump($role);
+                            // Validate user data and add user
+                            $errors = $userManager->validateUserData($name, $email, $password, $password1, $role);
 
                             if (empty($errors)) {
-                                $Users =  $UserManager->addUser($name, $email, $password, $password1, $role_type);
+                                $result = $userManager->addUser($name, $email, $password, $password1, (int)$role);
+
+                                if ($result['success']) {
+                                    $successMessage = "User added successfully";
+                                } else {
+                                    $errors = $result['errors'];
+                                    // $successMessage = "<div class='alert alert-danger'>Cannot add User </div>";
+                                }
                             }
                         }
                     }
 
+                    $users = $userManager->getUsers();
 
 
 
-                    function test_input($data)
-                    {
-                        $data = trim($data);
-                        $data = stripslashes($data);
-                        $data = htmlspecialchars($data);
-                        return $data;
-                    }
 
 
                     ?>
@@ -255,15 +216,27 @@ $(function() {
                                 </div>
                             </div>
                             <div class="col-md-12">
+
+
+                                <?php if ($successMessage): ?>
+
+                                    <div class='alert alert-success'><?php echo $successMessage; ?></div>
+                                <?php endif; ?>
+
+                                <?php if (isset($errors['general'])): ?>
+                                    <div class='alert alert-success'><?php echo $successMessage; ?>
+                                    </div>
+                                <?php endif; ?>
+
+
                                 <form role="form" method="post">
                                     <div class="form-group">
                                         <label>Name</label>
                                         <input type="text" name="name" value="<?php echo $name; ?>"
                                             placeholder="Please Enter your Name " class="form-control" />
                                         <span style="color:red">
-                                            <?php
-                                            if (isset($errors['nameE'])) echo  $errors['nameE']
-                                            ?>
+                                            <?php if (isset($errors['nameE'])): echo $errors['nameE'];
+                                            endif; ?>
                                         </span>
                                     </div>
                                     <div class="form-group">
@@ -271,9 +244,9 @@ $(function() {
                                         <input type="email" name="email" class="form-control"
                                             value="<?php echo $email; ?>" placeholder="PLease Enter Eamil" />
                                         <span style="color:red">
-                                            <?php
-                                            if (isset($errors['emailE'])) echo  $errors['emailE']
-                                            ?>
+                                            <?php if (isset($errors['emailE'])):
+                                                echo $errors['emailE'];
+                                            endif; ?>
                                         </span>
                                     </div>
                                     <div class="form-group">
@@ -281,10 +254,10 @@ $(function() {
                                         <input type="password" name="password" class="form-control"
                                             placeholder="Please Enter password">
                                         <span style="color:red">
-                                            <?php
-                                            if (isset($errors['passE'])) echo  $errors['passE'];
 
-                                            ?>
+                                            <?php if (isset($errors['passE'])):
+                                                echo $errors['passE'];
+                                            endif; ?>
                                         </span>
                                     </div>
                                     <div class="form-group">
@@ -292,21 +265,22 @@ $(function() {
                                         <input type="password" name="password1" class="form-control"
                                             placeholder="Please Enter confirm password">
                                         <span style="color:red">
-                                            <?php
-
-                                            if (isset($errors['passE'])) echo  $errors['passE'];
-                                            elseif (isset($errors['passEM'])) {
-                                                echo  $errors['passEM'];
-                                            }
-                                            ?>
+                                            <?php if (isset($errors['passEM'])):
+                                                echo $errors['passEM'];
+                                            endif; ?>
                                         </span>
                                     </div>
                                     <div class="form-group">
                                         <label>User Type</label>
                                         <select name="role" class="form-control">
                                             <option value="" selected disabled>Select Role</option>
-                                            <option value="Admin">Administrator</option>
-                                            <option value="User">User</option>
+                                            <option value="1"
+                                                <?php echo (isset($_POST['role']) && $_POST['role'] == 1) ? 'selected' : ''; ?>>
+                                                Administrator</option>
+                                            <option value="2"
+                                                <?php echo (isset($_POST['role']) && $_POST['role'] == 2) ? 'selected' : ''; ?>>
+                                                User</option>
+
                                         </select>
                                         <span style="color:red">
                                             <?php
@@ -350,8 +324,14 @@ $(function() {
                                 $stm = $conn->prepare("delete from Users where user_id=:user_id");
                                 $stm->execute(array("user_id" => $id));
                                 if ($stm->rowCount() == 1) {
-                                    echo "<div class='alert alert-success'> One Row Deleted</div>";
+
+                                    $successMessage = "<div class='alert alert-success'> One Row Deleted</div>";
+                                    echo "<script>
+                           
+                                        window.open('users.php','_self');
+                                        </script> ";
                                 }
+
                                 break;
 
 
@@ -379,57 +359,36 @@ $(function() {
                                 </thead>
                                 <tbody>
 
-                                    <?php
-                                    try {
-                                        // Assume you have established a database connection and assigned it to the $db variable
 
-                                        // Fetch the list of registered users from the database with their corresponding role types
-                                        $query = "SELECT Users.*, Roles.role_name AS role_type 
-                                            FROM Users 
-                                            INNER JOIN Roles ON Users.role_id = Roles.role_id";
 
-                                        $stmt = $conn->prepare($query);
-                                        $stmt->execute();
-                                        $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                                        // var_dump($users); // Debugging output
-                                        if ($stmt->rowCount() > 0) {
-                                            foreach ($users as $row) {
 
-                                                $id = $row['user_id'];
-                                                $name =  $row['username'];
-                                                $email =  $row['email'];
-                                                $password =  $row['password'];
-                                                $is_active =  $row['is_active'];
-                                                $role_type = $row['role_type'];
+                                    <?php if (!empty($users)): ?>
+                                        <?php foreach ($users as $user): ?>
+                                            <tr class="odd gradeX">
+                                                <td><?php echo htmlspecialchars($user['user_id']); ?></td>
+                                                <td><?php echo htmlspecialchars($user['username']); ?></td>
+                                                <td><?php echo htmlspecialchars($user['email']); ?></td>
+                                                <td><?php echo htmlspecialchars($user['password']); ?></td>
+                                                <td><?php echo htmlspecialchars($user['is_active']); ?></td>
+                                                <td><?php echo htmlspecialchars($user['role_name']); ?></td>
+                                                <td>
+                                                    <a href="editusers.php?action=edit&id=<?php echo $user['user_id']; ?>"
+                                                        class='btn btn-success action'>Edit</a>
+                                                    <a href="?action=delete&id=<?php echo $user['user_id']; ?>"
+                                                        class='delete btn btn-danger '>Delete</a>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <tr>
+                                            <td colspan='5'>No users found.</td>
+                                        </tr>
+                                    <?php endif; ?>
 
-                                    ?>
-                                    <tr class="odd gradeX">
-                                        <td><?php echo $id ?></td>
-                                        <td><?php echo $name ?></td>
-                                        <td><?php echo $email ?></td>
-                                        <td><?php echo $password ?></td>
-                                        <td><?php echo $is_active ?></td>
-                                        <td><?php echo $role_type ?></td>
-                                        <td>
-                                            <a href="editusers.php?action=edit&id=<?php echo $id ?>"
-                                                class='btn btn-success'>Edit</a>
-                                            <a href="?action=delete&id=<?php echo $id ?>"
-                                                class='delete btn btn-danger'>Delete</a>
-                                        </td>
-                                    </tr>
-                                    <?php
-                                            }
-                                        } else {
-                                            ?>
-                                    <tr>
-                                        <td colspan='5'>No users found.</td>
-                                    </tr>
-                                    <?php
-                                        }
-                                    } catch (PDOException $e) {
-                                        echo "Database Error: " . $e->getMessage();
-                                    }
-                                    ?>
+
+
+
+
                                 </tbody>
                                 </tbody>
                             </table>
@@ -453,10 +412,9 @@ include('upload/footer.php');
 ?>
 
 <script>
-f
-$(document).ready(function() {
-    $('.delete').click(function() {
-        return confirm('Are You Sure !!');
+    $(document).ready(function() {
+        $('.delete').click(function() {
+            return confirm('Are You Sure !!');
+        });
     });
-});
 </script>
