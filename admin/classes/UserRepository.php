@@ -66,7 +66,7 @@ class UserRepository
 
     public function getAllUsers(): array
     {
-        $query = "SELECT u.user_id, u.username, u.email, u.is_active, r.role_name 
+        $query = "SELECT u.user_id, u.username, u.email, u.is_active, u.password, r.role_name 
                   FROM users u 
                   JOIN roles r ON u.role_id = r.role_id";
         $stmt = $this->conn->prepare($query);
@@ -95,6 +95,16 @@ class UserRepository
         if (!$stmt->execute()) {
             throw new Exception("Failed to delete user: " . $stmt->errorInfo()[2]);
         }
+
+
+        // if ($stmt->rowCount() == 1) {
+        //     return ['success' => true];
+        // } else {
+        //     return ['success' => false, 'errors' => ['general' => 'Failed to delete user']];
+        // }
+
+        $code = $stmt->rowCount();
+        return $code;
     }
 
     public function updateUserRole($user_id, $role_id)
