@@ -5,6 +5,7 @@
     require_once 'classes/UserManager.php';
     require_once 'classes/UserRepository.php';
     require_once 'classes/RoleManager.php';
+    session_start();
 
 
     $db = new Database();
@@ -12,14 +13,7 @@
     $userRepository = new UserRepository($conn);
     $userManager = new UserManager($userRepository);
 
-    echo '<script type="text/javascript">
-   
-        $(function() {
-            // Show Bootstrap modal
-            $("#successModal").modal("show");
-        });
-   
-    </script>';
+
 
 
 
@@ -52,29 +46,33 @@
                         // define variables and set to empty values
                         $name = $email = $role_type = $active = $password = $password1 =  "";
                         $errors = array();
-
+                        $successMessage = '';
                         if (isset($_POST['submitUser'])) {
 
                             if (isset($_GET['action'], $_GET['id']) && $_GET['action'] == 'edit') {
 
 
+                                $name = $_POST['name'] ?? '';
+                                $email = $_POST['email'] ?? '';
+                                $password = $_POST['password'] ?? '';
+                                $password1 = $_POST['password1'] ?? '';
+                                $role = $_POST['role'] ?? '';
+                                $active = $_POST['active'] ?? '';
 
-
-                                $errors = $userManager->validateUserData($name, $email, $password, $password1, $role_type, $active);
+                                $errors = $userManager->validateUserData($name, $email, $password, $password1, $role, $active);
 
                                 if (empty($errors)) {
 
 
-                                    $result = $userManager->updateUser($id, $name, $email, $password, $role_type, $active);
+                                    $result = $userManager->updateUser($id, $name, $email, $password, $password, $role, $active);
 
                                     if ($result['success']) {
-                                        $_SESSION['message'] = "<div class='alert alert-success'>One Row   Insert </div>";
-                                        echo "<script>
-                           
-                                        window.open('users.php','_self');
-                                        </script> ";
+
+
+                                        $_SESSION['message'] = "User Update successfully";
+                                        header('Location: users.php');
                                     } else {
-                                        echo "<div class='alert alert-danger'>One Row  not Updated </div>";
+                                        $errors = $result['errors'];
                                     }
                                 }
                             }
@@ -118,6 +116,16 @@
                                     </div>
                                 </div>
                                 <div class="col-md-12">
+
+                                    <?php if ($successMessage): ?>
+
+                                        <div class='alert alert-success'><?php echo $successMessage; ?></div>
+                                    <?php endif; ?>
+
+                                    <?php if (isset($errors['general'])): ?>
+                                        <div class='alert alert-danger'><?php echo $errors['general']; ?>
+                                        </div>
+                                    <?php endif; ?>
                                     <?php
 
                                     $name = $user['username'];

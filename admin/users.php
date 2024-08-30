@@ -15,97 +15,12 @@ $userRepository = new UserRepository($conn);
 $userManager = new UserManager($userRepository);
 $userFacade = new UserManagementFacade($userManager, new RoleManager($db), new ProfileManager($db));
 
-// Handle different actions based on the request
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $action = isset($_POST['action']) ? $_POST['action'] : '';
-
-    switch ($action) {
-        case 'register':
-            $name = $_POST['name'];
-            $email = $_POST['email'];
-            $password = $_POST['password'];
-            $password1 = $_POST['password1'];
-            $role_type = $_POST['role'];
-
-            // Validate the data
-            $errors = $userManager->validateUserData($name, $email, $password, $password1, $role_type);
-
-            if (empty($errors)) {
-                try {
-                    $userFacade->registerUser([
-                        'username' => $name,
-                        'email' => $email,
-                        'password' => $password,
-                        'role_type' => $role_type,
-                    ]);
-                    echo "User registered successfully!";
-                } catch (Exception $e) {
-                    echo "Error: " . $e->getMessage();
-                }
-            } else {
-                // Return or display errors
-                foreach ($errors as $key => $error) {
-                    echo $error . "<br>";
-                }
-            }
-            break;
-
-        case 'delete':
-            $user_id = $_POST['user_id'];
-            try {
-                $userManager->deleteUser($user_id);
-                echo "User deleted successfully!";
-            } catch (Exception $e) {
-                echo "Error: " . $e->getMessage();
-            }
-            break;
-
-        case 'updateRole':
-            $user_id = $_POST['user_id'];
-            $role_id = $_POST['role_id'];
-            try {
-                $userManager->updateUserRole($user_id, $role_id);
-                echo "User role updated successfully!";
-            } catch (Exception $e) {
-                echo "Error: " . $e->getMessage();
-            }
-            break;
-
-        case 'reactivate':
-            $user_id = $_POST['user_id'];
-            try {
-                $userManager->reactivateUser($user_id);
-                echo "User reactivated successfully!";
-            } catch (Exception $e) {
-                echo "Error: " . $e->getMessage();
-            }
-            break;
-
-            // Add more cases as needed
-    }
-}
-
-// If it's a GET request, perhaps for displaying user data
-// if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-//     $users = $userManager->getUsers();
-//     foreach ($users as $user) {
-//         echo "Username: " . htmlspecialchars($user['username']) . "<br>";
-//         echo "Email: " . htmlspecialchars($user['email']) . "<br>";
-//         echo "Role: " . htmlspecialchars($user['role_name']) . "<br>";
-//         echo "Status: " . ($user['is_active'] ? 'Active' : 'Inactive') . "<br>";
-//         echo "<hr>";
-//     }
-// }
-
-
-
-
-echo '<script type="text/javascript">
-$(function() {
-    // Show Bootstrap modal
-    $("#successModal").modal("show");
-});
-</script>';
+// echo '<script type="text/javascript">
+// $(function() {
+//     // Show Bootstrap modal
+//     $("#successModal").modal("show");
+// });
+// </script>';
 
 ?>
 <!-- Success Modal -->
@@ -156,6 +71,9 @@ $(function() {
                     $name = $email = $password = $password1 = $role_type = $active = "";
                     $errors = [];
                     $successMessage = '';
+                    $successM = '';
+                    $err = '';
+
 
 
                     if (isset($_POST['submitUser'])) {
@@ -164,6 +82,7 @@ $(function() {
 
 
                         if ($_SERVER["REQUEST_METHOD"] == "POST") {
+
                             $name = $_POST['name'] ?? '';
                             $email = $_POST['email'] ?? '';
                             $password = $_POST['password'] ?? '';
@@ -177,6 +96,8 @@ $(function() {
                                 $result = $userManager->addUser($name, $email, $password, $password1, (int)$role);
 
                                 if ($result['success']) {
+
+
                                     $successMessage = "User added successfully";
                                 } else {
                                     $errors = $result['errors'];
@@ -218,16 +139,25 @@ $(function() {
                             <div class="col-md-12">
 
 
+
+
                                 <?php if ($successMessage): ?>
 
                                     <div class='alert alert-success'><?php echo $successMessage; ?></div>
                                 <?php endif; ?>
 
                                 <?php if (isset($errors['general'])): ?>
-                                    <div class='alert alert-success'><?php echo $successMessage; ?>
+                                    <div class='alert alert-danger'><?php echo $errors['general']; ?>
                                     </div>
                                 <?php endif; ?>
 
+
+                                <?php
+                                if (isset($_SESSION['message'])) : ?>
+                                    <div class='alert alert-success'><?php echo $_SESSION['message'] ?></div>
+
+                                <?php unset($_SESSION['message']);
+                                endif; ?>
 
                                 <form role="form" method="post">
                                     <div class="form-group">
@@ -265,7 +195,10 @@ $(function() {
                                         <input type="password" name="password1" class="form-control"
                                             placeholder="Please Enter confirm password">
                                         <span style="color:red">
-                                            <?php if (isset($errors['passEM'])):
+                                            <?php if (isset($errors['passE'])):
+                                                echo $errors['passE'];
+                                            ?>
+                                            <?php elseif (isset($errors['passEM'])):
                                                 echo $errors['passEM'];
                                             endif; ?>
                                         </span>
@@ -298,6 +231,8 @@ $(function() {
                             </div>
                             </form>
 
+
+
                         </div>
 
                     </div>
@@ -318,33 +253,43 @@ $(function() {
 
                     <?php
                     if (isset($_GET['action'], $_GET['id'])) {
-                        $id = $_GET['id'];
+                        $user_id = $_GET['id'];
                         switch ($_GET['action']) {
                             case "delete":
-                                $stm = $conn->prepare("delete from Users where user_id=:user_id");
-                                $stm->execute(array("user_id" => $id));
-                                if ($stm->rowCount() == 1) {
 
-                                    $successMessage = "<div class='alert alert-success'> One Row Deleted</div>";
-                                    echo "<script>
-                           
-                                        window.open('users.php','_self');
-                                        </script> ";
+                                $delete = $userRepository->deleteUser($user_id);
+                                if ($delete == 1) {
+                                    // $successM = "User deleted successfully";
+                                    $_SESSION['message'] = "User deleted successfully";
+                                    echo " <script> window.open('users.php','_self');
+                                    </script> ";
+                                } else {
+                                    $err = 'errors';
+                                    // $errors = $delete['errors'];
                                 }
-
                                 break;
 
-
                             default:
-                                echo "ERROR";
+                                $errors = $result['errors'];
                                 break;
                         }
                     }
 
-
                     ?>
                     <div class="panel-body">
+
+                        <?php if ($successM): ?>
+
+                            <div class='alert alert-success'><?php echo $successM; ?></div>
+                        <?php endif; ?>
+
+                        <?php if (isset($errors['general'])): ?>
+                            <div class='alert alert-danger'><?php echo $errors['general']; ?>
+                            </div>
+                        <?php endif; ?>
+
                         <div class="table-responsive">
+
                             <table class="table table-striped table-bordered table-hover" id="dataTables-example">
                                 <thead>
                                     <tr>
