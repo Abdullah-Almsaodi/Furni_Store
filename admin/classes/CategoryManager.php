@@ -49,7 +49,7 @@ class CategoryManager
 
         // Validate name
         if (empty($description)) {
-            $errors['cdescription'] = "<div style='color:red'>Category description is required </div>";
+            $errors['cdescription'] = "Category description is required ";
         }
 
         return $errors;
@@ -58,12 +58,27 @@ class CategoryManager
 
     public function editCategory($id, $name, $description)
     {
+
+        // Validate the category data
+        $errors = $this->validateCategoryData($name, $description);
+
+        if (!empty($errors)) {
+            // Return errors if validation fails
+            return ['success' => false, 'errors' => $errors];
+        }
+
         $query = "UPDATE categories SET name = :name, description = :description WHERE category_id = :id";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':name', $name);
         $stmt->bindParam(':description', $description);
         $stmt->bindParam(':id', $id);
-        return $stmt->execute();
+
+
+        if ($stmt->execute()) {
+            return ['success' => true];
+        } else {
+            return ['success' => false, 'errors' => ['general' => 'Failed to update categories']];
+        }
     }
 
     public function deleteCategory($id)

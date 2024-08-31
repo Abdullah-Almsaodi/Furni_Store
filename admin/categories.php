@@ -32,7 +32,7 @@ $categories = $categoryManager->getCategories();
                     <div class="panel-body">
                         <div class="row">
                             <?php
-                            $successMessage = '';
+                            $successMessage = $successM = $err = '';
 
                             $errors = [];
                             if (isset($_POST['submit'])) {
@@ -62,6 +62,14 @@ $categories = $categoryManager->getCategories();
                                     <div class='alert alert-danger'><?php echo $errors['general']; ?>
                                     </div>
                                 <?php endif; ?>
+
+
+                                <?php
+                                if (isset($_SESSION['message'])) : ?>
+                                    <div class='alert alert-success'><?php echo $_SESSION['message'] ?></div>
+
+                                <?php unset($_SESSION['message']);
+                                endif; ?>
 
                                 <form role="form" method="post">
                                     <div class="form-group">
@@ -110,9 +118,9 @@ $categories = $categoryManager->getCategories();
                             case "delete":
                                 $result = $categoryManager->deleteCategory($id);
                                 if ($result) {
-                                    echo "<div class='alert alert-success'>One Row Deleted</div>";
+                                    $successM = "categories deleted successfully";
                                 } else {
-                                    echo "<div class='alert alert-danger'>Failed to Delete Row</div>";
+                                    $err = 'categories not deleted ';
                                 }
                                 break;
                             default:
@@ -122,6 +130,16 @@ $categories = $categoryManager->getCategories();
                     }
                     ?>
                     <div class="panel-body">
+
+                        <?php if ($successM): ?>
+
+                            <div class='alert alert-success'><?php echo $successM; ?></div>
+                        <?php endif; ?>
+
+                        <?php if (isset($errors['general'])): ?>
+                            <div class='alert alert-danger'><?php echo $errors['general']; ?>
+                            </div>
+                        <?php endif; ?>
                         <div class="table-responsive">
                             <table class="table table-striped table-bordered table-hover" id="dataTables-example">
                                 <thead>

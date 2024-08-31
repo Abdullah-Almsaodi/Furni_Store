@@ -3,9 +3,9 @@
     require_once 'config.php'; // Database configuration
     require_once 'classes/Database.php';
     require_once 'classes/UserManager.php';
-    require_once 'classes/UserRepository.php';
+    require_once 'classes/Repository/UserRepository.php';
     require_once 'classes/RoleManager.php';
-    session_start();
+
 
 
     $db = new Database();
