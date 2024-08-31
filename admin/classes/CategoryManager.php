@@ -17,7 +17,6 @@ class CategoryManager
 
         if (!empty($errors)) {
             // Return errors if validation fails
-            // return $errors;
             return ['success' => false, 'errors' => $errors];
         }
 
