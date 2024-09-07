@@ -1,96 +1,100 @@
-<!-- <?php
-        // Check if a session is already active
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
+<?php
+session_start();
 
-        // Check if the user is registered
-        $isRegistered = false; // Replace with your logic to determine if the user is registered
+// Check if the user is authenticated
+if (!isset($_SESSION['user_id'])) {
+    // Redirect to the login page if the user is not logged in
+    header("Location: ../login.php");
+    exit;
+}
 
-        // Example: Check if the user is logged in
-        if (isset($_SESSION['user_id'])) {
-            $isRegistered = true;
-        }
+// Check if the user has the necessary role or permission
+if ($_SESSION['role'] !== 'Admin') {
+    // Redirect to an unauthorized page or show an error message
+    header("Location: ../unauthorized.php");
+    exit;
+}
 
-        ?> -->
+// If the user is authenticated and has the admin role, proceed with displaying the admin dashboard
+
+// Include your necessary files and functions
+// require_once('../functions.php');
+
+// Retrieve and display the necessary data and functionality for the admin dashboard
 
 
-<!doctype html>
-<html lang="en">
+
+
+
+// Other admin dashboard content goes here
+
+?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="author" content="Untree.co">
-    <link rel="shortcut icon" href="favicon.png">
-
-    <meta name="description" content="" />
-    <meta name="keywords" content="bootstrap, bootstrap4" />
-
-    <!-- Render all elements normally  -->
-    <link href="css/nrmalize.css" rel="stylesheet">
-
-    <!-- Font Awesome Library -->
-    <link href="plugins/fontawesome/css/all.min.css" rel="stylesheet">
-
-    <!-- Bootstrap CSS -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/tiny-slider.css" rel="stylesheet">
-    <link href="css/style.css" rel="stylesheet">
-    <title>Furni Free Bootstrap 5 Template for Furniture and Interior Design Websites by Untree.co </title>
-
-
-    <!-- <style>
-        a {
-            font-size: 17px;
-        }
-    </style> -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Free Bootstrap Admin Template : Binary Admin</title>
+    <!-- BOOTSTRAP STYLES-->
+    <link href="assets/css/bootstrap.css" rel="stylesheet" />
+    <!-- FONTAWESOME STYLES-->
+    <link href="assets/css/font-awesome.css" rel="stylesheet" />
+    <!-- MORRIS CHART STYLES-->
+    <link href="assets/js/morris/morris-0.4.3.min.css" rel="stylesheet" />
+    <!-- CUSTOM STYLES-->
+    <link href="assets/css/custom.css" rel="stylesheet" />
+    <!-- GOOGLE FONTS-->
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css' />
 </head>
 
 <body>
-
-    <!-- Start Header/Navigation -->
-    <nav class="custom-navbar navbar navbar navbar-expand-md navbar-dark bg-dark" id="nav" arial-label="Furni navigation bar">
-
-        <div class="container">
-            <a class="navbar-brand" href="index.php">Furni </a>
-            <a href="index.php"><img src="favicon.png" alt="icon images"></a>
-
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsFurni" aria-controls="navbarsFurni" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div class="collapse navbar-collapse" id="navbarsFurni">
-                <ul class="custom-navbar-nav navbar-nav ms-auto mb-2 mb-md-0">
-                    <li class="nav-item active">
-                        <a class="nav-link" href="index.php">Home</a>
-                    </li>
-                    <li><a class="nav-link" href="products.php">Products</a></li>
-                    <li><a class="nav-link" href="about.php">About us</a></li>
-                    <li><a class="nav-link" href="services.php">Services</a></li>
-                    <li><a class="nav-link" href="blog.php">Blog</a></li>
-                    <!--    <li><a class="nav-link" href="test.php">test</a></li> -->
-                    <li><a class="nav-link" href="contact.php">Contact us</a></li>
-                    <li><a class="nav-link" href="cart.php"><img src="images/cart.svg"></a></li>
-                </ul>
-
-                <ul class="custom-navbar-nav navbar-nav ms-auto mb-2 mb-md-0">
-                    <?php
-                    // Check if the user is registered
-
-                    if ($isRegistered) {
-                        // User is registered, display profile link
-                        echo '<li><a class="nav-link" href="profile.php"><img src="images/user.svg"></a></li>';
-                        echo '<li><a class="nav-link" href="admin/logout.php"><i class="fas fa-sign-out-alt"></i></a></li>';
-                    } else {
-                        // User is not registered, display login link
-                        echo '<li><a class="nav-link" href="login.php">Login</a></li>';
-                        echo '<li><a class="nav-link" href="register.php">Register</a></li>';
-                    }
-                    ?>
-                </ul>
+    <div id="wrapper">
+        <nav class="navbar navbar-default navbar-cls-top " role="navigation" style="margin-bottom: 0">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".sidebar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="index.php">Dashboard</a>
             </div>
-        </div>
+            <div style="color: white;
+padding: 15px 50px 5px 50px;
+float: right;
+font-size: 16px;">
 
-    </nav>
-    <!-- End Header/Navigation -->
+                <!-- Example: Display the logged-in user's information "! This is the admin dashboard." -->
+                <span><?php echo "Welcome, " . $_SESSION['username']; ?></span>
+                <a href="logout.php" class="btn btn-success square-btn-adjust">Logout</a>
+                <a href="../index.php" class="btn btn-success square-btn-adjust">Home</a>
+            </div>
+        </nav>
+        <!-- /. NAV TOP  -->
+        <nav class="navbar-default navbar-side" role="navigation">
+            <div class="sidebar-collapse">
+                <ul class="nav" id="main-menu">
+                    <li>
+                        <a href="index.php"><i class="fa fa-dashboard"></i> Dashboard</a>
+                    </li>
+                    <li>
+                        <a href="users.php"><i class="fa fa-users "></i>Users</a>
+                    </li>
+                    <li>
+                        <a href="categories.php"><i class="fa fa-tasks"></i>Categories </a>
+                    </li>
+                    <li>
+                        <a href="newproducts.php"><i class="fa fa-bars"></i>Products</a>
+                    </li>
+                    <li>
+                        <a href="database.php"><i class="fa fa-bars"></i>Database</a>
+                    </li>
+
+
+
+                </ul>
+
+            </div>
+
+        </nav>
