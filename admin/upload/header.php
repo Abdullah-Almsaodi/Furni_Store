@@ -85,7 +85,7 @@ font-size: 16px;">
                         <a href="categories.php"><i class="fa fa-tasks"></i>Categories </a>
                     </li>
                     <li>
-                        <a href="products.php"><i class="fa fa-bars"></i>Products</a>
+                        <a href="newproducts.php"><i class="fa fa-bars"></i>Products</a>
                     </li>
                     <li>
                         <a href="database.php"><i class="fa fa-bars"></i>Database</a>

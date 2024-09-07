@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 include('upload/header.php');
 require_once 'config.php'; // Database configuration
 require_once 'classes/ProductManager.php';
@@ -238,16 +238,14 @@ $products = $productManager->getProducts();
                                                 <td><img src="../images/<?php echo $product['image'] ?>" width="100px"
                                                         class="img-fluid"></td>
                                                 <td><?php echo   $product['price']; ?></td>
-                                                <td>
-                                                    <!--                                             
-                                            <?php
+                                                <td><?php
 
-                                            $pro = $productManager->getProductById($product_id);
+                                                    $pro = $productManager->getProductById($product_id);
 
-                                            foreach ($pro as $catRow) {
-                                                echo $catRow['name'];
-                                            }
-                                            ?> -->
+                                                    foreach ($pro as $catRow) {
+                                                        echo $catRow['name'];
+                                                    }
+                                                    ?>
                                                 </td>
 
                                                 <td>

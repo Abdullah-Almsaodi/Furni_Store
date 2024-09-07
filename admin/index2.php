@@ -1,12 +1,13 @@
-﻿<?php
+<?php
 // Include necessary files and initialize required objects
-include('upload/header.php');
+include('upload/h2.php');
 require_once 'config.php'; // Database configuration
 require_once 'classes/Database.php';
 require_once 'classes/UserManager.php';
 require_once 'classes/CategoryManager.php';
-require_once 'classes/ProductManager.php';
 require_once 'classes/Repository/UserRepository.php';
+
+
 
 
 
@@ -20,17 +21,10 @@ $productManager = new ProductManager($db);
 
 
 ?>
-<!-- /. NAV SIDE  -->
-<div id="page-wrapper">
-    <div id="page-inner">
-        <div class="row">
-            <div class="col-md-12">
-                <h2><i class="fa fa-dashboard "></i> Dashboard</h2>
 
-            </div>
-        </div>
-        <!-- /. ROW  -->
-        <hr />
+
+<main>
+    <div class="container-fluid px-4">
         <div class="row">
             <div class="col-md-4 col-sm-6 col-xs-6">
                 <div class="panel panel-back noti-box">
@@ -40,9 +34,11 @@ $productManager = new ProductManager($db);
                     <div class="text-box">
                         <p class="main-text">
                             <?php
-
                             $userNumber = $userManager->getUsers();
+
+
                             echo  count($userNumber);
+
 
                             ?>
 
@@ -51,7 +47,7 @@ $productManager = new ProductManager($db);
                         <br>
                         <br>
                     </div>
-                    <a href="users.php">
+                    <a href="users1.php">
                         <div class="panel-footer">
                             <span class="pull-left">View Details</span>
                             <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
@@ -67,6 +63,7 @@ $productManager = new ProductManager($db);
                     </span>
                     <div class="text-box">
                         <p class="main-text"> <?php
+
 
                                                 $productNumber = $productManager->getProducts();
                                                 echo  count($productNumber);
@@ -97,8 +94,6 @@ $productManager = new ProductManager($db);
                             $categoryNumber = $categoryManager->getCategories();
                             echo  count($categoryNumber);
 
-
-
                             ?> Categories</p>
                         <br>
                         <br>
@@ -116,12 +111,10 @@ $productManager = new ProductManager($db);
 
 
         </div>
-        <!-- /. PAGE INNER  -->
     </div>
-    <!-- /. PAGE WRAPPER  -->
-</div>
-<!-- /. WRAPPER  -->
+</main>
+
 
 <?php
-include('upload/footer.php');
+include('upload/f2.php');
 ?>
