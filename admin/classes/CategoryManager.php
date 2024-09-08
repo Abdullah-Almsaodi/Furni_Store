@@ -1,106 +1,69 @@
 <?php
 class CategoryManager
 {
-    private $conn;
+    private $categoryRepository;
 
-    public function __construct(Database $db)
+    public function __construct(CategoryRepository $categoryRepository)
     {
-        $this->conn = $db->connect();
+        $this->categoryRepository = $categoryRepository;
     }
-
-
 
     public function addCategory($name, $description)
     {
-        // Validate the category data
         $errors = $this->validateCategoryData($name, $description);
-
         if (!empty($errors)) {
-            // Return errors if validation fails
-            // return $errors;
             return ['success' => false, 'errors' => $errors];
         }
 
-        // If validation passes, insert the category into the database
-        $sql = "INSERT INTO categories (name, description) VALUES (:name, :description)";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bindParam(':name', $name);
-        $stmt->bindParam(':description', $description);
-
-        if ($stmt->execute()) {
-            // return true; // Indicate success
+        $added = $this->categoryRepository->addCategory($name, $description);
+        if ($added) {
             return ['success' => true];
         } else {
-            // return false; // Indicate failure
-            return ['success' => false, 'errors' => ['general' => 'Failed to add categories']];
+            return ['success' => false, 'errors' => ['general' => 'Failed to add category']];
         }
     }
-
-    public function validateCategoryData($name, $description)
-    {
-        $errors = [];
-
-        // Validate name
-        if (empty($name)) {
-            $errors['cname'] = "Category Name is required";
-        } elseif (is_numeric($name)) {
-            $errors['cname'] = "Enter String Name of Category";
-        }
-
-        // Validate name
-        if (empty($description)) {
-            $errors['cdescription'] = "Category description is required ";
-        }
-
-        return $errors;
-    }
-
 
     public function editCategory($id, $name, $description)
     {
-
-        // Validate the category data
         $errors = $this->validateCategoryData($name, $description);
-
         if (!empty($errors)) {
-            // Return errors if validation fails
             return ['success' => false, 'errors' => $errors];
         }
 
-        $query = "UPDATE categories SET name = :name, description = :description WHERE category_id = :id";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':name', $name);
-        $stmt->bindParam(':description', $description);
-        $stmt->bindParam(':id', $id);
-
-
-        if ($stmt->execute()) {
+        $updated = $this->categoryRepository->updateCategory($id, $name, $description);
+        if ($updated) {
             return ['success' => true];
         } else {
-            return ['success' => false, 'errors' => ['general' => 'Failed to update categories']];
+            return ['success' => false, 'errors' => ['general' => 'Failed to update category']];
         }
     }
 
     public function deleteCategory($id)
     {
-        $query = "DELETE FROM categories WHERE category_id = :id";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':id', $id);
-        return $stmt->execute();
+        return $this->categoryRepository->deleteCategory($id);
     }
 
     public function getCategories()
     {
-        $query = "SELECT * FROM categories";
-        $stmt = $this->conn->query($query);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $this->categoryRepository->getAllCategories();
     }
 
-
-    public function getCategoriesById($id)
+    public function getCategoryById($id)
     {
-        $stmt = $this->conn->prepare("SELECT * FROM categories WHERE category_id = :id");
-        $stmt->execute(['id' => $id]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        return $this->categoryRepository->getCategoryById($id);
+    }
+
+    private function validateCategoryData($name, $description)
+    {
+        $errors = [];
+        if (empty($name)) {
+            $errors['cname'] = "Category Name is required";
+        } elseif (is_numeric($name)) {
+            $errors['cname'] = "Enter String Name of Category";
+        }
+        if (empty($description)) {
+            $errors['cdescription'] = "Category description is required ";
+        }
+        return $errors;
     }
 }

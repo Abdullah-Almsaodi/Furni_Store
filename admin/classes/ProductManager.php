@@ -5,7 +5,7 @@ class ProductManager
 
     public function __construct(Database $db)
     {
-        $this->conn = $db->connect();
+        $this->conn = $db->getInstance()->getConnection();
     }
 
     public function addProduct($name, $description, $price, $category_id, $image_path)

@@ -5,7 +5,7 @@ class ProductRepository
 
     public function __construct(Database $db)
     {
-        $this->conn = $db->connect();
+        $this->conn = $db->getInstance()->getConnection();
     }
 
     public function find($id)
