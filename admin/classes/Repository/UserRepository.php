@@ -3,24 +3,28 @@
 class UserRepository
 {
     private $conn;
+    private $passwordService;
+    private $userValidator;
 
-    public function __construct(PDO $conn)
+    public function __construct(PDO $conn, PasswordService $passwordService, UserValidator $userValidator)
     {
         $this->conn = $conn;
+        $this->passwordService = $passwordService;
+        $this->userValidator = $userValidator;
     }
 
-    public function isEmailExist($email): bool
+    public function addUser($username, $email, $password, $activationToken, $role_id)
     {
-        $query = "SELECT user_id FROM users WHERE email = :email";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':email', $email);
-        $stmt->execute();
+        // Validate user data
+        $errors = $this->userValidator->validate($username, $email, $password);
+        if (!empty($errors)) {
+            return ['success' => false, 'errors' => $errors];
+        }
 
-        return $stmt->rowCount() > 0;
-    }
+        // Hash password using PasswordService
+        $hashedPassword = $this->passwordService->hashPassword($password);
 
-    public function addUser($username, $email, $hashedPassword, $activationToken, $role_id)
-    {
+        // Insert new user
         $query = "INSERT INTO users (username, email, password, activation_token, role_id) 
                   VALUES (:username, :email, :password, :activation_token, :role_id)";
         $stmt = $this->conn->prepare($query);
@@ -37,12 +41,28 @@ class UserRepository
         return $this->conn->lastInsertId();
     }
 
+    public function isEmailExist($email): bool
+    {
+        $query = "SELECT user_id FROM users WHERE email = :email";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':email', $email);
+        $stmt->execute();
 
+        return $stmt->rowCount() > 0;
+    }
 
     public function updateUser($id, $name, $email, $password, $role, $active)
     {
-        $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+        // Validate updated user data
+        $errors = $this->userValidator->validate($name, $email, $password);
+        if (!empty($errors)) {
+            return ['success' => false, 'errors' => $errors];
+        }
 
+        // Hash password
+        $hashedPassword = $this->passwordService->hashPassword($password);
+
+        // Update user in database
         $query = "UPDATE users SET username = :name, email = :email, password = :password, role_id = :role, is_active = :active WHERE user_id = :id";
         $stmt = $this->conn->prepare($query);
 
@@ -62,7 +82,6 @@ class UserRepository
         $stmt->execute(['id' => $id]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
-
 
     public function getAllUsers(): array
     {
@@ -96,15 +115,7 @@ class UserRepository
             throw new Exception("Failed to delete user: " . $stmt->errorInfo()[2]);
         }
 
-
-        // if ($stmt->rowCount() == 1) {
-        //     return ['success' => true];
-        // } else {
-        //     return ['success' => false, 'errors' => ['general' => 'Failed to delete user']];
-        // }
-
-        $code = $stmt->rowCount();
-        return $code;
+        return $stmt->rowCount();
     }
 
     public function updateUserRole($user_id, $role_id)
