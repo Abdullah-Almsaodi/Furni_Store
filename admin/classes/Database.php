@@ -1,5 +1,5 @@
 <?php
-//Modified Database Class with Singleton Pattern
+//Modified Database Class with Singleton Design Pattern 
 class Database
 {
     private static $instance = null; // Singleton instance
