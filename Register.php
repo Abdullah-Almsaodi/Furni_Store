@@ -61,7 +61,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
             $activation_token = bin2hex(random_bytes(16));
 
-            $query = "INSERT INTO Users (name, email,role_id, password, activation_token) VALUES (:name, :email, :role_type, :password, :activation_token)";
+            $query = "INSERT INTO Users (username, email,role_id, password, activation_token) VALUES (:name, :email, :role_type, :password, :activation_token)";
             $stmt = $db->prepare($query);
             $stmt->bindParam(':name', $name);
             $stmt->bindParam(':email', $email);

@@ -1,0 +1,60 @@
+furni-store/
+├── api/                  # API-related files
+│   ├── index.php         # Entry point for API requests
+│   ├── routes.php        # API route mappings
+│   ├── controllers/      # API controllers for handling requests
+│   │   ├── UserController.php
+│   │   ├── ProductController.php
+│   │   └── CategoryController.php
+│   ├── models/           # Data models
+│   │   ├── User.php
+│   │   ├── Product.php
+│   │   └── Category.php
+│   └── utils/            # Helper functions (validation, error handling)
+│       ├── Validator.php
+│       ├── Response.php
+│       └── JWT.php
+├── admin/                # Admin panel assets
+│   ├── assets/           # Static assets (images, etc.)
+│   ├── css/              # Admin CSS styles
+│   ├── js/               # Admin JavaScript files
+│   ├── classes/          # Business logic classes
+│   │   ├── CategoryManager.php
+│   │   ├── Database.php  # Singleton Pattern for DB connection
+│   │   ├── ProductManager.php
+│   │   ├── UserManager.php
+│   │   └── Repository/   # Database interaction layer
+│   │       ├── CategoryRepository.php
+│   │       ├── ProductRepository.php
+│   │       └── UserRepository.php
+│   ├── templates/        # Reusable template files
+│   │   ├── header.php
+│   │   └── footer.php
+│   ├── pages/            # Admin pages (products, categories, users, etc.)
+│   │   ├── index.php
+│   │   ├── products.php
+│   │   ├── categories.php
+│   │   ├── users.php
+│   └── auth/             # Authentication files
+│       ├── login.php
+│       └── register.php
+├── public/               # Frontend pages and assets
+│   ├── css/              # Frontend CSS
+│   ├── js/               # Frontend JS
+│   ├── images/           # Frontend images
+│   ├── index.php         # Home page
+│   ├── shop.php          # Product listing page
+│   ├── product.php       # Single product page
+│   ├── cart.php          # Shopping cart
+│   └── contact.php       # Contact page
+├── uploads/              # File uploads
+│   ├── product_images/
+│   └── user_images/
+├── tests/                # Unit tests
+│   ├── ProductTest.php
+│   ├── UserTest.php
+│   └── CategoryTest.php
+├── vendor/               # External libraries (if any)
+├── .env                  # Environment variables (DB credentials, API keys)
+├── .htaccess             # Apache configuration for routing
+└── README.md             # Project documentation
