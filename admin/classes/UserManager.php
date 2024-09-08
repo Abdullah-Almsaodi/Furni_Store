@@ -9,63 +9,47 @@ class UserManager
         $this->userRepository = $userRepository;
     }
 
-    // Consistently named method
-    public function test_input($data)
+    // Function to sanitize input
+    private function sanitizeInput($data)
     {
         return htmlspecialchars(stripslashes(trim($data)));
     }
 
-    // Updated to use parameters instead of $_POST
-    public function validateUserData($name, $email, $password, $password1, $role, $active = 1)
+    // Separate function for validation logic
+    public function validateUserData($name, $email, $password, $password1, $role, $active = 1): array
     {
         $errors = [];
 
         // Validate Name
         if (empty($name)) {
             $errors['nameE'] = "Name is required";
-        } else {
-            $name = $this->test_input($name);
-            if (!preg_match("/^[a-zA-Z-' ]*$/", $name)) {
-                $errors['nameE'] = "Only letters and white space allowed";
-            }
+        } elseif (!preg_match("/^[a-zA-Z-' ]*$/", $name)) {
+            $errors['nameE'] = "Only letters and white space allowed";
         }
 
         // Validate Email
         if (empty($email)) {
             $errors['emailE'] = "Email is required";
-        } else {
-            $email = $this->test_input($email);
-            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                $errors['emailE'] = "Invalid email format";
-            }
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors['emailE'] = "Invalid email format";
         }
 
         // Validate Passwords
         if (empty($password) || empty($password1)) {
             $errors['passE'] = "Password is required";
-        } else {
-            $password = $this->test_input($password);
-            $password1 = $this->test_input($password1);
-            if ($password !== $password1) {
-                $errors['passEM'] = "Passwords do not match.";
-            }
+        } elseif ($password !== $password1) {
+            $errors['passEM'] = "Passwords do not match.";
         }
 
         // Validate Role
         if (empty($role)) {
             $errors['roleE'] = "Role is required";
-        } else {
-            $role = $this->test_input($role);
         }
 
-        // Validate active
-        if (empty($active)) {
-            $errors['activeE'] = "Active is required";
-        } else {
-            $active = $this->test_input($active);
+        // Validate active status
+        if (!is_bool($active)) {
+            $errors['activeE'] = "Invalid active status";
         }
-
-        // Active status can be validated here if needed
 
         return $errors;
     }
@@ -88,57 +72,48 @@ class UserManager
         return bin2hex(random_bytes(16));
     }
 
-    // Add user
-    public function addUser(string $username, string $email, string $password, string $password1, int $role_id)
+    // Add user method
+    public function addUser(string $username, string $email, string $password, string $password1, int $role_id): array
     {
+        // Check if email already exists
         if ($this->isEmailExist($email)) {
             return ['success' => false, 'errors' => ['general' => 'A user with that email already exists.']];
         }
 
+        // Validate user data
         $errors = $this->validateUserData($username, $email, $password, $password1, $role_id);
         if (!empty($errors)) {
             return ['success' => false, 'errors' => $errors];
         }
 
+        // Hash the password and generate activation token
         $hashedPassword = $this->hashPassword($password);
         $activationToken = $this->generateActivationToken();
 
-        $add = $this->userRepository->addUser($username, $email, $hashedPassword, $activationToken, $role_id);
-        if ($add) {
-            return ['success' => true];
-        } else {
-            return ['success' => false, 'errors' => ['general' => 'Failed to add user']];
-        }
+        // Add the user via repository
+        $added = $this->userRepository->addUser($username, $email, $hashedPassword, $activationToken, $role_id);
+        return $added ? ['success' => true] : ['success' => false, 'errors' => ['general' => 'Failed to add user']];
     }
 
-    // Update user
-    public function updateUser($id, $name, $email, $password, $password1, $role, $active)
+    // Update user method
+    public function updateUser(int $id, string $name, string $email, ?string $password, string $password1, int $role, int $active): array
     {
-        // Validate inputs
+        // Validate input data
         $errors = $this->validateUserData($name, $email, $password, $password1, $role, $active);
         if (!empty($errors)) {
             return ['success' => false, 'errors' => $errors];
         }
 
-        // Hash password if provided
-        if (!empty($password)) {
-            $hashedPassword = $this->hashPassword($password);
-        } else {
-            // If password is empty, do not update it
-            $hashedPassword = null;
-        }
+        // Hash password only if provided
+        $hashedPassword = !empty($password) ? $this->hashPassword($password) : null;
 
-        // Update user in repository
+        // Update user through repository
         $updated = $this->userRepository->updateUser($id, $name, $email, $hashedPassword, $role, $active);
-        if ($updated) {
-            return ['success' => true];
-        } else {
-            return ['success' => false, 'errors' => ['general' => 'Failed to update user']];
-        }
+        return $updated ? ['success' => true] : ['success' => false, 'errors' => ['general' => 'Failed to update user']];
     }
 
     // Get user by ID
-    public function getUserById($id)
+    public function getUserById(int $id)
     {
         return $this->userRepository->getUserById($id);
     }
@@ -155,17 +130,11 @@ class UserManager
         $this->userRepository->softDeleteUser($user_id);
     }
 
-    // Delete user
-    public function deleteUser(int $user_id)
+    // Hard delete user
+    public function deleteUser(int $user_id): array
     {
-
-        $delete = $this->userRepository->deleteUser($user_id);
-
-        if ($delete == 1) {
-            return ['success' => true];
-        } else {
-            return ['success' => false, 'errors' => ['general' => 'Failed to delete user']];
-        }
+        $deleted = $this->userRepository->deleteUser($user_id);
+        return $deleted ? ['success' => true] : ['success' => false, 'errors' => ['general' => 'Failed to delete user']];
     }
 
     // Update user role
