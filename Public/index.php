@@ -1,8 +1,16 @@
 <!--   ////////.........start Footer tob bar................//////-->
 
 <?php
-include 'db_connect.php';
-include 'include\Header.php';
+require_once '../Public/db_connect.php'; // Database configuration
+// require_once '../admin/pages/config.php'; // Database configuration
+// require_once '../admin/classes/Database.php';
+
+
+// $db = new Database();
+// $db->getInstance()->getConnection();
+
+
+include '../include/Header.php';
 ?>
 <!--   ////////......... end Footer tob bar................//////-->
 <!--   -->
@@ -21,7 +29,7 @@ include 'include\Header.php';
             </div>
             <div class="col-lg-7">
                 <div class="hero-img-wrap">
-                    <img src="images/couch.png" class="img-fluid">
+                    <img src="../Public/images/couch.png" class="img-fluid">
                 </div>
             </div>
         </div>
@@ -58,17 +66,17 @@ include 'include\Header.php';
                     $productName = $product['name'];
                     $productPrice = $product['price'];
             ?>
-            <div class="col-12 col-md-4 col-lg-3 mb-5 mb-md-0">
-                <a class="product-item" href="cart.php">
-                    <img src="images/<?php echo $productImage; ?>" class="img-fluid product-thumbnail">
-                    <h3 class="product-title"><?php echo $productName; ?></h3>
-                    <strong class="product-price"><?php echo $productPrice; ?></strong>
+                    <div class="col-12 col-md-4 col-lg-3 mb-5 mb-md-0">
+                        <a class="product-item" href="cart.php">
+                            <img src="../Public/images/<?php echo $productImage; ?>" class="img-fluid product-thumbnail">
+                            <h3 class="product-title"><?php echo $productName; ?></h3>
+                            <strong class="product-price"><?php echo $productPrice; ?></strong>
 
-                    <span class="icon-cross">
-                        <img src="images/cross.svg" class="img-fluid">
-                    </span>
-                </a>
-            </div>
+                            <span class="icon-cross">
+                                <img src="../Public/images/cross.svg" class="img-fluid">
+                            </span>
+                        </a>
+                    </div>
             <?php
                 }
             } catch (PDOException $e) {
@@ -98,7 +106,7 @@ include 'include\Header.php';
                     <div class="col-6 col-md-6">
                         <div class="feature">
                             <div class="icon">
-                                <img src="images/truck.svg" alt="Image" class="imf-fluid">
+                                <img src="../Public/images/truck.svg" alt="Image" class="imf-fluid">
                             </div>
                             <h3>Fast &amp; Free Shipping</h3>
                             <p>Donec vitae odio quis nisl dapibus malesuada. Nullam ac aliquet velit. Aliquam vulputate.
@@ -109,7 +117,7 @@ include 'include\Header.php';
                     <div class="col-6 col-md-6">
                         <div class="feature">
                             <div class="icon">
-                                <img src="images/bag.svg" alt="Image" class="imf-fluid">
+                                <img src="../Public/images/bag.svg" alt="Image" class="imf-fluid">
                             </div>
                             <h3>Easy to products</h3>
                             <p>Donec vitae odio quis nisl dapibus malesuada. Nullam ac aliquet velit. Aliquam vulputate.
@@ -120,7 +128,7 @@ include 'include\Header.php';
                     <div class="col-6 col-md-6">
                         <div class="feature">
                             <div class="icon">
-                                <img src="images/support.svg" alt="Image" class="imf-fluid">
+                                <img src="../Public/images/support.svg" alt="Image" class="imf-fluid">
                             </div>
                             <h3>24/7 Support</h3>
                             <p>Donec vitae odio quis nisl dapibus malesuada. Nullam ac aliquet velit. Aliquam vulputate.
@@ -131,7 +139,7 @@ include 'include\Header.php';
                     <div class="col-6 col-md-6">
                         <div class="feature">
                             <div class="icon">
-                                <img src="images/return.svg" alt="Image" class="imf-fluid">
+                                <img src="../Public/images/return.svg" alt="Image" class="imf-fluid">
                             </div>
                             <h3>Hassle Free Returns</h3>
                             <p>Donec vitae odio quis nisl dapibus malesuada. Nullam ac aliquet velit. Aliquam vulputate.
@@ -144,7 +152,7 @@ include 'include\Header.php';
 
             <div class="col-lg-5">
                 <div class="img-wrap">
-                    <img src="images/why-choose-us-img.jpg" alt="Image" class="img-fluid">
+                    <img src="../Public/images/why-choose-us-img.jpg" alt="Image" class="img-fluid">
                 </div>
             </div>
 
@@ -159,9 +167,9 @@ include 'include\Header.php';
         <div class="row justify-content-between">
             <div class="col-lg-7 mb-5 mb-lg-0">
                 <div class="imgs-grid">
-                    <div class="grid grid-1"><img src="images/img-grid-1.jpg" alt="Untree.co"></div>
-                    <div class="grid grid-2"><img src="images/img-grid-2.jpg" alt="Untree.co"></div>
-                    <div class="grid grid-3"><img src="images/img-grid-3.jpg" alt="Untree.co"></div>
+                    <div class="grid grid-1"><img src="../public/images/img-grid-1.jpg" alt="Untree.co"></div>
+                    <div class="grid grid-2"><img src="../public/images/img-grid-2.jpg" alt="Untree.co"></div>
+                    <div class="grid grid-3"><img src="../public/images/img-grid-3.jpg" alt="Untree.co"></div>
                 </div>
             </div>
             <div class="col-lg-5 ps-lg-5">
@@ -203,18 +211,18 @@ include 'include\Header.php';
                     $image_url = $product['image'];
             ?>
 
-            <div class="col-12 col-md-6 col-lg-4 mb-4 mb-lg-0">
-                <div class="product-item-sm d-flex">
-                    <div class="thumbnail">
-                        <img src="images/<?php echo $image_url; ?>" alt="Image" class="img-fluid">
+                    <div class="col-12 col-md-6 col-lg-4 mb-4 mb-lg-0">
+                        <div class="product-item-sm d-flex">
+                            <div class="thumbnail">
+                                <img src="../public/images/<?php echo $image_url; ?>" alt="Image" class="img-fluid">
+                            </div>
+                            <div class="pt-3">
+                                <h3><?php echo $name; ?></h3>
+                                <p><?php echo $description; ?></p>
+                                <p><a href="#">Read More</a></p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="pt-3">
-                        <h3><?php echo $name; ?></h3>
-                        <p><?php echo $description; ?></p>
-                        <p><a href="#">Read More</a></p>
-                    </div>
-                </div>
-            </div>
 
             <?php
                 }
@@ -236,7 +244,7 @@ include 'include\Header.php';
 
 <!-- Start Testimonial Slider -->
 <?php
-include 'include/Testimonial.php';
+include '../include/Testimonial.php';
 ?>
 <!-- End Testimonial Slider -->
 
@@ -271,19 +279,19 @@ include 'include/Testimonial.php';
                     $image_url = $post['image_url'];
             ?>
 
-            <div class="col-12 col-sm-6 col-md-4 mb-4 mb-md-0">
-                <div class="post-entry">
-                    <a href="#" class="post-thumbnail"><img src="images/<?php echo $image_url; ?>" alt="Image"
-                            class="img-fluid"></a>
-                    <div class="post-content-entry">
-                        <h3><a href="#"><?php echo $title; ?></a></h3>
-                        <div class="meta">
-                            <span>by <a href="#"><?php echo $author; ?></a></span> <span>on <a
-                                    href="#"><?php echo $post_date; ?></a></span>
+                    <div class="col-12 col-sm-6 col-md-4 mb-4 mb-md-0">
+                        <div class="post-entry">
+                            <a href="#" class="post-thumbnail"><img src="../Public/images/<?php echo $image_url; ?>" alt="Image"
+                                    class="img-fluid"></a>
+                            <div class="post-content-entry">
+                                <h3><a href="#"><?php echo $title; ?></a></h3>
+                                <div class="meta">
+                                    <span>by <a href="#"><?php echo $author; ?></a></span> <span>on <a
+                                            href="#"><?php echo $post_date; ?></a></span>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
 
             <?php
                 }
@@ -299,7 +307,7 @@ include 'include/Testimonial.php';
 <!-- End Blog Section -->
 
 <!--   ////////.........start Footer tob bar................//////-->
-<?php include 'include\Footer.php'; ?>
+<?php include '../include/Footer.php'; ?>
 <!--   ////////.........end Footer tob bar................//////-->
 
 <script src="jquery/dist/jquery.min.js"></script>

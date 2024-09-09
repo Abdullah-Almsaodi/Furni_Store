@@ -65,5 +65,5 @@ class Database
     private function __clone() {}
 
     // Prevent unserialization of the instance
-    private function __wakeup() {}
+    //private function __wakeup() {}
 }

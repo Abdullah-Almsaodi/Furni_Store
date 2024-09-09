@@ -1,6 +1,6 @@
 <!--   ////////.........end Footer tob bar................//////-->
 <?php
-include 'include/Header.php';
+include '../include/Header.php';
 include 'db_connect.php';
 
 try {
@@ -78,7 +78,7 @@ try {
 </div>
 
 <!--   ////////.........start Footer tob bar................//////-->
-<?php include 'include\Footer.php'; ?>
+<?php include '../include/Footer.php'; ?>
 <!--   ////////.........end Footer tob bar................//////-->
 
 

@@ -1,25 +1,37 @@
 ﻿<?php
 // Include necessary files and initialize required objects
-include('upload/header.php');
+include('../templates/header.php');
 require_once 'config.php'; // Database configuration
-require_once 'classes/Database.php';
-require_once 'classes/UserManager.php';
-require_once 'classes/CategoryManager.php';
-require_once 'classes/ProductManager.php';
-require_once 'classes/Repository/UserRepository.php';
+require_once '../classes/Database.php';
+require_once '../classes/UserManager.php';
+require_once '../classes/CategoryManager.php';
+require_once '../classes/ProductManager.php';
+require_once '../classes/Repository/ProductRepository.php';
+require_once '../classes/Repository/UserRepository.php';
+require_once '../classes/PasswordService.php';
+require_once '../classes/UserValidator.php';
 
-
-
+// Initialize Database
 $db = new Database();
-$conn = $db->connect();
-$userRepository = new UserRepository($conn);
+$conn = $db->getInstance()->getConnection();
+
+// Initialize services
+$passwordService = new PasswordService();
+$userValidator = new UserValidator();
+
+// Initialize repositories with dependencies
+$userRepository = new UserRepository($conn, $passwordService, $userValidator);
+$categoryRepository = new CategoryRepository($conn);
+$productRepository = new ProductRepository($conn);
+
+// Initialize managers with repositories
 $userManager = new UserManager($userRepository);
-$categoryManager = new CategoryManager($db);
+$categoryManager = new CategoryManager($categoryRepository);
 $productManager = new ProductManager($db);
 
-
-
+// Your application logic goes here
 ?>
+
 <!-- /. NAV SIDE  -->
 <div id="page-wrapper">
     <div id="page-inner">
@@ -123,5 +135,5 @@ $productManager = new ProductManager($db);
 <!-- /. WRAPPER  -->
 
 <?php
-include('upload/footer.php');
+include('../templates/Footer.php');
 ?>

@@ -4,14 +4,14 @@ session_start();
 // Check if the user is authenticated
 if (!isset($_SESSION['user_id'])) {
     // Redirect to the login page if the user is not logged in
-    header("Location: ../login.php");
+    header("Location: ../Public/login.php");
     exit;
 }
 
 // Check if the user has the necessary role or permission
 if ($_SESSION['role'] !== 'Admin') {
     // Redirect to an unauthorized page or show an error message
-    header("Location: ../unauthorized.php");
+    header("Location: ../Public/unauthorized.php");
     exit;
 }
 
