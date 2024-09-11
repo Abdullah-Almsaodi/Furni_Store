@@ -1,15 +1,42 @@
 <?php
 session_start();
 
+// Include necessary files
+require_once '../pages/config.php';
+require_once '../classes/Database.php';
+require_once '../classes/Repository/UserRepository.php';
+require_once '../classes/PasswordService.php';
+require_once '../classes/UserValidator.php';
+
+// Get the database connection through the Singleton pattern
+$dbInstance = Database::getInstance();  // Correct way to get the database instance
+$conn = $dbInstance->getConnection();   // Get the actual connection
+
+// Initialize services
+$passwordService = new PasswordService();
+$userValidator = new UserValidator();
+
+// Initialize UserRepository with dependencies
+$userRepository = new UserRepository($conn, $passwordService, $userValidator);
+
 // Check if the user is authenticated
 if (!isset($_SESSION['user_id'])) {
     // Redirect to the login page if the user is not logged in
+    header("Location: ../../Public/login.php");
+    exit;
+}
+
+// Check if the user exists in the database
+$user = $userRepository->getUserById($_SESSION['user_id']);
+if (!$user) {
+    // If the user doesn't exist, log out and redirect to the login page
+    session_destroy();
     header("Location: ../Public/login.php");
     exit;
 }
 
 // Check if the user has the necessary role or permission
-if ($_SESSION['role'] !== 'Admin') {
+if ($user['role_id'] !== 'Admin') {
     // Redirect to an unauthorized page or show an error message
     header("Location: ../Public/unauthorized.php");
     exit;
@@ -17,18 +44,10 @@ if ($_SESSION['role'] !== 'Admin') {
 
 // If the user is authenticated and has the admin role, proceed with displaying the admin dashboard
 
-// Include your necessary files and functions
-// require_once('../functions.php');
-
-// Retrieve and display the necessary data and functionality for the admin dashboard
-
-
-
-
-
-// Other admin dashboard content goes here
+// Additional admin dashboard content or logic goes here
 
 ?>
+
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 
