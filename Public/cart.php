@@ -1,5 +1,14 @@
 <!--   ////////.........start Footer tob bar................//////-->
-<?php include 'include\Header.php'; ?>
+<?php
+include '../include/Header.php';
+require_once '../Public/db_connect.php'; // Database configuration
+// require_once '../admin/pages/config.php'; // Database configuration
+// require_once '../admin/classes/Database.php';
+
+
+// $db = new Database();
+// $db->getInstance()->getConnection();
+?>
 <!--   ////////.........end Footer tob bar................//////-->
 
 <!-- Start Hero Section -->
@@ -47,11 +56,15 @@
 								</td>
 								<td>$49.00</td>
 								<td>
-									<div class="input-group mb-3 d-flex align-items-center quantity-container" style="max-width: 120px;">
+									<div class="input-group mb-3 d-flex align-items-center quantity-container"
+										style="max-width: 120px;">
 										<div class="input-group-prepend">
-											<button class="btn btn-outline-black decrease" type="button">&minus;</button>
+											<button class="btn btn-outline-black decrease"
+												type="button">&minus;</button>
 										</div>
-										<input type="text" class="form-control text-center quantity-amount" value="1" placeholder="" aria-label="Example text with button addon" aria-describedby="button-addon1">
+										<input type="text" class="form-control text-center quantity-amount" value="1"
+											placeholder="" aria-label="Example text with button addon"
+											aria-describedby="button-addon1">
 										<div class="input-group-append">
 											<button class="btn btn-outline-black increase" type="button">&plus;</button>
 										</div>
@@ -71,11 +84,15 @@
 								</td>
 								<td>$49.00</td>
 								<td>
-									<div class="input-group mb-3 d-flex align-items-center quantity-container" style="max-width: 120px;">
+									<div class="input-group mb-3 d-flex align-items-center quantity-container"
+										style="max-width: 120px;">
 										<div class="input-group-prepend">
-											<button class="btn btn-outline-black decrease" type="button">&minus;</button>
+											<button class="btn btn-outline-black decrease"
+												type="button">&minus;</button>
 										</div>
-										<input type="text" class="form-control text-center quantity-amount" value="1" placeholder="" aria-label="Example text with button addon" aria-describedby="button-addon1">
+										<input type="text" class="form-control text-center quantity-amount" value="1"
+											placeholder="" aria-label="Example text with button addon"
+											aria-describedby="button-addon1">
 										<div class="input-group-append">
 											<button class="btn btn-outline-black increase" type="button">&plus;</button>
 										</div>
@@ -141,7 +158,8 @@
 
 						<div class="row">
 							<div class="col-md-12">
-								<button class="btn btn-black btn-lg py-3 btn-block" onclick="window.location='checkout.html'">Proceed To Checkout</button>
+								<button class="btn btn-black btn-lg py-3 btn-block"
+									onclick="window.location='checkout.html'">Proceed To Checkout</button>
 							</div>
 						</div>
 					</div>
@@ -155,7 +173,7 @@
 <br><br><br>
 <br><br><br>
 <!--   ////////.........start Footer tob bar................//////-->
-<?php include 'include\Footer.php'; ?>
+<?php include '../include/Footer.php'; ?>
 <!--   ////////.........end Footer tob bar................//////-->
 
 

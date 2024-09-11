@@ -59,7 +59,7 @@ if (isset($_POST['login'])) {
                 $_SESSION['role'] = $user['role_name'];
                 // Successful login
                 // Redirect to the desired page or perform any other actions
-                Header("Location:Admin/index.php");
+                Header("Location:../admin/pages/index.php");
                 exit();
             } elseif (password_verify($password, $user['password']) and $user['email'] == $email  and $user['role_name'] == "User" and $user['is_active'] == "1") {
 
@@ -103,7 +103,7 @@ function test_input($data)
 
 
 <?php
-include_once 'include\Header.php';
+include_once '../include/Header.php';
 ?>
 
 
@@ -175,9 +175,11 @@ include_once 'include\Header.php';
 
     <section class="signin-page account">
         <div class="container">
+
             <div class="user">
 
 
+                <div class="col-md-8"></div>
                 <div class="col-md-6 col-md-offset-3">
                     <div id="cont" class="block text-center">
                         <a href="/">
@@ -233,12 +235,16 @@ include_once 'include\Header.php';
                         <!-- <p class="mt-20"><a href="restpassword.php">Forgot Password?</a></p> -->
                     </div>
                 </div>
+
+
+
+
             </div>
         </div>
     </section>
 
     <?php
-    require_once('include\Footer.php');
+    require_once('../include/Footer.php');
     //require('dbconnect.php');
     ?>
 

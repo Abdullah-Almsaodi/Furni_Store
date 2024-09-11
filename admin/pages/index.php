@@ -7,13 +7,16 @@ require_once '../classes/UserManager.php';
 require_once '../classes/CategoryManager.php';
 require_once '../classes/ProductManager.php';
 require_once '../classes/Repository/ProductRepository.php';
+require_once '../classes/Repository/CategoryRepository.php';
 require_once '../classes/Repository/UserRepository.php';
 require_once '../classes/PasswordService.php';
 require_once '../classes/UserValidator.php';
 
 // Initialize Database
-$db = new Database();
-$conn = $db->getInstance()->getConnection();
+
+$db = Database::getInstance();
+$conn = $db->getConnection();
+
 
 // Initialize services
 $passwordService = new PasswordService();
@@ -21,7 +24,7 @@ $userValidator = new UserValidator();
 
 // Initialize repositories with dependencies
 $userRepository = new UserRepository($conn, $passwordService, $userValidator);
-$categoryRepository = new CategoryRepository($conn);
+$categoryRepository = new CategoryRepository($db);
 $productRepository = new ProductRepository($conn);
 
 // Initialize managers with repositories

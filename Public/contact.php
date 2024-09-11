@@ -1,5 +1,17 @@
 <!--   ////////.........start Footer tob bar................//////-->
-<?php include 'include\Header.php'; ?>
+<?php
+include '../include/Header.php';
+require_once '../Public/db_connect.php'; // Database configuration
+// require_once '../admin/pages/config.php'; // Database configuration
+// require_once '../admin/classes/Database.php';
+
+
+// $db = new Database();
+// $db->getInstance()->getConnection();
+
+
+
+?>
 <!--   ////////.........end Footer tob bar................//////-->
 
 <!-- Start Hero Section -->
@@ -131,7 +143,7 @@
 
 
 <!--   ////////.........start Footer tob bar................//////-->
-<?php include 'include\Footer.php'; ?>
+<?php include '../include/Footer.php'; ?>
 <!--   ////////.........end Footer tob bar................//////-->
 
 

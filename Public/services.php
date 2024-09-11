@@ -1,7 +1,15 @@
 <!--   ////////.........start Footer tob bar................//////-->
 <?php
-include 'include\Header.php';
-include 'db_connect.php';
+include '../include/Header.php';
+require_once '../Public/db_connect.php'; // Database configuration
+// require_once '../admin/pages/config.php'; // Database configuration
+// require_once '../admin/classes/Database.php';
+
+
+// $db = new Database();
+// $db->getInstance()->getConnection();
+
+
 
 
 ?>
@@ -17,7 +25,8 @@ include 'db_connect.php';
                     <h1>Services</h1>
                     <p class="mb-4">Donec vitae odio quis nisl dapibus malesuada. Nullam ac aliquet velit. Aliquam
                         vulputate velit imperdiet dolor tempor tristique.</p>
-                    <p><a href="" class="btn btn-secondary me-2">products Now</a><a href="#" class="btn btn-white-outline">Explore</a></p>
+                    <p><a href="" class="btn btn-secondary me-2">products Now</a><a href="#"
+                            class="btn btn-white-outline">Explore</a></p>
                 </div>
             </div>
             <div class="col-lg-7">
@@ -179,13 +188,13 @@ include 'db_connect.php';
 
 <!-- Start Testimonial Slider -->
 <?php
-include 'include/Testimonial.php';
+include '../include/Testimonial.php';
 ?>
 <!-- End Testimonial Slider -->
 
 
 <!--   ////////.........start Footer tob bar................//////-->
-<?php include 'include\Footer.php'; ?>
+<?php include '../include/Footer.php'; ?>
 <!--   ////////.........end Footer tob bar................//////-->
 
 

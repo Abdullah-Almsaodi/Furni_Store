@@ -126,7 +126,7 @@ function test_input($data)
 
 <!-- Registration form HTML here -->
 <?php
-include_once 'include\Header.php';
+include_once '../include/Header.php';
 ?>
 
 
@@ -149,7 +149,7 @@ include_once 'include\Header.php';
     <meta name="generator" content="Yem-Yem Supermarket">
 
     <!-- Favicon -->
-    <link rel="shortcut icon" type="image/x-icon" href="images/favicon.png" />
+    <link rel="shortcut icon" type="image/x-icon" href="../Public/images/favicon.png" />
 
     <link rel="stylesheet" href="plugins/themefisher-font/style.css">
     <!-- bootstrap.min css -->
@@ -247,7 +247,7 @@ include_once 'include\Header.php';
     <!-- Footer -->
     <?php
 
-    include "include\Footer.php";
+    include "../include/Footer.php";
 
     ?>
 
