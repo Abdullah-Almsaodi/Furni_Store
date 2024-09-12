@@ -3,10 +3,14 @@
 class UserManager
 {
     private $userRepository;
+    private $passwordService;
+    private $userValidator;
 
-    public function __construct(UserRepository $userRepository)
+    public function __construct(UserRepository $userRepository, PasswordService $passwordService, UserValidator $userValidator)
     {
         $this->userRepository = $userRepository;
+        $this->passwordService = $passwordService;
+        $this->userValidator = $userValidator;
     }
 
     // Function to sanitize input
@@ -15,79 +19,20 @@ class UserManager
         return htmlspecialchars(stripslashes(trim($data)));
     }
 
-    // Separate function for validation logic
-    public function validateUserData($name, $email, $password, $password1, $role, $active = 1): array
-    {
-        $errors = [];
 
-        // Validate Name
-        if (empty($name)) {
-            $errors['nameE'] = "Name is required";
-        } elseif (!preg_match("/^[a-zA-Z-' ]*$/", $name)) {
-            $errors['nameE'] = "Only letters and white space allowed";
-        }
 
-        // Validate Email
-        if (empty($email)) {
-            $errors['emailE'] = "Email is required";
-        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $errors['emailE'] = "Invalid email format";
-        }
-
-        // Validate Passwords
-        if (empty($password) || empty($password1)) {
-            $errors['passE'] = "Password is required";
-        } elseif ($password !== $password1) {
-            $errors['passEM'] = "Passwords do not match.";
-        }
-
-        // Validate Role
-        if (empty($role)) {
-            $errors['roleE'] = "Role is required";
-        }
-
-        // Validate active status
-        if (!is_bool($active)) {
-            $errors['activeE'] = "Invalid active status";
-        }
-
-        return $errors;
-    }
-
-    // Check if email exists
-    public function isEmailExist(string $email): bool
-    {
-        return $this->userRepository->isEmailExist($email);
-    }
-
-    // Hash password
-    public function hashPassword(string $password): string
-    {
-        return password_hash($password, PASSWORD_BCRYPT);
-    }
-
-    // Generate activation token
-    public function generateActivationToken(): string
-    {
-        return bin2hex(random_bytes(16));
-    }
-
-    // Add user method
     public function addUser(string $username, string $email, string $password, string $password1, int $role_id): array
     {
-        // Check if email already exists
-        if ($this->isEmailExist($email)) {
-            return ['success' => false, 'errors' => ['general' => 'A user with that email already exists.']];
-        }
-
         // Validate user data
-        $errors = $this->validateUserData($username, $email, $password, $password1, $role_id);
+        $errors = $this->userValidator->validate($username, $email, $password, $password1, $role_id);
         if (!empty($errors)) {
             return ['success' => false, 'errors' => $errors];
         }
 
-        // Hash the password and generate activation token
-        $hashedPassword = $this->hashPassword($password);
+        // Hash password using PasswordService
+        $hashedPassword = $this->passwordService->hashPassword($password);
+
+        // Generate activation token
         $activationToken = $this->generateActivationToken();
 
         // Add the user via repository
@@ -95,20 +40,21 @@ class UserManager
         return $added ? ['success' => true] : ['success' => false, 'errors' => ['general' => 'Failed to add user']];
     }
 
+
     // Update user method
-    public function updateUser(int $id, string $name, string $email, ?string $password, string $password1, int $role, int $active): array
+    public function updateUser(int $id, string $username, string $email, ?string $password, string $password1, int $role, int $active): array
     {
         // Validate input data
-        $errors = $this->validateUserData($name, $email, $password, $password1, $role, $active);
+        $errors = $this->userValidator->validate($username, $email, $password, $password1, $role, $active);
         if (!empty($errors)) {
             return ['success' => false, 'errors' => $errors];
         }
 
         // Hash password only if provided
-        $hashedPassword = !empty($password) ? $this->hashPassword($password) : null;
+        $hashedPassword = !empty($password) ? $this->passwordService->hashPassword($password) : null;
 
         // Update user through repository
-        $updated = $this->userRepository->updateUser($id, $name, $email, $hashedPassword, $role, $active);
+        $updated = $this->userRepository->updateUser($id, $username, $email, $hashedPassword, $role, $active);
         return $updated ? ['success' => true] : ['success' => false, 'errors' => ['general' => 'Failed to update user']];
     }
 
@@ -147,5 +93,12 @@ class UserManager
     public function reactivateUser(int $user_id): void
     {
         $this->userRepository->reactivateUser($user_id);
+    }
+
+
+    // Generate activation token
+    public function generateActivationToken(): string
+    {
+        return bin2hex(random_bytes(16));
     }
 }

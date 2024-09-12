@@ -22,13 +22,13 @@ $passwordService = new PasswordService();
 $userValidator = new UserValidator();
 
 // Initialize repositories with dependencies
-$userRepository = new UserRepository($conn, $passwordService, $userValidator);
+$userRepository = new UserRepository($conn);
 $productRepository = new ProductRepository($dbInstance);
 $categoryRepository = new CategoryRepository($dbInstance);
 
 // Initialize managers with repositories
-$userManager = new UserManager($userRepository);
-$categoryManager = new CategoryManager($categoryRepository);
+$userManager = new UserManager($userRepository, $passwordService, $userValidator);
+$categoryManager = new CategoryManager($categoryRepository,);
 $productManager = new ProductManager($dbInstance);
 
 // Your application logic goes here

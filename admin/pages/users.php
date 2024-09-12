@@ -19,8 +19,8 @@ $passwordService = new PasswordService();
 $userValidator = new UserValidator();
 
 // Initialize repositories with dependencies
-$userRepository = new UserRepository($conn, $passwordService, $userValidator);
-$userManager = new UserManager($userRepository);
+$userRepository = new UserRepository($conn);
+$userManager = new UserManager($userRepository, $passwordService, $userValidator);
 
 // echo '<script type="text/javascript">
 // $(function() {
@@ -90,29 +90,29 @@ $userManager = new UserManager($userRepository);
 
                         if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-                            $name = $_POST['name'] ?? '';
+                            $username = $_POST['name'] ?? '';
                             $email = $_POST['email'] ?? '';
                             $password = $_POST['password'] ?? '';
                             $password1 = $_POST['password1'] ?? '';
-                            $role = $_POST['role'] ?? '';
+                            $role = isset($_POST['role']) ? (int)$_POST['role'] : 0; // Ensure role is an integer
 
-                            // Validate user data and add user
-                            $errors = $userManager->validateUserData($name, $email, $password, $password1, $role);
+                            // Call the addUser method from UserManager
+                            $result = $userManager->addUser($username, $email, $password, $password1, $role);
 
-                            if (empty($errors)) {
-                                $result = $userManager->addUser($name, $email, $password, $password1, (int)$role);
+                            // Check if the user was added successfully or if there were errors
+                            if ($result['success']) {
 
-                                if ($result['success']) {
+                                $successMessage = "User added successfully";
+                            } else {
 
-
-                                    $successMessage = "User added successfully";
-                                } else {
-                                    $errors = $result['errors'];
-                                    // $successMessage = "<div class='alert alert-danger'>Cannot add User </div>";
-                                }
+                                // Debugging: print errors if necessary
+                                error_log('Add User Errors: ' . print_r($errors, true));
+                                $errors = $result['errors'];
+                                // $successMessage = "<div class='alert alert-danger'>Cannot add User </div>";
                             }
                         }
                     }
+
 
                     $users = $userManager->getUsers();
 

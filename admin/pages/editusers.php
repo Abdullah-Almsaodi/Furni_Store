@@ -19,19 +19,19 @@ $passwordService = new PasswordService();
 $userValidator = new UserValidator();
 
 // Initialize repositories with dependencies
-$userRepository = new UserRepository($conn, $passwordService, $userValidator);
-$userManager = new UserManager($userRepository);
+$userRepository = new UserRepository($conn);
+$userManager = new UserManager($userRepository, $passwordService, $userValidator);
 
 
 
 
 
-    if (isset($_GET['action'], $_GET['id']) && $_GET['action'] == 'edit') {
-        $id = $_GET['id'];
-        $user = $userManager->getUserById($id);
-    }
+if (isset($_GET['action'], $_GET['id']) && $_GET['action'] == 'edit') {
+    $id = $_GET['id'];
+    $user = $userManager->getUserById($id);
+}
 
-    ?>
+?>
 <!-- /. NAV SIDE  -->
 <div id="page-wrapper">
     <div id="page-inner">
@@ -52,40 +52,33 @@ $userManager = new UserManager($userRepository);
                         <i class="fa fa-plus-circle"></i> Update User
                     </div>
                     <?php
-                        // define variables and set to empty values
-                        $name = $email = $role_type = $active = $password = $password1 =  "";
-                        $errors = array();
-                        $successMessage = '';
-                        if (isset($_POST['submitUser'])) {
+                    // define variables and set to empty values
+                    $name = $email = $role_type = $active = $password = $password1 =  "";
+                    $errors = array();
+                    $successMessage = '';
+                    if (isset($_POST['submitUser'])) {
 
-                            if (isset($_GET['action'], $_GET['id']) && $_GET['action'] == 'edit') {
-
-
-                                $name = $_POST['name'] ?? '';
-                                $email = $_POST['email'] ?? '';
-                                $password = $_POST['password'] ?? '';
-                                $password1 = $_POST['password1'] ?? '';
-                                $role = $_POST['role'] ?? '';
-                                $active = $_POST['active'] ?? '';
-
-                                $errors = $userManager->validateUserData($name, $email, $password, $password1, $role, $active);
-
-                                if (empty($errors)) {
+                        if (isset($_GET['action'], $_GET['id']) && $_GET['action'] == 'edit') {
 
 
-                                    $result = $userManager->updateUser($id, $name, $email, $password, $password, $role, $active);
+                            $name = $_POST['name'] ?? '';
+                            $email = $_POST['email'] ?? '';
+                            $password = $_POST['password'] ?? '';
+                            $password1 = $_POST['password1'] ?? '';
+                            $role = $_POST['role'] ?? '';
+                            $active = $_POST['active'] ?? '';
 
-                                    if ($result['success']) {
+                            $result = $userManager->updateUser($id, $name, $email, $password, $password, $role, $active);
 
+                            if (empty($errors)) {
 
-                                        $_SESSION['message'] = "User Update successfully";
-                                        header('Location: users.php');
-                                    } else {
-                                        $errors = $result['errors'];
-                                    }
-                                }
+                                $_SESSION['message'] = "User Update successfully";
+                                header('Location: users.php');
+                            } else {
+                                $errors = $result['errors'];
                             }
                         }
+                    }
 
 
 
@@ -99,7 +92,8 @@ $userManager = new UserManager($userRepository);
 
 
 
-                        ?>
+
+                    ?>
                     <div class="panel-body">
                         <div class="row">
                             <div class="modal fade" id="successModal" tabindex="-1" role="dialog"
@@ -127,20 +121,20 @@ $userManager = new UserManager($userRepository);
 
                                 <?php if ($successMessage): ?>
 
-                                <div class='alert alert-success'><?php echo $successMessage; ?></div>
+                                    <div class='alert alert-success'><?php echo $successMessage; ?></div>
                                 <?php endif; ?>
 
                                 <?php if (isset($errors['general'])): ?>
-                                <div class='alert alert-danger'><?php echo $errors['general']; ?>
-                                </div>
+                                    <div class='alert alert-danger'><?php echo $errors['general']; ?>
+                                    </div>
                                 <?php endif; ?>
                                 <?php
 
-                                    $name = $user['username'];
-                                    $email = $user['email'];
-                                    $password = $user['password']; // Assuming the password column name is 'password'
+                                $name = $user['username'];
+                                $email = $user['email'];
+                                $password = $user['password']; // Assuming the password column name is 'password'
 
-                                    ?>
+                                ?>
 
                                 <form role="form" method="post">
                                     <div class="form-group">
@@ -149,8 +143,8 @@ $userManager = new UserManager($userRepository);
                                             placeholder="Please enter your name" class="form-control" />
                                         <span style="color:red">
                                             <?php
-                                                if (isset($errors['nameE'])) echo $errors['nameE'];
-                                                ?>
+                                            if (isset($errors['nameE'])) echo $errors['nameE'];
+                                            ?>
                                         </span>
                                     </div>
                                     <div class="form-group">
@@ -159,8 +153,8 @@ $userManager = new UserManager($userRepository);
                                             value="<?php echo $email; ?>" placeholder="Please enter email" />
                                         <span style="color:red">
                                             <?php
-                                                if (isset($errors['emailE'])) echo $errors['emailE'];
-                                                ?>
+                                            if (isset($errors['emailE'])) echo $errors['emailE'];
+                                            ?>
                                         </span>
                                     </div>
 
@@ -170,8 +164,8 @@ $userManager = new UserManager($userRepository);
                                             value="<?php echo $password; ?>" placeholder="Please enter password">
                                         <span style="color:red">
                                             <?php
-                                                if (isset($errors['passE'])) echo $errors['passE'];
-                                                ?>
+                                            if (isset($errors['passE'])) echo $errors['passE'];
+                                            ?>
                                         </span>
                                     </div>
 
@@ -183,11 +177,11 @@ $userManager = new UserManager($userRepository);
                                             placeholder="Please enter confirm password">
                                         <span style="color:red">
                                             <?php
-                                                if (isset($errors['passE'])) echo $errors['passE'];
-                                                elseif (isset($errors['passEM'])) {
-                                                    echo $errors['passEM'];
-                                                }
-                                                ?>
+                                            if (isset($errors['passE'])) echo $errors['passE'];
+                                            elseif (isset($errors['passEM'])) {
+                                                echo $errors['passEM'];
+                                            }
+                                            ?>
                                         </span>
                                     </div>
 
@@ -200,8 +194,8 @@ $userManager = new UserManager($userRepository);
                                         </select>
                                         <span style="color:red">
                                             <?php
-                                                if (isset($errors['roleE'])) echo $errors['roleE'];
-                                                ?>
+                                            if (isset($errors['roleE'])) echo $errors['roleE'];
+                                            ?>
                                         </span>
                                     </div>
 
@@ -214,8 +208,8 @@ $userManager = new UserManager($userRepository);
                                         </select>
                                         <span style="color:red">
                                             <?php
-                                                if (isset($errors['activeE'])) echo $errors['activeE'];
-                                                ?>
+                                            if (isset($errors['activeE'])) echo $errors['activeE'];
+                                            ?>
                                         </span>
                                     </div>
                                     <div style="float:right;">

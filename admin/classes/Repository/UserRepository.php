@@ -3,26 +3,15 @@
 class UserRepository
 {
     private $conn;
-    private $passwordService;
-    private $userValidator;
 
-    public function __construct(PDO $conn, PasswordService $passwordService, UserValidator $userValidator)
+
+    public function __construct(PDO $conn)
     {
         $this->conn = $conn;
-        $this->passwordService = $passwordService;
-        $this->userValidator = $userValidator;
     }
 
-    public function addUser($username, $email, $password, $password1, $activationToken, $role_id)
+    public function addUser($username, $email,  $activationToken, $role_id)
     {
-        // Validate user data
-        $errors = $this->userValidator->validate($username, $email, $password, $password1, $role_id);
-        if (!empty($errors)) {
-            return ['success' => false, 'errors' => $errors];
-        }
-
-        // Hash password using PasswordService
-        $hashedPassword = $this->passwordService->hashPassword($password);
 
         // Insert new user
         $query = "INSERT INTO users (username, email, password, activation_token, role_id) 
@@ -41,26 +30,9 @@ class UserRepository
         return $this->conn->lastInsertId();
     }
 
-    public function isEmailExist($email): bool
+
+    public function updateUser($id, $name, $email, $role, $active)
     {
-        $query = "SELECT user_id FROM users WHERE email = :email";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':email', $email);
-        $stmt->execute();
-
-        return $stmt->rowCount() > 0;
-    }
-
-    public function updateUser($id, $name, $email, $password, $pass, $role, $active)
-    {
-        // Validate updated user data
-        $errors = $this->userValidator->validate($name, $email, $password);
-        if (!empty($errors)) {
-            return ['success' => false, 'errors' => $errors];
-        }
-
-        // Hash password
-        $hashedPassword = $this->passwordService->hashPassword($password);
 
         // Update user in database
         $query = "UPDATE users SET username = :name, email = :email, password = :password, role_id = :role, is_active = :active WHERE user_id = :id";
