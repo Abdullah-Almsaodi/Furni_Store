@@ -1,19 +1,26 @@
 ﻿<?php
 // Include necessary files and initialize required objects
-include('upload/header.php');
-require_once 'config.php'; // Database configuration
-require_once 'classes/Database.php';
-require_once 'classes/UserManager.php';
-require_once 'classes/Repository/UserRepository.php';
-require_once 'classes/RoleManager.php';
-require_once 'classes/ProfileManager.php';
-require_once 'classes/UserManagementFacade.php';
+include('../templates/header.php');
+require_once '../pages/config.php';
+require_once '../classes/Database.php';
+require_once '../classes/UserManager.php';
+require_once '../classes/CategoryManager.php';
+require_once '../classes/Repository/UserRepository.php';
+require_once '../classes/PasswordService.php';
+require_once '../classes/UserValidator.php';
 
-$db = new Database();
-$conn = $db->connect();
-$userRepository = new UserRepository($conn);
+
+// Initialize Database
+$dbInstance = Database::getInstance();
+$conn = $dbInstance->getInstance()->getConnection();
+
+// Initialize services
+$passwordService = new PasswordService();
+$userValidator = new UserValidator();
+
+// Initialize repositories with dependencies
+$userRepository = new UserRepository($conn, $passwordService, $userValidator);
 $userManager = new UserManager($userRepository);
-$userFacade = new UserManagementFacade($userManager, new RoleManager($db), new ProfileManager($db));
 
 // echo '<script type="text/javascript">
 // $(function() {
@@ -353,7 +360,7 @@ $userFacade = new UserManagementFacade($userManager, new RoleManager($db), new P
 </div>
 
 <?php
-include('upload/footer.php');
+include('../templates/Footer.php');
 ?>
 
 <script>

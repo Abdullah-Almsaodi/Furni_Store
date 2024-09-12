@@ -13,10 +13,10 @@ class UserRepository
         $this->userValidator = $userValidator;
     }
 
-    public function addUser($username, $email, $password, $activationToken, $role_id)
+    public function addUser($username, $email, $password, $password1, $activationToken, $role_id)
     {
         // Validate user data
-        $errors = $this->userValidator->validate($username, $email, $password);
+        $errors = $this->userValidator->validate($username, $email, $password, $password1, $role_id);
         if (!empty($errors)) {
             return ['success' => false, 'errors' => $errors];
         }
@@ -51,7 +51,7 @@ class UserRepository
         return $stmt->rowCount() > 0;
     }
 
-    public function updateUser($id, $name, $email, $password, $role, $active)
+    public function updateUser($id, $name, $email, $password, $pass, $role, $active)
     {
         // Validate updated user data
         $errors = $this->userValidator->validate($name, $email, $password);

@@ -28,10 +28,10 @@
     <meta name="keywords" content="bootstrap, bootstrap4" />
 
     <!-- Render all elements normally  -->
-    <link href="css/nrmalize.css" rel="stylesheet">
+    <link href="../Public/css/nrmalize.css" rel="stylesheet">
 
     <!-- Font Awesome Library -->
-    <link href="plugins/fontawesome/css/all.min.css" rel="stylesheet">
+    <link href="../plugins/fontawesome/css/all.min.css" rel="stylesheet">
 
     <!-- Bootstrap CSS -->
     <link href="../Public/css/bootstrap.min.css" rel="stylesheet">
@@ -83,7 +83,7 @@
                     if ($isRegistered) {
                         // User is registered, display profile link
                         echo '<li><a class="nav-link" href="profile.php"><img src="../Public/images/user.svg"></a></li>';
-                        echo '<li><a class="nav-link" href="admin/logout.php"><i class="fas fa-sign-out-alt"></i></a></li>';
+                        echo '<li><a class="nav-link" href="../admin/auth/logout.php"><i class="fas fa-sign-out-alt"></i></a></li>';
                     } else {
                         // User is not registered, display login link
                         echo '<li><a class="nav-link" href="login.php">Login</a></li>';
