@@ -19,8 +19,8 @@ $conn = $dbInstance->getInstance()->getConnection();
 
 // Initialize repositories with dependencies
 $userRepository = new UserRepository($conn);
-$productRepository = new ProductRepository($dbInstance);
-$categoryRepository = new CategoryRepository($dbInstance);
+$productRepository = new ProductRepository($conn);
+$categoryRepository = new CategoryRepository($conn);
 
 // Initialize managers with repositories
 $userManager = new UserManager($userRepository);
