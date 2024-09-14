@@ -3,17 +3,17 @@
 include('upload/h2.php');
 require_once 'config.php'; // Database configuration
 require_once 'classes/Database.php';
-require_once 'classes/UserManager.php';
+require_once 'classes/Manager/UserManager.php';
 require_once 'classes/Repository/UserRepository.php';
 require_once 'classes/RoleManager.php';
-require_once 'classes/ProfileManager.php';
-require_once 'classes/UserManagementFacade.php';
 
-$db = new Database();
-$conn = $db->connect();
+
+// Initialize Database
+$dbInstance = Database::getInstance();
+$conn = $dbInstance->getInstance()->getConnection();
+
 $userRepository = new UserRepository($conn);
 $userManager = new UserManager($userRepository);
-$userFacade = new UserManagementFacade($userManager, new RoleManager($db), new ProfileManager($db));
 
 // echo '<script type="text/javascript">
 // $(function() {
@@ -126,18 +126,18 @@ $userFacade = new UserManagementFacade($userManager, new RoleManager($db), new P
 
                                             <?php if ($successMessage): ?>
 
-                                                <div class='alert alert-success'><?php echo $successMessage; ?></div>
+                                            <div class='alert alert-success'><?php echo $successMessage; ?></div>
                                             <?php endif; ?>
 
                                             <?php if (isset($errors['general'])): ?>
-                                                <div class='alert alert-danger'><?php echo $errors['general']; ?>
-                                                </div>
+                                            <div class='alert alert-danger'><?php echo $errors['general']; ?>
+                                            </div>
                                             <?php endif; ?>
 
 
                                             <?php
                                             if (isset($_SESSION['message'])) : ?>
-                                                <div class='alert alert-success'><?php echo $_SESSION['message'] ?></div>
+                                            <div class='alert alert-success'><?php echo $_SESSION['message'] ?></div>
 
                                             <?php unset($_SESSION['message']);
                                             endif; ?>
@@ -264,12 +264,12 @@ $userFacade = new UserManagementFacade($userManager, new RoleManager($db), new P
 
                                     <?php if ($successM): ?>
 
-                                        <div class='alert alert-success'><?php echo $successM; ?></div>
+                                    <div class='alert alert-success'><?php echo $successM; ?></div>
                                     <?php endif; ?>
 
                                     <?php if (isset($errors['general'])): ?>
-                                        <div class='alert alert-danger'><?php echo $errors['general']; ?>
-                                        </div>
+                                    <div class='alert alert-danger'><?php echo $errors['general']; ?>
+                                    </div>
                                     <?php endif; ?>
 
                                     <div class="table-responsive">
@@ -293,26 +293,26 @@ $userFacade = new UserManagementFacade($userManager, new RoleManager($db), new P
 
 
                                                 <?php if (!empty($users)): ?>
-                                                    <?php foreach ($users as $user): ?>
-                                                        <tr class="odd gradeX">
-                                                            <td><?php echo htmlspecialchars($user['user_id']); ?></td>
-                                                            <td><?php echo htmlspecialchars($user['username']); ?></td>
-                                                            <td><?php echo htmlspecialchars($user['email']); ?></td>
-                                                            <td><?php echo htmlspecialchars($user['password']); ?></td>
-                                                            <td><?php echo htmlspecialchars($user['is_active']); ?></td>
-                                                            <td><?php echo htmlspecialchars($user['role_name']); ?></td>
-                                                            <td>
-                                                                <a href="editusers.php?action=edit&id=<?php echo $user['user_id']; ?>"
-                                                                    class='btn btn-success action'>Edit</a>
-                                                                <a href="?action=delete&id=<?php echo $user['user_id']; ?>"
-                                                                    class='delete btn btn-danger '>Delete</a>
-                                                            </td>
-                                                        </tr>
-                                                    <?php endforeach; ?>
+                                                <?php foreach ($users as $user): ?>
+                                                <tr class="odd gradeX">
+                                                    <td><?php echo htmlspecialchars($user['user_id']); ?></td>
+                                                    <td><?php echo htmlspecialchars($user['username']); ?></td>
+                                                    <td><?php echo htmlspecialchars($user['email']); ?></td>
+                                                    <td><?php echo htmlspecialchars($user['password']); ?></td>
+                                                    <td><?php echo htmlspecialchars($user['is_active']); ?></td>
+                                                    <td><?php echo htmlspecialchars($user['role_name']); ?></td>
+                                                    <td>
+                                                        <a href="editusers.php?action=edit&id=<?php echo $user['user_id']; ?>"
+                                                            class='btn btn-success action'>Edit</a>
+                                                        <a href="?action=delete&id=<?php echo $user['user_id']; ?>"
+                                                            class='delete btn btn-danger '>Delete</a>
+                                                    </td>
+                                                </tr>
+                                                <?php endforeach; ?>
                                                 <?php else: ?>
-                                                    <tr>
-                                                        <td colspan='5'>No users found.</td>
-                                                    </tr>
+                                                <tr>
+                                                    <td colspan='5'>No users found.</td>
+                                                </tr>
                                                 <?php endif; ?>
 
 
@@ -360,9 +360,9 @@ include('upload/f2.php');
 ?>
 
 <script>
-    $(document).ready(function() {
-        $('.delete').click(function() {
-            return confirm('Are You Sure !!');
-        });
+$(document).ready(function() {
+    $('.delete').click(function() {
+        return confirm('Are You Sure !!');
     });
+});
 </script>

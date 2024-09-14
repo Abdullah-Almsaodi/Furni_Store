@@ -1,7 +1,7 @@
 ﻿<?php
 include('upload/header.php');
 require_once 'config.php'; // Database configuration
-require_once 'classes/ProductManager.php';
+require_once 'classes/Manager/ProductManager.php';
 require_once 'classes/Database.php';
 
 $db = new Database();
@@ -181,8 +181,8 @@ $products = $productManager->getProducts();
 
                                             foreach ($pro as $catRow) {
                                             ?>
-                                                <option value=<?php echo $catRow['cat_id'] ?>><?php echo  $row['name'] ?>
-                                                </option>
+                                            <option value=<?php echo $catRow['cat_id'] ?>><?php echo  $row['name'] ?>
+                                            </option>
                                             <?php
                                             } ?>
                                         </select>
@@ -228,18 +228,18 @@ $products = $productManager->getProducts();
                                 <tbody>
                                     <?php if (!empty($products)): ?>
 
-                                        <?php foreach ($products as $product):
+                                    <?php foreach ($products as $product):
                                             $product_id = $product['product_id']; ?>
 
-                                            <tr class="odd gradeX">
-                                                <td><?php echo htmlspecialchars($product['name']); ?></td>
-                                                <td><?php echo  htmlspecialchars($product['description']); ?></td>
-                                                <!--  -->
-                                                <td><img src="../images/<?php echo $product['image'] ?>" width="100px"
-                                                        class="img-fluid"></td>
-                                                <td><?php echo   $product['price']; ?></td>
-                                                <td>
-                                                    <!--                                             
+                                    <tr class="odd gradeX">
+                                        <td><?php echo htmlspecialchars($product['name']); ?></td>
+                                        <td><?php echo  htmlspecialchars($product['description']); ?></td>
+                                        <!--  -->
+                                        <td><img src="../images/<?php echo $product['image'] ?>" width="100px"
+                                                class="img-fluid"></td>
+                                        <td><?php echo   $product['price']; ?></td>
+                                        <td>
+                                            <!--                                             
                                             <?php
 
                                             $pro = $productManager->getProductById($product_id);
@@ -248,16 +248,16 @@ $products = $productManager->getProducts();
                                                 echo $catRow['name'];
                                             }
                                             ?> -->
-                                                </td>
+                                        </td>
 
-                                                <td>
-                                                    <a href="editproducts.php?action=edit&id=<?php echo $product['product_id']; ?>"
-                                                        class='btn btn-success action'>Edit</a>
-                                                    <a href="?action=delete&id=<?php echo $user['product_id']; ?>"
-                                                        class='delete btn btn-danger '>Delete</a>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach; ?>
+                                        <td>
+                                            <a href="editproducts.php?action=edit&id=<?php echo $product['product_id']; ?>"
+                                                class='btn btn-success action'>Edit</a>
+                                            <a href="?action=delete&id=<?php echo $user['product_id']; ?>"
+                                                class='delete btn btn-danger '>Delete</a>
+                                        </td>
+                                    </tr>
+                                    <?php endforeach; ?>
 
                                     <?php endif; ?>
 
