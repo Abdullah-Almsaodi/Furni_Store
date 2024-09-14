@@ -1,14 +1,18 @@
 ﻿<?php
 include('upload/header.php');
 require_once 'config.php'; // Database configuration
-require_once 'classes/CategoryManager.php';
-require_once 'classes/Database.php';
+require_once '../classes/Database.php';
+require_once '../classes/Manager/CategoryManager.php';
+require_once '../classes/Repository/CategoryRepository.php';
 
-$db = new Database();
 
-$categoryManager = new CategoryManager($db);
+// Initialize Database
+$dbInstance = Database::getInstance();
+$conn = $dbInstance->getInstance()->getConnection();
 
-$categories = $categoryManager->getCategories();
+// Initialize repositories with dependencies
+$categortyRepository = new CategoryRepository($conn);
+$categoryManager = new CategoryManager($userRepository);
 
 
 
