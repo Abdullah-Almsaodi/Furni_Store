@@ -65,12 +65,12 @@ if (isset($_GET['action'], $_GET['id']) && $_GET['action'] == 'edit') {
                             $email = $_POST['email'] ?? '';
                             $password = $_POST['password'] ?? '';
                             $password1 = $_POST['password1'] ?? '';
-                            $role = $_POST['role'] ?? '';
+                            $role = isset($_POST['role']) ? (int)$_POST['role'] : 0; // Ensure role is an integer
                             $active = $_POST['active'] ?? '';
 
                             $result = $userManager->updateUser($id, $name, $email, $password, $password, $role, $active);
 
-                            if (empty($errors)) {
+                            if ($result['success']) {
 
                                 $_SESSION['message'] = "User Update successfully";
                                 header('Location: users.php');
@@ -189,12 +189,18 @@ if (isset($_GET['action'], $_GET['id']) && $_GET['action'] == 'edit') {
                                         <label>User Type</label>
                                         <select name="role" class="form-control">
                                             <option value="" selected disabled>Select Role</option>
-                                            <option value="1">Administrator</option>
-                                            <option value="2">User</option>
+                                            <option value="1"
+                                                <?php echo (isset($_POST['role']) && $_POST['role'] == 1) ? 'selected' : ''; ?>>
+                                                Administrator</option>
+                                            <option value="2"
+                                                <?php echo (isset($_POST['role']) && $_POST['role'] == 2) ? 'selected' : ''; ?>>
+                                                User</option>
+
                                         </select>
                                         <span style="color:red">
                                             <?php
-                                            if (isset($errors['roleE'])) echo $errors['roleE'];
+                                            if (isset($errors['roleE'])) echo  $errors['roleE'];
+
                                             ?>
                                         </span>
                                     </div>

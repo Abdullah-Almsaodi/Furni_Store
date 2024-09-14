@@ -10,7 +10,7 @@ class UserRepository
         $this->conn = $conn;
     }
 
-    public function addUser($username, $email,  $activationToken, $role_id)
+    public function addUser($username, $email, $hashedPassword, $activationToken, $role_id)
     {
 
         // Insert new user
@@ -31,7 +31,7 @@ class UserRepository
     }
 
 
-    public function updateUser($id, $name, $email, $role, $active)
+    public function updateUser($id, $name, $email, $role_id, $active)
     {
 
         // Update user in database
@@ -41,12 +41,28 @@ class UserRepository
         $stmt->bindParam(':name', $name);
         $stmt->bindParam(':email', $email);
         $stmt->bindParam(':password', $hashedPassword);
-        $stmt->bindParam(':role', $role);
+        $stmt->bindParam(':role', $role_id);
         $stmt->bindParam(':active', $active);
         $stmt->bindParam(':id', $id);
 
+        if (!$stmt->execute()) {
+            throw new Exception("Failed to update user: " . $stmt->errorInfo()[2]);
+        }
+
         return $stmt->execute();
     }
+
+
+    public function isEmailExist($email): bool
+    {
+        $query = "SELECT user_id FROM users WHERE email = :email";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':email', $email);
+        $stmt->execute();
+
+        return $stmt->rowCount() > 0;
+    }
+
 
     public function getUserById($id)
     {
