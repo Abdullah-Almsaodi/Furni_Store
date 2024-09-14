@@ -1,13 +1,21 @@
 ﻿<?php
 
-include('upload/header.php');
+include('../templates/header.php');
 require_once 'config.php'; // Database configuration
-require_once 'classes/CategoryManager.php';
-require_once 'classes/Database.php';
+require_once '../classes/Database.php';
+require_once '../classes/Manager/CategoryManager.php';
+require_once '../classes/Repository/CategoryRepository.php';
 
-$db = new Database();
 
-$categoryManager = new CategoryManager($db);
+// Initialize Database
+$dbInstance = Database::getInstance();
+$conn = $dbInstance->getInstance()->getConnection();
+
+// Initialize repositories with dependencies
+$categortyRepository = new CategoryRepository($dbInstance);
+$categoryManager = new CategoryManager($categortyRepository);
+
+
 ?>
 <!-- /. NAV SIDE  -->
 <div id="page-wrapper">
@@ -38,7 +46,7 @@ $categoryManager = new CategoryManager($db);
 
                             if (isset($_GET['action'], $_GET['id']) && $_GET['action'] == 'edit') {
                                 $id = $_GET['id'];
-                                $category = $categoryManager->getCategoriesById($id);
+                                $category = $categoryManager->getCategoryById($id);
                             }
 
 
@@ -134,5 +142,5 @@ $categoryManager = new CategoryManager($db);
 
 
 <?php
-include('upload/footer.php');
+include('../templates/footer.php');
 ?>

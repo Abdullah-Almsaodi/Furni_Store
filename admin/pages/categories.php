@@ -1,5 +1,5 @@
 ﻿<?php
-include('upload/header.php');
+include('../templates/header.php');
 require_once 'config.php'; // Database configuration
 require_once '../classes/Database.php';
 require_once '../classes/Manager/CategoryManager.php';
@@ -11,8 +11,8 @@ $dbInstance = Database::getInstance();
 $conn = $dbInstance->getInstance()->getConnection();
 
 // Initialize repositories with dependencies
-$categortyRepository = new CategoryRepository($conn);
-$categoryManager = new CategoryManager($userRepository);
+$categortyRepository = new CategoryRepository($dbInstance);
+$categoryManager = new CategoryManager($categortyRepository);
 
 
 
@@ -44,7 +44,7 @@ $categoryManager = new CategoryManager($userRepository);
                                 $result = $categoryManager->addCategory($_POST['name'], $_POST['description']);
 
                                 if ($result['success']) {
-                                    $successMessage = "User added successfully";
+                                    $successMessage = "Category added successfully";
                                 } else {
                                     $errors = $result['errors'];
                                 }
@@ -121,12 +121,15 @@ $categoryManager = new CategoryManager($userRepository);
                         switch ($_GET['action']) {
                             case "delete":
                                 $result = $categoryManager->deleteCategory($id);
-                                if ($result) {
-                                    $successM = "categories deleted successfully";
+                                if ($result['success']) {
+                                    // $successM = "User deleted successfully";
+                                    $_SESSION['message'] = "Category deleted successfully";
+                                    echo " <script> window.open('categories.php','_self');
+                                    </script> ";
                                 } else {
-                                    $err = 'categories not deleted ';
+                                    $errors = $result['errors'];
+                                    // $errors = $delete['errors'];
                                 }
-                                break;
                             default:
                                 echo "ERROR";
                                 break;
@@ -135,15 +138,7 @@ $categoryManager = new CategoryManager($userRepository);
                     ?>
                     <div class="panel-body">
 
-                        <?php if ($successM): ?>
 
-                            <div class='alert alert-success'><?php echo $successM; ?></div>
-                        <?php endif; ?>
-
-                        <?php if (isset($errors['general'])): ?>
-                            <div class='alert alert-danger'><?php echo $errors['general']; ?>
-                            </div>
-                        <?php endif; ?>
                         <div class="table-responsive">
                             <table class="table table-striped table-bordered table-hover" id="dataTables-example">
                                 <thead>
@@ -189,7 +184,7 @@ $categoryManager = new CategoryManager($userRepository);
 </div>
 
 <?php
-include('upload/footer.php');
+include('../templates/footer.php');
 ?>
 
 <script>

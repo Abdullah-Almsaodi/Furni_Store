@@ -40,7 +40,14 @@ class CategoryManager
 
     public function deleteCategory($id)
     {
-        return $this->categoryRepository->deleteCategory($id);
+
+        $delete = $this->categoryRepository->deleteCategory($id);
+
+        if ($delete == 1) {
+            return ['success' => true];
+        } else {
+            return ['success' => false, 'errors' => ['general' => 'Failed to delete category']];
+        }
     }
 
     public function getCategories()

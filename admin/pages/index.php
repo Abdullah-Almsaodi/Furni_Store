@@ -2,24 +2,20 @@
 
 // Include necessary files and initialize required objects
 include('../templates/header.php');
-require_once '../pages/config.php';
+require_once 'config.php';
 require_once '../classes/Database.php';
-require_once '../classes/UserManager.php';
-require_once '../classes/CategoryManager.php';
-require_once '../classes/ProductManager.php';
+require_once '../classes/Manager/UserManager.php';
+require_once '../classes/Manager/CategoryManager.php';
+require_once '../classes/Manager/ProductManager.php';
 require_once '../classes/Repository/ProductRepository.php';
 require_once '../classes/Repository/CategoryRepository.php';
 require_once '../classes/Repository/UserRepository.php';
-require_once '../classes/PasswordService.php';
-require_once '../classes/UserValidator.php';
 
 // Initialize Database
 $dbInstance = Database::getInstance();
 $conn = $dbInstance->getInstance()->getConnection();
 
 // Initialize services
-$passwordService = new PasswordService();
-$userValidator = new UserValidator();
 
 // Initialize repositories with dependencies
 $userRepository = new UserRepository($conn);
@@ -27,8 +23,8 @@ $productRepository = new ProductRepository($dbInstance);
 $categoryRepository = new CategoryRepository($dbInstance);
 
 // Initialize managers with repositories
-$userManager = new UserManager($userRepository, $passwordService, $userValidator);
-$categoryManager = new CategoryManager($categoryRepository,);
+$userManager = new UserManager($userRepository);
+$categoryManager = new CategoryManager($categoryRepository);
 $productManager = new ProductManager($dbInstance);
 
 // Your application logic goes here
