@@ -1,26 +1,21 @@
 <?php
 // Include necessary files and initialize required objects
 include('../templates/header.php');
-require_once '../pages/config.php';
+require_once 'config.php';
 require_once '../classes/Database.php';
-require_once '../classes/UserManager.php';
-require_once '../classes/CategoryManager.php';
+require_once '../classes/Manager/UserManager.php';
 require_once '../classes/Repository/UserRepository.php';
-require_once '../classes/PasswordService.php';
-require_once '../classes/UserValidator.php';
+
 
 
 // Initialize Database
 $dbInstance = Database::getInstance();
 $conn = $dbInstance->getInstance()->getConnection();
 
-// Initialize services
-$passwordService = new PasswordService();
-$userValidator = new UserValidator();
 
 // Initialize repositories with dependencies
 $userRepository = new UserRepository($conn);
-$userManager = new UserManager($userRepository, $passwordService, $userValidator);
+$userManager = new UserManager($userRepository);
 
 
 
@@ -133,6 +128,8 @@ if (isset($_GET['action'], $_GET['id']) && $_GET['action'] == 'edit') {
                                 $name = $user['username'];
                                 $email = $user['email'];
                                 $password = $user['password']; // Assuming the password column name is 'password'
+                                $role_id = $user['role_id']; // Assuming the password column name is 'password'
+                                $active = $user['is_active']; // Assuming the password column name is 'password'
 
                                 ?>
 
@@ -189,11 +186,9 @@ if (isset($_GET['action'], $_GET['id']) && $_GET['action'] == 'edit') {
                                         <label>User Type</label>
                                         <select name="role" class="form-control">
                                             <option value="" selected disabled>Select Role</option>
-                                            <option value="1"
-                                                <?php echo (isset($_POST['role']) && $_POST['role'] == 1) ? 'selected' : ''; ?>>
+                                            <option value="1" <?php echo ($role_id == 1) ? 'selected ' : ''; ?>>
                                                 Administrator</option>
-                                            <option value="2"
-                                                <?php echo (isset($_POST['role']) && $_POST['role'] == 2) ? 'selected' : ''; ?>>
+                                            <option value="2" <?php echo ($role_id == 2) ? 'selected ' : ''; ?>>
                                                 User</option>
 
                                         </select>
@@ -209,8 +204,10 @@ if (isset($_GET['action'], $_GET['id']) && $_GET['action'] == 'edit') {
                                         <label>User Active</label>
                                         <select name="active" class="form-control">
                                             <option value="" selected disabled>Select Active</option>
-                                            <option value="1">Active</option>
-                                            <option value="2">Non_Active</option>
+                                            <option value="1" <?php echo ($active == 1) ? 'selected ' : ''; ?>>Active
+                                            </option>
+                                            <option value="2" <?php echo ($active == 2) ? 'selected ' : ''; ?>>
+                                                Non_Active</option>
                                         </select>
                                         <span style="color:red">
                                             <?php

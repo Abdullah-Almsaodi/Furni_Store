@@ -5,19 +5,15 @@ session_start();
 require_once '../pages/config.php';
 require_once '../classes/Database.php';
 require_once '../classes/Repository/UserRepository.php';
-require_once '../classes/PasswordService.php';
-require_once '../classes/UserValidator.php';
+
 
 // Get the database connection through the Singleton pattern
 $dbInstance = Database::getInstance();  // Correct way to get the database instance
 $conn = $dbInstance->getConnection();   // Get the actual connection
 
-// Initialize services
-$passwordService = new PasswordService();
-$userValidator = new UserValidator();
 
 // Initialize UserRepository with dependencies
-$userRepository = new UserRepository($conn, $passwordService, $userValidator);
+$userRepository = new UserRepository($conn);
 
 // // Check if the user is authenticated
 // if (!isset($_SESSION['user_id'])) {

@@ -31,19 +31,19 @@ class UserRepository
     }
 
 
-    public function updateUser($id, $name, $email, $role_id, $active)
+    public function updateUser($id, $name, $email, $hashedPassword, $role_id, $active)
     {
 
         // Update user in database
         $query = "UPDATE users SET username = :name, email = :email, password = :password, role_id = :role, is_active = :active WHERE user_id = :id";
         $stmt = $this->conn->prepare($query);
 
+        $stmt->bindParam(':id', $id);
         $stmt->bindParam(':name', $name);
         $stmt->bindParam(':email', $email);
         $stmt->bindParam(':password', $hashedPassword);
         $stmt->bindParam(':role', $role_id);
         $stmt->bindParam(':active', $active);
-        $stmt->bindParam(':id', $id);
 
         if (!$stmt->execute()) {
             throw new Exception("Failed to update user: " . $stmt->errorInfo()[2]);
