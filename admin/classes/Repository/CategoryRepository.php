@@ -3,9 +3,9 @@ class CategoryRepository
 {
     private $conn;
 
-    public function __construct(Database $db)
+    public function __construct(PDO $conn)
     {
-        $this->conn = $db->getInstance()->getConnection();
+        $this->conn = $conn;
     }
 
     public function addCategory(string $name, string $description): bool

@@ -12,7 +12,7 @@ $dbInstance = Database::getInstance();
 $conn = $dbInstance->getInstance()->getConnection();
 
 // Initialize repositories with dependencies
-$categortyRepository = new CategoryRepository($dbInstance);
+$categortyRepository = new CategoryRepository($conn);
 $categoryManager = new CategoryManager($categortyRepository);
 
 

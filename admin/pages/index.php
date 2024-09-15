@@ -19,13 +19,13 @@ $conn = $dbInstance->getInstance()->getConnection();
 
 // Initialize repositories with dependencies
 $userRepository = new UserRepository($conn);
-$productRepository = new ProductRepository($dbInstance);
-$categoryRepository = new CategoryRepository($dbInstance);
+$productRepository = new ProductRepository($conn);
+$categoryRepository = new CategoryRepository($conn);
 
 // Initialize managers with repositories
 $userManager = new UserManager($userRepository);
 $categoryManager = new CategoryManager($categoryRepository);
-$productManager = new ProductManager($dbInstance);
+$productManager = new ProductManager($productRepository);
 
 // Your application logic goes here
 
@@ -79,7 +79,7 @@ $productManager = new ProductManager($dbInstance);
                     <div class="text-box">
                         <p class="main-text"> <?php
 
-                                                $productNumber = $productManager->getProducts();
+                                                $productNumber = $productManager->getProdcuts();
                                                 echo  count($productNumber);
 
 
