@@ -1,3 +1,4 @@
+
 <?php
 class ProductManager
 {
@@ -110,8 +111,8 @@ class ProductManager
     {
         $errors = [];
 
-          // Validate image
-          if (!empty($_FILES['image']) && !empty($_FILES['image']['name'])) {
+        // Validate image
+        if (!empty($_FILES['image']) && !empty($_FILES['image']['name'])) {
             $imageFileType = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
             $allowedExtensions = array("jpg", "jpeg", "png", "gif");
 
@@ -142,7 +143,4 @@ class ProductManager
         }
         return $errors;
     }
-
-
-
 }
