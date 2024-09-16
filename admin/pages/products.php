@@ -1,15 +1,18 @@
 ﻿<?php
-include('upload/header.php');
+include('../templates/header.php');
 require_once 'config.php'; // Database configuration
-require_once 'classes/Manager/ProductManager.php';
-require_once 'classes/Database.php';
+require_once '../classes/Database.php';
+require_once '../classes/Manager/CategoryManager.php';
+require_once '../classes/Repository/CategoryRepository.php';
 
-$db = new Database();
 
-$productManager = new ProductManager($db);
+// Initialize Database
+$dbInstance = Database::getInstance();
+$conn = $dbInstance->getInstance()->getConnection();
 
-$products = $productManager->getProducts();
-
+// Initialize repositories with dependencies
+$productRepository = new ProductRepository($conn);
+$productManager = new ProductManager($productRepository);
 
 
 ?>
@@ -48,7 +51,7 @@ $products = $productManager->getProducts();
                         $description = $_POST['description'] ?? '';
                         $cat_id = $_POST['cat_id'] ?? '';
 
-                        $errors = $productManager->validateProductdata($name, $price, $description, $cat_id);
+                        $errors = $productManager->($name, $price, $description, $cat_id);
                         // Validate image
                         if (!empty($_FILES['image']) && !empty($_FILES['image']['name'])) {
                             $imageFileType = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
@@ -181,8 +184,8 @@ $products = $productManager->getProducts();
 
                                             foreach ($pro as $catRow) {
                                             ?>
-                                            <option value=<?php echo $catRow['cat_id'] ?>><?php echo  $row['name'] ?>
-                                            </option>
+                                                <option value=<?php echo $catRow['cat_id'] ?>><?php echo  $row['name'] ?>
+                                                </option>
                                             <?php
                                             } ?>
                                         </select>
@@ -228,18 +231,18 @@ $products = $productManager->getProducts();
                                 <tbody>
                                     <?php if (!empty($products)): ?>
 
-                                    <?php foreach ($products as $product):
+                                        <?php foreach ($products as $product):
                                             $product_id = $product['product_id']; ?>
 
-                                    <tr class="odd gradeX">
-                                        <td><?php echo htmlspecialchars($product['name']); ?></td>
-                                        <td><?php echo  htmlspecialchars($product['description']); ?></td>
-                                        <!--  -->
-                                        <td><img src="../images/<?php echo $product['image'] ?>" width="100px"
-                                                class="img-fluid"></td>
-                                        <td><?php echo   $product['price']; ?></td>
-                                        <td>
-                                            <!--                                             
+                                            <tr class="odd gradeX">
+                                                <td><?php echo htmlspecialchars($product['name']); ?></td>
+                                                <td><?php echo  htmlspecialchars($product['description']); ?></td>
+                                                <!--  -->
+                                                <td><img src="../images/<?php echo $product['image'] ?>" width="100px"
+                                                        class="img-fluid"></td>
+                                                <td><?php echo   $product['price']; ?></td>
+                                                <td>
+                                                    <!--                                             
                                             <?php
 
                                             $pro = $productManager->getProductById($product_id);
@@ -248,16 +251,16 @@ $products = $productManager->getProducts();
                                                 echo $catRow['name'];
                                             }
                                             ?> -->
-                                        </td>
+                                                </td>
 
-                                        <td>
-                                            <a href="editproducts.php?action=edit&id=<?php echo $product['product_id']; ?>"
-                                                class='btn btn-success action'>Edit</a>
-                                            <a href="?action=delete&id=<?php echo $user['product_id']; ?>"
-                                                class='delete btn btn-danger '>Delete</a>
-                                        </td>
-                                    </tr>
-                                    <?php endforeach; ?>
+                                                <td>
+                                                    <a href="editproducts.php?action=edit&id=<?php echo $product['product_id']; ?>"
+                                                        class='btn btn-success action'>Edit</a>
+                                                    <a href="?action=delete&id=<?php echo $user['product_id']; ?>"
+                                                        class='delete btn btn-danger '>Delete</a>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
 
                                     <?php endif; ?>
 
