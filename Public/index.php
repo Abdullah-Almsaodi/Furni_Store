@@ -1,10 +1,13 @@
 <!--   ////////.........start Footer tob bar................//////-->
 
 <?php
-require_once '../Public/db_connect.php'; // Database configuration
-// require_once '../admin/pages/config.php'; // Database configuration
-// require_once '../admin/classes/Database.php';
+require_once '../admin/pages/config.php';
+require_once '../admin/classes/Database.php';
 
+
+// Initialize Database
+$dbInstance = Database::getInstance();
+$conn = $dbInstance->getInstance()->getConnection();
 
 // $db = new Database();
 // $db->getInstance()->getConnection();
