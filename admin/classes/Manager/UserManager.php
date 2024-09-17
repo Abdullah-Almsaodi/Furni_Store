@@ -164,7 +164,12 @@ class UserManager
     // Get all users
     public function getUsers(): array
     {
-        return $this->userRepository->getAllUsers();
+        $get = $this->userRepository->getAllUsers();
+        if ($get) {
+            return ['success' => true];
+        } else {
+            return ['success' => false, 'errors' => ['general' => 'User Not Found ']];
+        }
     }
 
     // Soft delete user
