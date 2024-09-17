@@ -36,15 +36,23 @@ if ($request[0] === 'user') {
             if (($user['success'])) {
 
                 echo json_encode($user);
-                echo json_encode(['message' => 'User Fond']);
+                echo json_encode(["status" => "success", 'message' => 'User Fond']);
             } else {
 
                 $errors = $user['errors'];
-                echo json_encode(['message' => $errors]);
+                echo json_encode(["status" => "failure", 'message' => $errors]);
             }
         } else {
             $users = $userManager->getUsers();
-            echo json_encode($users);
+            if (($users['success'])) {
+
+                echo json_encode($users);
+                echo json_encode(["status" => "success", 'message' => 'User Fond']);
+            } else {
+
+                $errors = $users['errors'];
+                echo json_encode(["status" => "failure", 'message' => $errors]);
+            }
         }
     } elseif ($method === 'POST') {
         // Handle creating a new user
@@ -61,12 +69,11 @@ if ($request[0] === 'user') {
 
         $add = $userManager->addUser($name, $email, $password, $password1, $role_id);
         if (($add['success'])) {
-
-            echo json_encode(['message' => 'User created']);
+            echo json_encode(["status" => "success", 'message' => 'User created']);
         } else {
 
             $errors = $add['errors'];
-            echo json_encode(['message' => $errors]);
+            echo json_encode(["status" => "failure", 'message' => $errors]);
         }
     } elseif ($method === 'PUT') {
         // Handle updating user details
@@ -80,8 +87,14 @@ if ($request[0] === 'user') {
             $role_id = $data['role_id'] ?? 0;
             $active = $data['active'] ?? 1;
 
-            $userManager->updateUser($id, $name, $email, $password, $password1, $role_id, $active);
-            echo json_encode(['message' => 'User updated']);
+            $update = $userManager->updateUser($id, $name, $email, $password, $password1, $role_id, $active);
+            if (($update['success'])) {
+                echo json_encode(["status" => "success", 'message' => 'User updated']);
+            } else {
+
+                $errors = $add['errors'];
+                echo json_encode(["status" => "failure", 'message' => $errors]);
+            }
         }
     } elseif ($method === 'DELETE') {
         // Handle deleting a user
