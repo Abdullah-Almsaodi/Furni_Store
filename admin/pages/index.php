@@ -79,7 +79,7 @@ $productManager = new ProductManager($productRepository);
                     <div class="text-box">
                         <p class="main-text"> <?php
 
-                                                $productNumber = $productManager->getProdcuts();
+                                                $productNumber = $productManager->getProducts();
                                                 echo  count($productNumber);
 
 

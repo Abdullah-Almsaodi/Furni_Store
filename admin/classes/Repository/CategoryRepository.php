@@ -46,6 +46,11 @@ class CategoryRepository
     {
         $stmt = $this->conn->prepare("SELECT * FROM categories WHERE category_id = :id");
         $stmt->execute(['id' => $id]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        // Fetch the result as an associative array
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        // Return an empty array if no result is found
+        return $result !== false ? $result : [];
     }
-}
+}    

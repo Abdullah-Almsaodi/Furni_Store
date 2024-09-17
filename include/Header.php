@@ -86,8 +86,8 @@
                         echo '<li><a class="nav-link" href="../admin/auth/logout.php"><i class="fas fa-sign-out-alt"></i></a></li>';
                     } else {
                         // User is not registered, display login link
-                        echo '<li><a class="nav-link" href="login.php">Login</a></li>';
-                        echo '<li><a class="nav-link" href="register.php">Register</a></li>';
+                        echo '<li><a class="nav-link" href="../admin/auth/login.php">Login</a></li>';
+                        echo '<li><a class="nav-link" href="../admin/auth/register.php">Register</a></li>';
                     }
                     ?>
                 </ul>

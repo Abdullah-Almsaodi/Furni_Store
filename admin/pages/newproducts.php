@@ -1,12 +1,11 @@
 <?php
-include('upload/header.php');
+include('../templates/header.php');
 require_once 'config.php'; // Database configuration
-require_once 'classes/ProductManager.php';
-require_once 'classes/Database.php';
+require_once '../classes/Manager/ProductManager.php';
+require_once '../classes/Database.php';
 
-$db = new Database();
-
-$productManager = new ProductManager($db);
+$dbInstance = Database::getInstance();
+$conn = $dbInstance->getInstance()->getConnection();
 
 $products = $productManager->getProducts();
 
@@ -48,7 +47,7 @@ $products = $productManager->getProducts();
                         $description = $_POST['description'] ?? '';
                         $cat_id = $_POST['cat_id'] ?? '';
 
-                        $errors = $productManager->validateProductdata($name, $price, $description, $cat_id);
+                        $errors = $productManager->addProduct($name, $price, $description, $cat_id);
                         // Validate image
                         if (!empty($_FILES['image']) && !empty($_FILES['image']['name'])) {
                             $imageFileType = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
