@@ -5,6 +5,7 @@ session_start();
 require_once '../pages/config.php';
 require_once '../classes/Database.php';
 require_once '../classes/Repository/UserRepository.php';
+require_once '../classes/Manager/UserManager.php';
 
 
 // Get the database connection through the Singleton pattern
@@ -14,6 +15,7 @@ $conn = $dbInstance->getConnection();   // Get the actual connection
 
 // Initialize UserRepository with dependencies
 $userRepository = new UserRepository($conn);
+$userManager = new UserManager($userRepository);
 
 // // Check if the user is authenticated
 // if (!isset($_SESSION['user_id'])) {
@@ -23,7 +25,7 @@ $userRepository = new UserRepository($conn);
 // }
 
 // Check if the user exists in the database
-$user = $userRepository->getUserById($_SESSION['user_id']);
+$user = $userManager->getUserById($_SESSION['user_id']);
 if (!$user) {
     // If the user doesn't exist, log out and redirect to the login page
     session_destroy();
