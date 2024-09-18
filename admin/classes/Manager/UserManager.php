@@ -153,23 +153,25 @@ class UserManager
     // Get user by ID
     public function getUserById($id)
     {
-        $get = $this->userRepository->getUserById($id);
-        if ($get) {
-            return ['success' => true];
-        } else {
-            return ['success' => false, 'errors' => ['general' => 'User Not Found ']];
-        }
+        return $this->userRepository->getUserById($id);
+        // $get = $this->userRepository->getUserById($id);
+        // if ($get) {
+        //     return ['success' => true];
+        // } else {
+        //     return ['success' => false, 'errors' => ['general' => 'User Not Found ']];
+        // }
     }
 
     // Get all users
     public function getUsers(): array
     {
-        $get = $this->userRepository->getAllUsers();
-        if ($get) {
-            return ['success' => true];
-        } else {
-            return ['success' => false, 'errors' => ['general' => 'User Not Found ']];
-        }
+        return $this->userRepository->getAllUsers();
+        // $get = $this->userRepository->getAllUsers();
+        // if ($get) {
+        //     return ['success' => true];
+        // } else {
+        //     return ['success' => false, 'errors' => ['general' => 'User Not Found ']];
+        // }
     }
 
     // Soft delete user
