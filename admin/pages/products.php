@@ -112,7 +112,8 @@ $categoryManager = new CategoryManager($categoryRepository);
                                     <div class="form-group">
                                         <label>Description</label>
                                         <textarea placeholder="Please Enter Description" name="description"
-                                            class="form-control" cols="30" rows="3"><?php echo htmlspecialchars($description); ?></textarea>
+                                            class="form-control" cols="30"
+                                            rows="3"><?php echo htmlspecialchars($description); ?></textarea>
                                     </div>
                                     <div class="form-group">
                                         <label>Image</label>
@@ -124,38 +125,39 @@ $categoryManager = new CategoryManager($categoryRepository);
                                     <div class="form-group">
                                         <label>Product Type</label>
                                         <select class="form-control" name="cat_id">
-    <?php
-    // Fetch categories
-    $categories = $categoryManager->getCategories();
+                                            <?php
+                                            // Fetch categories
+                                            $categories = $categoryManager->getCategories();
 
-    // Ensure $categories is an array
-    if (is_array($categories)) {
-        foreach ($categories as $category) {
-            // Ensure each $category contains 'id' and 'name'
-            $categoryId = isset($category['id']) ? htmlspecialchars($category['id']) : '';
-            $categoryName = isset($category['name']) ? htmlspecialchars($category['name']) : 'Unknown Category';
-    ?>
-            <option value="<?php echo $categoryId; ?>">
-                <?php echo $categoryName; ?>
-            </option>
-    <?php
-        }
-    } else {
-        echo '<option value="">No categories available</option>';
-    }
-    ?>
-</select>
+                                            // Ensure $categories is an array
+                                            if (is_array($categories)) {
+                                                foreach ($categories as $category) {
+                                                    // Ensure each $category contains 'id' and 'name'
+                                                    $categoryId = isset($category['id']) ? htmlspecialchars($category['id']) : '';
+                                                    $categoryName = isset($category['name']) ? htmlspecialchars($category['name']) : 'Unknown Category';
+                                            ?>
+                                            <option value="<?php echo $categoryId; ?>">
+                                                <?php echo $categoryName; ?>
+                                            </option>
+                                            <?php
+                                                }
+                                            } else {
+                                                echo '<option value="">No categories available</option>';
+                                            }
+                                            ?>
+                                        </select>
 
                                     </div>
                                     <div style="float:right;">
-                                        <button type="submit" name="submitProduct" class="btn btn-primary">Add Product</button>
+                                        <button type="submit" name="submitProduct" class="btn btn-primary">Add
+                                            Product</button>
                                         <button type="reset" class="btn btn-danger">Cancel</button>
                                     </div>
                                 </form>
                             </div>
                         </div>
                         <?php if (!empty($successMessage)): ?>
-                            <div class="alert alert-success"><?php echo $successMessage; ?></div>
+                        <div class="alert alert-success"><?php echo $successMessage; ?></div>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -190,31 +192,34 @@ $categoryManager = new CategoryManager($categoryRepository);
                                         foreach ($products as $product):
                                             $product_id = htmlspecialchars($product['product_id']);
                                     ?>
-                                            <tr class="odd gradeX">
-                                                <td><?php echo htmlspecialchars($product['name']); ?></td>
-                                                <td><?php echo htmlspecialchars($product['description']); ?></td>
-                                                <td><img src="../uploads/<?php echo htmlspecialchars($product['image']); ?>" width="100px" class="img-fluid"></td>
-                                                <td><?php echo htmlspecialchars($product['price']); ?></td>
-                                                <td><?php
-                                                // Ensure cat_id is an integer and check if it exists in the product array
-                                                $category_id = isset($product['cat_id']) ? (int)$product['cat_id'] : 0;
+                                    <tr class="odd gradeX">
+                                        <td><?php echo htmlspecialchars($product['name']); ?></td>
+                                        <td><?php echo htmlspecialchars($product['description']); ?></td>
+                                        <td><img src="../upload/<?php echo htmlspecialchars($product['image']); ?>"
+                                                width="100px" class="img-fluid"></td>
+                                        <td><?php echo htmlspecialchars($product['price']); ?></td>
+                                        <td><?php
+                                                    // Ensure cat_id is an integer and check if it exists in the product array
+                                                    $category_id = isset($product['cat_id']) ? (int)$product['cat_id'] : 0;
 
-                                                // Fetch category only if category_id is valid
-                                                if ($category_id > 0) {
-                                                    $category = $categoryManager->getCategoryById($category_id);
+                                                    // Fetch category only if category_id is valid
+                                                    if ($category_id > 0) {
+                                                        $category = $categoryManager->getCategoryById($category_id);
 
-                                                    // Check if the category was found and if 'name' exists
-                                                    $category_name = isset($category['name']) ? htmlspecialchars($category['name']) : ' 2';
-                                                } else {
-                                                    $category_name = 'hh';
-                                                }
-                                            ?><?php echo $category_name; ?></td>
-                                                <td>
-                                                    <a href="editproducts.php?action=edit&id=<?php echo $product_id; ?>" class='btn btn-success'>Edit</a>
-                                                    <a href="?action=delete&id=<?php echo $product_id; ?>" class='delete btn btn-danger'>Delete</a>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach; ?>
+                                                        // Check if the category was found and if 'name' exists
+                                                        $category_name = isset($category['name']) ? htmlspecialchars($category['name']) : ' 2';
+                                                    } else {
+                                                        $category_name = 'hh';
+                                                    }
+                                                    ?><?php echo $category_name; ?></td>
+                                        <td>
+                                            <a href="editproducts.php?action=edit&id=<?php echo $product_id; ?>"
+                                                class='btn btn-success'>Edit</a>
+                                            <a href="?action=delete&id=<?php echo $product_id; ?>"
+                                                class='delete btn btn-danger'>Delete</a>
+                                        </td>
+                                    </tr>
+                                    <?php endforeach; ?>
                                     <?php endif; ?>
                                 </tbody>
                             </table>
@@ -233,9 +238,9 @@ $categoryManager = new CategoryManager($categoryRepository);
 <?php include('../templates/footer.php'); ?>
 
 <script>
-    $(document).ready(function() {
-        $('.delete').click(function() {
-            return confirm('Are You Sure?');
-        });
+$(document).ready(function() {
+    $('.delete').click(function() {
+        return confirm('Are You Sure?');
     });
+});
 </script>
