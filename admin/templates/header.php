@@ -84,7 +84,7 @@ font-size: 16px;">
 
                 <!-- Example: Display the logged-in user's information "! This is the admin dashboard." -->
                 <span><?php echo "Welcome, " . $_SESSION['username']; ?></span>
-                <a href="logout.php" class="btn btn-success square-btn-adjust">Logout</a>
+                <a href="../auth/logout.php" class="btn btn-success square-btn-adjust">Logout</a>
                 <a href="../index.php" class="btn btn-success square-btn-adjust">Home</a>
             </div>
         </nav>

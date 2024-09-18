@@ -73,7 +73,7 @@ if (isset($_POST['login'])) {
                 $_SESSION['role'] = $user['role_name'];
                 // Successful login
                 // Redirect to the desired page or perform any other actions
-                Header("Location:index.php");
+                Header("Location:../../Public/index.php");
                 exit();
             } else {
 
