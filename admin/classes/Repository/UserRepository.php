@@ -82,6 +82,14 @@ class UserRepository
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getUserByEmail(string $email)
+    {
+        $stmt = $this->conn->prepare("SELECT * FROM users WHERE email = :email LIMIT 1");
+        $stmt->execute([':email' => $email]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+
     public function softDeleteUser($id)
     {
         $query = "UPDATE users SET delete_at = NOW() WHERE user_id = :id";
