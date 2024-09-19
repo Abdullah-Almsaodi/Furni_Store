@@ -48,7 +48,7 @@ if (isset($_GET['action'], $_GET['id']) && $_GET['action'] == 'edit') {
                     </div>
                     <?php
                     // define variables and set to empty values
-                    $name = $email = $role_type = $active = $password = $password1 =  "";
+                    $username = $email = $role_type = $active = $password = $password1 =  "";
                     $errors = array();
                     $successMessage = '';
                     if (isset($_POST['submitUser'])) {
@@ -56,14 +56,14 @@ if (isset($_GET['action'], $_GET['id']) && $_GET['action'] == 'edit') {
                         if (isset($_GET['action'], $_GET['id']) && $_GET['action'] == 'edit') {
 
 
-                            $name = $_POST['name'] ?? '';
+                            $username = $_POST['name'] ?? '';
                             $email = $_POST['email'] ?? '';
                             $password = $_POST['password'] ?? '';
                             $password1 = $_POST['password1'] ?? '';
                             $role = isset($_POST['role']) ? (int)$_POST['role'] : 0; // Ensure role is an integer
                             $active = $_POST['active'] ?? '';
 
-                            $result = $userManager->updateUser($id, $name, $email, $password, $password, $role, $active);
+                            $result = $userManager->updateUser($id, $username, $email, $password, $password, $role, $active);
 
                             if ($result['success']) {
 
@@ -116,16 +116,16 @@ if (isset($_GET['action'], $_GET['id']) && $_GET['action'] == 'edit') {
 
                                 <?php if ($successMessage): ?>
 
-                                    <div class='alert alert-success'><?php echo $successMessage; ?></div>
+                                <div class='alert alert-success'><?php echo $successMessage; ?></div>
                                 <?php endif; ?>
 
                                 <?php if (isset($errors['general'])): ?>
-                                    <div class='alert alert-danger'><?php echo $errors['general']; ?>
-                                    </div>
+                                <div class='alert alert-danger'><?php echo $errors['general']; ?>
+                                </div>
                                 <?php endif; ?>
                                 <?php
 
-                                $name = $user['username'];
+                                $username = $user['username'];
                                 $email = $user['email'];
                                 $password = $user['password']; // Assuming the password column name is 'password'
                                 $role_id = $user['role_id']; // Assuming the password column name is 'password'
@@ -136,11 +136,11 @@ if (isset($_GET['action'], $_GET['id']) && $_GET['action'] == 'edit') {
                                 <form role="form" method="post">
                                     <div class="form-group">
                                         <label>Name</label>
-                                        <input type="text" name="name" value="<?php echo $name; ?>"
+                                        <input type="text" name="name" value="<?php echo $username; ?>"
                                             placeholder="Please enter your name" class="form-control" />
                                         <span style="color:red">
                                             <?php
-                                            if (isset($errors['nameE'])) echo $errors['nameE'];
+                                            if (isset($errors['username'])) echo $errors['username'];
                                             ?>
                                         </span>
                                     </div>
@@ -150,7 +150,7 @@ if (isset($_GET['action'], $_GET['id']) && $_GET['action'] == 'edit') {
                                             value="<?php echo $email; ?>" placeholder="Please enter email" />
                                         <span style="color:red">
                                             <?php
-                                            if (isset($errors['emailE'])) echo $errors['emailE'];
+                                            if (isset($errors['email'])) echo $errors['email'];
                                             ?>
                                         </span>
                                     </div>
@@ -161,7 +161,7 @@ if (isset($_GET['action'], $_GET['id']) && $_GET['action'] == 'edit') {
                                             value="<?php echo $password; ?>" placeholder="Please enter password">
                                         <span style="color:red">
                                             <?php
-                                            if (isset($errors['passE'])) echo $errors['passE'];
+                                            if (isset($errors['password'])) echo $errors['password'];
                                             ?>
                                         </span>
                                     </div>
@@ -174,9 +174,9 @@ if (isset($_GET['action'], $_GET['id']) && $_GET['action'] == 'edit') {
                                             placeholder="Please enter confirm password">
                                         <span style="color:red">
                                             <?php
-                                            if (isset($errors['passE'])) echo $errors['passE'];
-                                            elseif (isset($errors['passEM'])) {
-                                                echo $errors['passEM'];
+                                            if (isset($errors['password'])) echo $errors['password'];
+                                            elseif (isset($errors['password1'])) {
+                                                echo $errors['password1'];
                                             }
                                             ?>
                                         </span>
@@ -194,7 +194,7 @@ if (isset($_GET['action'], $_GET['id']) && $_GET['action'] == 'edit') {
                                         </select>
                                         <span style="color:red">
                                             <?php
-                                            if (isset($errors['roleE'])) echo  $errors['roleE'];
+                                            if (isset($errors['role_id'])) echo  $errors['role_id'];
 
                                             ?>
                                         </span>
@@ -211,7 +211,7 @@ if (isset($_GET['action'], $_GET['id']) && $_GET['action'] == 'edit') {
                                         </select>
                                         <span style="color:red">
                                             <?php
-                                            if (isset($errors['activeE'])) echo $errors['activeE'];
+                                            if (isset($errors['active'])) echo $errors['active'];
                                             ?>
                                         </span>
                                     </div>

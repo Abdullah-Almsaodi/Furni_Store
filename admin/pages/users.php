@@ -73,7 +73,7 @@ $userManager = new UserManager($userRepository);
                     </div>
                     <?php
                     // define variables and set to empty values
-                    $name = $email = $password = $password1 = $role_type = $active = "";
+                    $username = $email = $password = $password1 = $role_type = $active = "";
                     $errors = [];
                     $successMessage = '';
                     $successM = '';
@@ -148,18 +148,18 @@ $userManager = new UserManager($userRepository);
 
                                 <?php if ($successMessage): ?>
 
-                                    <div class='alert alert-success'><?php echo $successMessage; ?></div>
+                                <div class='alert alert-success'><?php echo $successMessage; ?></div>
                                 <?php endif; ?>
 
                                 <?php if (isset($errors['general'])): ?>
-                                    <div class='alert alert-danger'><?php echo $errors['general']; ?>
-                                    </div>
+                                <div class='alert alert-danger'><?php echo $errors['general']; ?>
+                                </div>
                                 <?php endif; ?>
 
 
                                 <?php
                                 if (isset($_SESSION['message'])) : ?>
-                                    <div class='alert alert-success'><?php echo $_SESSION['message'] ?></div>
+                                <div class='alert alert-success'><?php echo $_SESSION['message'] ?></div>
 
                                 <?php unset($_SESSION['message']);
                                 endif; ?>
@@ -167,10 +167,10 @@ $userManager = new UserManager($userRepository);
                                 <form role="form" method="post">
                                     <div class="form-group">
                                         <label>Name</label>
-                                        <input type="text" name="name" value="<?php echo $name; ?>"
+                                        <input type="text" name="name" value="<?php echo $username; ?>"
                                             placeholder="Please Enter your Name " class="form-control" />
                                         <span style="color:red">
-                                            <?php if (isset($errors['nameE'])): echo $errors['nameE'];
+                                            <?php if (isset($errors['username'])): echo $errors['username'];
                                             endif; ?>
                                         </span>
                                     </div>
@@ -179,8 +179,8 @@ $userManager = new UserManager($userRepository);
                                         <input type="email" name="email" class="form-control"
                                             value="<?php echo $email; ?>" placeholder="PLease Enter Eamil" />
                                         <span style="color:red">
-                                            <?php if (isset($errors['emailE'])):
-                                                echo $errors['emailE'];
+                                            <?php if (isset($errors['email'])):
+                                                echo $errors['email'];
                                             endif; ?>
                                         </span>
                                     </div>
@@ -190,8 +190,8 @@ $userManager = new UserManager($userRepository);
                                             placeholder="Please Enter password">
                                         <span style="color:red">
 
-                                            <?php if (isset($errors['passE'])):
-                                                echo $errors['passE'];
+                                            <?php if (isset($errors['password'])):
+                                                echo $errors['password'];
                                             endif; ?>
                                         </span>
                                     </div>
@@ -200,11 +200,11 @@ $userManager = new UserManager($userRepository);
                                         <input type="password" name="password1" class="form-control"
                                             placeholder="Please Enter confirm password">
                                         <span style="color:red">
-                                            <?php if (isset($errors['passE'])):
-                                                echo $errors['passE'];
+                                            <?php if (isset($errors['password'])):
+                                                echo $errors['password'];
                                             ?>
-                                            <?php elseif (isset($errors['passEM'])):
-                                                echo $errors['passEM'];
+                                            <?php elseif (isset($errors['password1'])):
+                                                echo $errors['password1'];
                                             endif; ?>
                                         </span>
                                     </div>
@@ -222,7 +222,7 @@ $userManager = new UserManager($userRepository);
                                         </select>
                                         <span style="color:red">
                                             <?php
-                                            if (isset($errors['roleE'])) echo  $errors['roleE'];
+                                            if (isset($errors['role_id'])) echo  $errors['role_id'];
 
                                             ?>
                                         </span>
@@ -285,12 +285,12 @@ $userManager = new UserManager($userRepository);
 
                         <?php if ($successM): ?>
 
-                            <div class='alert alert-success'><?php echo $successM; ?></div>
+                        <div class='alert alert-success'><?php echo $successM; ?></div>
                         <?php endif; ?>
 
                         <?php if (isset($errors['general'])): ?>
-                            <div class='alert alert-danger'><?php echo $errors['general']; ?>
-                            </div>
+                        <div class='alert alert-danger'><?php echo $errors['general']; ?>
+                        </div>
                         <?php endif; ?>
 
                         <div class="table-responsive">
@@ -313,26 +313,26 @@ $userManager = new UserManager($userRepository);
 
 
                                     <?php if (!empty($users)): ?>
-                                        <?php foreach ($users as $user): ?>
-                                            <tr class="odd gradeX">
-                                                <td><?php echo htmlspecialchars($user['user_id']); ?></td>
-                                                <td><?php echo htmlspecialchars($user['username']); ?></td>
-                                                <td><?php echo htmlspecialchars($user['email']); ?></td>
-                                                <td><?php echo htmlspecialchars($user['password']); ?></td>
-                                                <td><?php echo htmlspecialchars($user['is_active']); ?></td>
-                                                <td><?php echo htmlspecialchars($user['role_name']); ?></td>
-                                                <td>
-                                                    <a href="editusers.php?action=edit&id=<?php echo $user['user_id']; ?>"
-                                                        class='btn btn-success action'>Edit</a>
-                                                    <a href="?action=delete&id=<?php echo $user['user_id']; ?>"
-                                                        class='delete btn btn-danger '>Delete</a>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach; ?>
+                                    <?php foreach ($users as $user): ?>
+                                    <tr class="odd gradeX">
+                                        <td><?php echo htmlspecialchars($user['user_id']); ?></td>
+                                        <td><?php echo htmlspecialchars($user['username']); ?></td>
+                                        <td><?php echo htmlspecialchars($user['email']); ?></td>
+                                        <td><?php echo htmlspecialchars($user['password']); ?></td>
+                                        <td><?php echo htmlspecialchars($user['is_active']); ?></td>
+                                        <td><?php echo htmlspecialchars($user['role_name']); ?></td>
+                                        <td>
+                                            <a href="editusers.php?action=edit&id=<?php echo $user['user_id']; ?>"
+                                                class='btn btn-success action'>Edit</a>
+                                            <a href="?action=delete&id=<?php echo $user['user_id']; ?>"
+                                                class='delete btn btn-danger '>Delete</a>
+                                        </td>
+                                    </tr>
+                                    <?php endforeach; ?>
                                     <?php else: ?>
-                                        <tr>
-                                            <td colspan='5'>No users found.</td>
-                                        </tr>
+                                    <tr>
+                                        <td colspan='5'>No users found.</td>
+                                    </tr>
                                     <?php endif; ?>
 
 
@@ -362,9 +362,9 @@ include('../templates/Footer.php');
 ?>
 
 <script>
-    $(document).ready(function() {
-        $('.delete').click(function() {
-            return confirm('Are You Sure !!');
-        });
+$(document).ready(function() {
+    $('.delete').click(function() {
+        return confirm('Are You Sure !!');
     });
+});
 </script>

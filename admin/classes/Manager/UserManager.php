@@ -15,7 +15,7 @@ class UserManager
     public function addUser(string $username, string $email, string $password, string $password1, int $role_id)
     {
         if ($this->isEmailExist($email)) {
-            return ['success' => false, 'errors' => ['emailE' => 'A user with that email already exists.']];
+            return ['success' => false, 'errors' => ['email' => 'A user with that email already exists.']];
         }
 
         $errors = $this->validateUserData($username, $email, $password, $password1, $role_id);
@@ -73,41 +73,41 @@ class UserManager
 
         // Validate Name
         if (empty($name)) {
-            $errors['nameE'] = "Name is required";
+            $errors['username'] = "Name is required";
         } else {
             $name = $this->test_input($name);
             if (!preg_match("/^[a-zA-Z-' ]*$/", $name)) {
-                $errors['nameE'] = "Only letters and white space allowed";
+                $errors['username'] = "Only letters and white space allowed";
             }
         }
 
         // Validate Email
         if (empty($email)) {
-            $errors['emailE'] = "Email is required";
+            $errors['email'] = "Email is required";
         } else {
             $email = $this->test_input($email);
             if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                $errors['emailE'] = "Invalid email format";
+                $errors['email'] = "Invalid email format";
             }
         }
 
         // Validate Passwords
         if (empty($password) || empty($password1)) {
-            $errors['passE'] = "Password is required";
+            $errors['password'] = "Password is required";
         } else {
             $password = $this->test_input($password);
             $password1 = $this->test_input($password1);
             if ($password !== $password1) {
-                $errors['passEM'] = "Passwords do not match.";
+                $errors['password1'] = "Passwords do not match.";
             }
         }
 
         // Check if role is empty
         if (empty($role)) {
-            $errors['roleE'] = "Role is required";
+            $errors['role_id'] = "Role is required";
         } elseif (!is_numeric($role)) {
             // Check if role is a number
-            $errors['roleE'] = "Role must be a valid number";
+            $errors['role_id'] = "Role must be a valid number";
         } else {
             // Convert role to integer
             $role = (int)$role;
@@ -117,13 +117,13 @@ class UserManager
 
             // Check if role is valid
             if (!in_array($role, $validRoles)) {
-                $errors['roleE'] = "Invalid role selected";
+                $errors['role_id'] = "Invalid role selected";
             }
         }
 
         // Validate active
         if (empty($active)) {
-            $errors['activeE'] = "Active is required";
+            $errors['active'] = "Active is required";
         } else {
             $active = $this->test_input($active);
         }
