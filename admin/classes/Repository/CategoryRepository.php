@@ -42,15 +42,29 @@ class CategoryRepository
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function fetchCategories()
+    {
+        // Assuming you're fetching from the database
+        $query = "SELECT * FROM categories"; // Adjust your SQL query accordingly
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute();
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC); // Fetch as associative array
+
+        // Convert the result to an array of stdClass
+        return array_map(function ($item) {
+            return (object) $item; // Convert each array to stdClass
+        }, $result);
+    }
+
     public function getCategoryById(int $id): array
     {
         $stmt = $this->conn->prepare("SELECT * FROM categories WHERE category_id = :id");
         $stmt->execute(['id' => $id]);
-        
+
         // Fetch the result as an associative array
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        
+
         // Return an empty array if no result is found
         return $result !== false ? $result : [];
     }
-}    
+}

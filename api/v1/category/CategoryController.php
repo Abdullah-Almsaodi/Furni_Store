@@ -1,52 +1,41 @@
 <?php
 
-class CategoryController
-{
-    private $categoryManager;
-    private $responseHandler;
+require_once '../../../admin/pages/config.php'; // Database configuration
+require_once '../../../admin/classes/Database.php';
+require_once '../../../admin/classes/Manager/CategoryManager.php';
+require_once '../../../admin/classes/Repository/CategoryRepository.php';
+require_once '../../../vendor/autoload.php'; // JWT
+// Initialize Database
+$dbInstance = Database::getInstance();
+$conn = $dbInstance->getInstance()->getConnection();
 
-    public function __construct($categoryManager, $responseHandler)
-    {
-        $this->categoryManager = $categoryManager;
-        $this->responseHandler = $responseHandler;
+// Initialize repositories with dependencies
+$categortyRepository = new CategoryRepository($conn);
+
+
+use \Firebase\JWT\JWT;
+
+$secret_key = "1234";
+$headers = getallheaders();
+$jwt = $headers['Authorization'] ?? '';
+
+if ($jwt) {
+    try {
+        $decoded = JWT::decode($jwt, $secret_key);
+        $user_data = (array) $decoded->data;
+
+        $categoryManager = new CategoryManager($categortyRepository);
+        $categories = $categoryManager->getCategoriesf();
+
+        echo json_encode([
+            "message" => "Categories fetched successfully",
+            "categories" => $categories
+        ]);
+    } catch (Exception $e) {
+        http_response_code(401);
+        echo json_encode(["message" => "Access denied", "error" => $e->getMessage()]);
     }
-
-    public function handleRequest($method, $request)
-    {
-        switch ($method) {
-            case 'GET':
-                $this->getCategory($request);
-                break;
-            default:
-                echo json_encode(['message' => 'Method not allowed'], JSON_PRETTY_PRINT);
-        }
-    }
-
-    private function getCategory($request)
-    {
-        // Check if the ID is provided in the request
-        if (isset($request[1])) {
-            // Try to retrieve the user by ID
-            $category = $this->categoryManager->getCategoryById($request[1]);
-
-            // Check if user is found
-            if ($category) {
-                $this->responseHandler->handleSuccess($category, 'category found');
-            } else {
-                // Handle case where user is not found
-                $this->responseHandler->handleError(['errors' => ['category not found']], 'category not found');
-            }
-        } else {
-            // Retrieve all users if no ID is provided
-            $categories = $this->categoryManager->getCategories();
-
-            // Check if users list is empty
-            if (!empty($categories)) {
-                $this->responseHandler->handleSuccess($categories, 'category found');
-            } else {
-                // Handle case where no users are found
-                $this->responseHandler->handleError(['errors' => ['No category found']], 'No category found');
-            }
-        }
-    }
+} else {
+    http_response_code(401);
+    echo json_encode(["message" => "No token provided"]);
 }

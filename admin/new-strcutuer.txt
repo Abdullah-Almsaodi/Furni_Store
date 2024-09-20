@@ -1,19 +1,17 @@
 furni-store/
-├── api/                  # API-related files
-│   ├── index.php         # Entry point for API requests
-│   ├── routes.php        # API route mappings
-│   ├── controllers/      # API controllers for handling requests
-│   │   ├── UserController.php
-│   │   ├── ProductController.php
-│   │   └── CategoryController.php
-│   ├── models/           # Data models
-│   │   ├── User.php
-│   │   ├── Product.php
-│   │   └── Category.php
-│   └── utils/            # Helper functions (validation, error handling)
-│       ├── Validator.php
-│       ├── Response.php
-│       └── JWT.php
+├── api/
+│   ├── index.php         # Main entry point for API routing.
+│   ├── routes.php        # Routes definition for organizing routes.
+│   └── v1/               # Versioning the API.
+│       ├── User/
+│       │   └── User.php   # User-related endpoints.
+│       ├── Product/
+│       │   └── Product.php  # Product-related endpoints.
+│       ├── Category/
+│       │   └── Category.php # Category-related endpoints.
+│       └── Auth/
+│           ├── Login.php  # Authentication - login endpoint.
+│           └── Register.php # Registration endpoint.
 ├── admin/                # Admin panel assets
 │   ├── assets/           # Static assets (images, etc.)
 │   ├── css/              # Admin CSS styles

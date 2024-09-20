@@ -49,6 +49,14 @@ class CategoryManager
             return ['success' => false, 'errors' => ['general' => 'Failed to delete category']];
         }
     }
+    public function getCategoriesf()
+    {
+        // Fetch categories from the repository
+        $categories = $this->categoryRepository->fetchCategories(); // Adjust this line based on your actual method
+
+        // Ensure it returns the correct format
+        return $categories; // Make sure this returns stdClass or null
+    }
 
     public function getCategories()
     {
