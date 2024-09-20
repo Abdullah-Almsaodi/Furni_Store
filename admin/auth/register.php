@@ -1,115 +1,49 @@
 <?php
 session_start();
-include 'db_connect.php';
+require_once '../pages/config.php';
+require_once '../classes/Database.php';
+require_once '../classes/Repository/UserRepository.php'; // Include UserRepository
+require_once '../classes/Manager/UserManager.php'; // Include UserManager
 
-// define variables and set to empty values
-$name = $email = $password = $password1 = "";
+$dbInstance = Database::getInstance();
+$db = $dbInstance->getInstance()->getConnection();
+
+$userRepository = new UserRepository($db); // Create an instance of UserRepository
+$userManager = new UserManager($userRepository); // Create an instance of UserManager
+
+// Define variables and set to empty values
+$username = $email = $password = $password1 = "";
 $errors = array();
 
-
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-
+if (isset($_POST['register'])) {
 
 
-    if (empty($_POST["name"])) {
-        $errors['nameE'] = " Name is required";
-    } else {
-        $name = test_input($_POST["name"]);
-        // check if name only contains letters and whitespace
-        if (!preg_match("/^[a-zA-Z-' ]*$/", $name)) {
-            $errors['nameE'] = "Only letters and white space allowed";
-        }
-    }
 
-    if (empty($_POST["email"])) {
-        $errors['emailE'] = " Email is required";
-    } else {
-        $email = test_input($_POST["email"]);
-        // check if e-mail address is well-formed
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $errors['emailE'] = "Invalid email format";
-        }
-    }
+    $username = $_POST['name'] ?? '';
+    $email = $_POST['email'] ?? '';
+    $password = $_POST['password'] ?? '';
+    $password1 = $_POST['password1'] ?? '';
 
-    if (empty($_POST["password"] || $_POST["password1"])) {
-        $errors['passE'] =  " Password is required";
+
+    // Use UserManager to register the user
+    $registerResult = $userManager->addUser($username, $email, $password, $password1, 2); // Assuming role_id 2 for user
+
+    if ($registerResult['success']) {
+        // Redirect the user to the login page with a success message
+        $_SESSION['message'] = 'User registration successful. Please log in.';
+
+
+        header('Location: login.php');
+        exit;
     } else {
 
-        $password = test_input($_POST["password"]);
-        $password1 = test_input($_POST["password1"]);
-
-        // check if Passwords do  match
-        if ($_POST["password"] != $_POST["password1"]) {
-            $errors['passEM'] =  "Passwords do not match.";
-        }
-    }
-
-
-    if (empty($errors)) {
-
-
-        // start prepare after all checks
-        $role = 2;
-        $query = "SELECT user_id FROM users WHERE email = :email";
-        $stmt = $db->prepare($query);
-        $stmt->bindParam(':email', $email);
-        $stmt->execute();
-
-        if ($stmt->rowCount() > 0) {
-            $errors['emailE'] =  "A user with that email already exists.";
-        } else {
-            $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
-            $activation_token = bin2hex(random_bytes(16));
-
-            $query = "INSERT INTO Users (username, email,role_id, password, activation_token) VALUES (:name, :email, :role_type, :password, :activation_token)";
-            $stmt = $db->prepare($query);
-            $stmt->bindParam(':name', $name);
-            $stmt->bindParam(':email', $email);
-            $stmt->bindParam(':role_type', $role);
-            $stmt->bindParam(':password', $hashedPassword);
-            $stmt->bindParam(':activation_token', $activation_token);
-
-            if ($stmt->execute()) {
-
-
-                // Redirect the user to the login page with a success message
-                $_SESSION['message'] = 'User registration successful. Please log in.';
-                header('Location: login.php');
-                exit;
-            } else {
-                $errorInfo = $db->errorInfo();
-                echo "Error: " . $errorInfo[2];
-            }
-        }
+        $errors = $registerResult['errors'];
+        // $errors = ['email' => 'not found'];
     }
 }
 
 
-// Function to retrieve role_id by type
-function getRoleIdByType($db, $type)
-{
-    $query = "SELECT role_id FROM Roles WHERE type = :type";
-    $stmt = $db->prepare($query);
-    $stmt->bindParam(':type', $type);
-    $stmt->execute();
-    $result = $stmt->fetch();
-
-    if ($result) {
-        return $result['role_id'];
-    }
-
-    return null;
-}
-
-
-function test_input($data)
-{
-    $data = trim($data);
-    $data = stripslashes($data);
-    $data = htmlspecialchars($data);
-    return $data;
-}
-
+// You may want to display errors here if any exist
 
 
 
@@ -126,7 +60,7 @@ function test_input($data)
 
 <!-- Registration form HTML here -->
 <?php
-include_once '../include/Header.php';
+// include_once '../include/Header.php';
 ?>
 
 
@@ -149,20 +83,20 @@ include_once '../include/Header.php';
     <meta name="generator" content="Yem-Yem Supermarket">
 
     <!-- Favicon -->
-    <link rel="shortcut icon" type="image/x-icon" href="../Public/images/favicon.png" />
+    <link rel="shortcut icon" type="image/x-icon" href="../../Public/images/favicon.png" />
 
-    <link rel="stylesheet" href="plugins/themefisher-font/style.css">
+    <link rel="stylesheet" href="../../plugins/themefisher-font/style.css">
     <!-- bootstrap.min css -->
-    <link rel="stylesheet" href="plugins/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../../plugins/bootstrap/css/bootstrap.min.css">
 
     <!-- Animate css -->
-    <link rel="stylesheet" href="plugins/animate/animate.css">
+    <link rel="stylesheet" href="../../plugins/animate/animate.css">
     <!-- Slick Carousel -->
-    <link rel="stylesheet" href="plugins/slick/slick.css">
-    <link rel="stylesheet" href="plugins/slick/slick-theme.css">
+    <link rel="stylesheet" href="../../plugins/slick/slick.css">
+    <link rel="stylesheet" href="../../plugins/slick/slick-theme.css">
 
     <!-- Main Stylesheet -->
-    <link rel="stylesheet" href="css/style1.css">
+    <link rel="stylesheet" href="../../Public/css/style1.css">
 
 </head>
 
@@ -190,11 +124,11 @@ include_once '../include/Header.php';
                         <form class="text-left clearfix" method="POST"
                             action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
                             <div class="form-group">
-                                <input type="text" name="name" class="form-control" value="<?php echo $name; ?>"
+                                <input type="text" name="name" class="form-control" value="<?php echo $username; ?>"
                                     placeholder=" Enter your name">
                                 <span style="color:red">
                                     <?php
-                                    if (isset($errors['nameE'])) echo  $errors['nameE']
+                                    if (isset($errors['username'])) echo  $errors['username']
                                     ?>
                                 </span>
                             </div>
@@ -203,7 +137,7 @@ include_once '../include/Header.php';
                                     placeholder=" Enter your email">
                                 <span style="color:red">
                                     <?php
-                                    if (isset($errors['emailE'])) echo  $errors['emailE'];
+                                    if (isset($errors['email'])) echo  $errors['email'];
                                     // elseif (isset($errors['emailEM'])) {
                                     //     echo  $errors['emailEM'];                          
                                     // }
@@ -215,7 +149,7 @@ include_once '../include/Header.php';
                                     form-control" placeholder="Enter your password">
                                 <span style="color:red">
                                     <?php
-                                    if (isset($errors['passE'])) echo  $errors['passE'];
+                                    if (isset($errors['password'])) echo  $errors['password'];
 
                                     ?>
                                 </span>
@@ -225,9 +159,9 @@ include_once '../include/Header.php';
                                     placeholder="Confirm your password">
                                 <span style="color:red">
                                     <?php
-                                    if (isset($errors['passE'])) echo  $errors['passE'];
-                                    elseif (isset($errors['passEM'])) {
-                                        echo  $errors['passEM'];
+                                    if (isset($errors['password'])) echo  $errors['password'];
+                                    elseif (isset($errors['password1'])) {
+                                        echo  $errors['password1'];
                                     }
                                     ?>
                                 </span>
@@ -247,7 +181,7 @@ include_once '../include/Header.php';
     <!-- Footer -->
     <?php
 
-    include "../include/Footer.php";
+    // include "../include/Footer.php";
 
     ?>
 
@@ -256,21 +190,21 @@ include_once '../include/Header.php';
     =====================================-->
 
     <!-- Main jQuery -->
-    <script src="plugins/jquery/dist/jquery.min.js"></script>
+    <script src="../../plugins/jquery/dist/jquery.min.js"></script>
     <!-- Bootstrap 3.1 -->
-    <script src="plugins/bootstrap/js/bootstrap.min.js"></script>
+    <script src="../../plugins/bootstrap/js/bootstrap.min.js"></script>
     <!-- Bootstrap Touchpin -->
-    <script src="plugins/bootstrap-touchspin/dist/jquery.bootstrap-touchspin.min.js"></script>
+    <script src="../../plugins/bootstrap-touchspin/dist/jquery.bootstrap-touchspin.min.js"></script>
     <!-- Slick Carousel -->
-    <script src="plugins/slick/slick.min.js"></script>
+    <script src="../../plugins/slick/slick.min.js"></script>
     <!-- Counterup -->
-    <script src="plugins/counterup/jquery.counterup.min.js"></script>
+    <script src="../../plugins/counterup/jquery.counterup.min.js"></script>
     <!-- Waypoints -->
-    <script src="plugins/waypoints/jquery.waypoints.min.js"></script>
+    <script src="../../plugins/waypoints/jquery.waypoints.min.js"></script>
     <!-- Wow JS -->
-    <script src="plugins/wow/wow.min.js"></script>
+    <script src="../../plugins/wow/wow.min.js"></script>
     <!-- Main Script -->
-    <script src="js/script.js"></script>
+    <script src="../../js/script.js"></script>
 
 </body>
 

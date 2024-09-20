@@ -1,95 +1,80 @@
 <?php
 require_once '../pages/config.php';
 require_once '../classes/Database.php';
+require_once '../classes/Manager/UserManager.php'; // Include UserManager
+require_once '../classes/Repository/UserRepository.php'; // Include UserRepository
+
 // Start the session
 session_start();
+
 $dbInstance = Database::getInstance();
 $conn = $dbInstance->getInstance()->getConnection();
 
+$userRepository = new UserRepository($conn); // Create an instance of UserRepository
+$userManager = new UserManager($userRepository); // Create an instance of UserManager
 
 // Login PHP script
 $email = $password = "";
 $errors = array();
 
 if (isset($_POST['login'])) {
-
-
-
-
     if (empty($_POST["email"])) {
-        $errors['emailE'] = " Email is required";
+        $errors['email'] = "Email is required";
     } else {
         $email = test_input($_POST["email"]);
-        // check if e-mail address is well-formed
+        // Check if e-mail address is well-formed
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $errors['emailE'] = "Invalid email format";
+            $errors['email'] = "Invalid email format";
         }
     }
 
     if (empty($_POST["password"])) {
-        $errors['passE'] =  " Password is required";
+        $errors['password'] = "Password is required";
     } else {
-
         $password = test_input($_POST["password"]);
     }
-
-
-
 
     if (empty($errors)) {
 
 
-        // $query = "SELECT * FROM Users WHERE email = :email";
-        // $stmt = $db->prepare($query);
-        // $stmt->bindParam(':email', $email);
-        // $stmt->execute();
-        $query = "SELECT *  FROM Users u , roles r
-        WHERE email =:email and u.role_id = r.role_id;";
+        // Use UserManager to login the user
+        $loginResult = $userManager->loginUser($email, $password);
 
-        $stmt = $conn->prepare($query);
-        $stmt->bindParam(':email', $email);
-        $stmt->execute();
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if ($stmt->rowCount() > 0) {
-            // $user = $stmt->fetch(PDO::FETCH_ASSOC);
-            // $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            if (password_verify($password, $user['password']) and $user['email'] == $email and $user['role_name'] == "Admin"  and $user['is_active'] == "1") {
-                $_SESSION['user_id'] = $user['user_id'];
-                $_SESSION['username'] = $user['name'];
-                $_SESSION['useremail'] = $user['email'];
-                $_SESSION['role'] = $user['role_name'];
-                // Successful login
-                // Redirect to the desired page or perform any other actions
-                Header("Location:../pages/index.php");
-                exit();
-            } elseif (password_verify($password, $user['password']) and $user['email'] == $email  and $user['role_name'] == "User" and $user['is_active'] == "1") {
+        $testPassword = '$2y$10$flWsRcaATPyg6Nq5MHm7kO.KVAbzSCNtEqjBcTSQ1x42VEd.NqX8a'; // Replace with a known password
+        $storedHash = $loginResult['password']; // Retrieve the hashed password from the user record
 
 
-                $_SESSION['user_id'] = $user['user_id'];
-                $_SESSION['username'] = $user['name'];
-                $_SESSION['useremail'] = $user['email'];
-                $_SESSION['role'] = $user['role_name'];
-                // Successful login
-                // Redirect to the desired page or perform any other actions
-                Header("Location:../../Public/index.php");
-                exit();
+
+
+        if ($loginResult['success']) {
+            // Successful login
+            $_SESSION['user_id'] = $loginResult['user']['id'];
+            $_SESSION['username'] = $loginResult['user']['username'];
+            $_SESSION['useremail'] = $loginResult['user']['email'];
+            $_SESSION['role'] = $loginResult['user']['role_name']; // Make sure to include this in your user data
+
+            // Redirect based on role
+            if ($_SESSION['role'] == "Admin") {
+                header("Location: ../pages/index.php");
             } else {
-
-                if (!$user['is_active'] == "1") {
-
-                    $errors['activeE'] =   "Account is not Active.";
-                } else {
-
-                    $errors['passE'] =   "Invalid password.";
-                }
+                header("Location: ../../Public/index.php");
             }
+            exit();
         } else {
-            $errors['emailE'] =  "Invalid email .";
+
+
+
+
+
+            // Handle errors
+            $errors = array_merge($errors, $loginResult['errors']);
         }
     }
 }
+
+// You may want to display errors here if any exist
+
+
 
 
 
@@ -143,33 +128,33 @@ function test_input($data)
     <link rel="stylesheet" href="../../Public/css/style1.css">
 
     <style>
-        #bout {
-            background-color: #3b5d50;
-            border: none;
-            border-radius: 6px;
-            font-size: 20px;
-            font-weight: bold;
-            height: 50px;
-            width: 100px;
-            padding: 0;
-            margin: 10px;
-        }
+    #bout {
+        background-color: #3b5d50;
+        border: none;
+        border-radius: 6px;
+        font-size: 20px;
+        font-weight: bold;
+        height: 50px;
+        width: 100px;
+        padding: 0;
+        margin: 10px;
+    }
 
-        #bout:hover {
+    #bout:hover {
 
-            background-color: black;
-            color: white;
-        }
+        background-color: black;
+        color: white;
+    }
 
-        #cont {
-            box-shadow: 0px 0 30px rgba(5, 1, 5, 0.3);
-            border-radius: 6px;
+    #cont {
+        box-shadow: 0px 0 30px rgba(5, 1, 5, 0.3);
+        border-radius: 6px;
 
-        }
+    }
 
-        #h2 {
-            font-size: 35px;
-        }
+    #h2 {
+        font-size: 35px;
+    }
     </style>
 
 </head>
@@ -201,10 +186,13 @@ function test_input($data)
                             <?php
                             if (isset($_SESSION['message'])) {
                                 echo '<p style="color: green;">' . $_SESSION['message'] . '</p>';
+
                                 unset($_SESSION['message']);
                             }
-                            if (isset($errors['activeE'])) {
-                                echo '<p style="color: green;">' . $errors['activeE'] . '</p>';
+
+
+                            if (isset($errors['active'])) {
+                                echo '<p style="color: green;">' . $errors['active'] . '</p>';
                             }
                             ?>
                         </a>
@@ -214,7 +202,7 @@ function test_input($data)
                                 <input type="email" name="email" class="form-control" placeholder="Email">
                                 <span style="color:red">
                                     <?php
-                                    if (isset($errors['emailE'])) echo  $errors['emailE'];
+                                    if (isset($errors['email'])) echo  $errors['email'];
 
                                     ?>
                                 </span>
@@ -223,8 +211,7 @@ function test_input($data)
                                 <input type="password" name="password" class="form-control" placeholder="Password">
                                 <span style="color:red">
                                     <?php
-                                    if (isset($errors['passE'])) echo  $errors['passE'];
-
+                                    if (isset($errors['password'])) echo  $errors['password'];
                                     ?>
                                 </span>
                             </div>

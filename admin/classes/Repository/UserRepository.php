@@ -4,7 +4,6 @@ class UserRepository
 {
     private $conn;
 
-
     public function __construct(PDO $conn)
     {
         $this->conn = $conn;
@@ -14,7 +13,7 @@ class UserRepository
     {
 
         // Insert new user
-        $query = "INSERT INTO users (username, email, password, activation_token, role_id) 
+        $query = "INSERT INTO users (username, email, password, activation_token, role_id)
                   VALUES (:username, :email, :password, :activation_token, :role_id)";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':username', $username);
@@ -29,7 +28,6 @@ class UserRepository
 
         return $this->conn->lastInsertId();
     }
-
 
     public function updateUser($id, $name, $email, $hashedPassword, $role_id, $active)
     {
@@ -52,7 +50,6 @@ class UserRepository
         return $stmt->execute();
     }
 
-
     public function isEmailExist($email): bool
     {
         $query = "SELECT user_id FROM users WHERE email = :email";
@@ -63,7 +60,6 @@ class UserRepository
         return $stmt->rowCount() > 0;
     }
 
-
     public function getUserById($id)
     {
         $stmt = $this->conn->prepare("SELECT * FROM users WHERE user_id = :id");
@@ -73,8 +69,8 @@ class UserRepository
 
     public function getAllUsers(): array
     {
-        $query = "SELECT u.user_id, u.username, u.email, u.is_active, u.password, r.role_name 
-                  FROM users u 
+        $query = "SELECT u.user_id, u.username, u.email, u.is_active, u.password, r.role_name
+                  FROM users u
                   JOIN roles r ON u.role_id = r.role_id";
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
@@ -84,11 +80,14 @@ class UserRepository
 
     public function getUserByEmail(string $email)
     {
-        $stmt = $this->conn->prepare("SELECT * FROM users WHERE email = :email LIMIT 1");
+        $stmt = $this->conn->prepare("SELECT u.*, r.role_name
+                                FROM users u
+                                JOIN roles r ON u.role_id = r.role_id
+                                WHERE u.email = :email
+                                    LIMIT 1");
         $stmt->execute([':email' => $email]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
-
 
     public function softDeleteUser($id)
     {

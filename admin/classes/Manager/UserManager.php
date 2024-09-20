@@ -66,6 +66,47 @@ class UserManager
         return htmlspecialchars(stripslashes(trim($data)));
     }
 
+
+
+
+    // Login user
+    public function loginUser(string $email, string $password)
+    {
+        // Check if email exists
+        if (!$this->isEmailExist($email)) {
+            return ['success' => false, 'errors' => ['email' => 'Email not found']];
+        }
+
+        // Retrieve the user by email
+        $user = $this->userRepository->getUserByEmail($email);
+
+        // Check if the user is active
+        if ($user['is_active'] != "1") {
+            return ['success' => false, 'errors' => ['active' => 'Account is not active']];
+        }
+
+
+
+        // Verify the password
+        if (password_verify($password, $user['password'])) {
+            return [
+                'success' => true,
+                'user' => [
+                    'id' => $user['user_id'], // Use the correct key
+                    'username' => $user['username'],
+                    'email' => $user['email'],
+                    'role_name' => $user['role_name'], // Add role name if needed
+                ],
+            ];
+        } else {
+            error_log("Password: $password");
+            error_log("Hashed Password: " . $user['password']);
+            return ['success' => false, 'errors' => ['password' => 'Invalid password']];
+        }
+    }
+
+
+
     // Updated to use parameters instead of $_POST
     public function validateUserData($name, $email, $password, $password1, $role, $active = 1)
     {
