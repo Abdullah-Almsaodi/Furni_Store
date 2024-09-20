@@ -44,5 +44,5 @@ if ($user && $user['success'] && isset($user['user'])) {
     ]);
 } else {
     http_response_code(401);
-    echo json_encode(["message" => "Login failed"]);
+    echo json_encode(["errors" => $user['errors']]);
 }
