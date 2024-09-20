@@ -9,14 +9,16 @@ class ProductRepository
         $this->conn = $conn;
     }
 
-    public function addProduct(string $name, string $description, float $price, string $image): bool
+    public function addProduct(string $name, string $description, float $price, $cat_id, string $image): bool
     {
-        $sql = "INSERT INTO products (name,price,description,image) VALUES (:name, :price, :description, :image)";
+        $sql = "INSERT INTO products (name,price,description,image,category_id) VALUES (:name, :price, :description, :image, :cat_id)";
         $stmt = $this->conn->prepare($sql);
         $stmt->bindParam(':name', $name);
         $stmt->bindParam(':price', $price);
         $stmt->bindParam(':description', $description);
         $stmt->bindParam(':image', $image);
+        $stmt->bindParam(':cat_id', $cat_id);
+
         return $stmt->execute();
     }
 

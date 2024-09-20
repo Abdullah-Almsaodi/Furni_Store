@@ -8,16 +8,22 @@ class ProductManager
         $this->productRepository = $productRepository;
     }
 
-    public function addProduct($name, $description, $price, $image)
+    public function addProduct($name, $description, $price, $cat_id, $image)
     {
-        // التحقق من الصورة
-        $errors = $this->validateProductImage($image);
-        if (!empty($errors)) {
-            return ['success' => false, 'errors' => $errors];
-        }
+        // Validate product data first
+        // $errors = $this->validateProductData($name, $description, $price, $cat_id);
+        // if (!empty($errors)) {
+        //     return ['success' => false, 'errors' => $errors];
+        // }
 
-        // إضافة المنتج بعد التحقق من الصورة
-        $added = $this->productRepository->addProduct($name, $description, $price, $image['name']);
+        // // Validate the image only if there are no data validation errors
+        // $imageErrors = $this->validateProductImage($image);
+        // if (!empty($imageErrors)) {
+        //     return ['success' => false, 'errors' => array_merge($errors, $imageErrors)];
+        // }
+
+        // Proceed to add product
+        $added = $this->productRepository->addProduct($name, $description, $price, $cat_id, $image);
         if ($added) {
             return ['success' => true];
         } else {
@@ -25,7 +31,8 @@ class ProductManager
         }
     }
 
-    public function editProduct($id, $name, $description, $price, $image)
+
+    public function editProduct($id, $name, $description, $price, $cat_id, $image)
     {
         // التحقق من الصورة
         $errors = $this->validateProductImage($image);
@@ -33,8 +40,15 @@ class ProductManager
             return ['success' => false, 'errors' => $errors];
         }
 
-        // تحديث المنتج بعد التحقق من الصورة
-        $updated = $this->productRepository->updateProduct($id, $name, $description, $price, $image['name']);
+        // Validate product data
+        $errors = $this->validateProductData($name, $description, $price, $cat_id);
+
+        if (!empty($errors)) {
+            return ['success' => false, 'errors' => $errors];
+        }
+
+        // Proceed to update product
+        $updated = $this->productRepository->updateProduct($id, $name, $description, $price, $cat_id, $image);
         if ($updated) {
             return ['success' => true];
         } else {
@@ -63,7 +77,7 @@ class ProductManager
     }
 
     // التحقق من الصورة
-    private function validateProductImage($image)
+    public function validateProductImage($image)
     {
         $errors = [];
 
@@ -73,7 +87,7 @@ class ProductManager
 
             // التحقق من نوع الصورة
             if (!in_array($imageFileType, $allowedExtensions)) {
-                $errors['imageE'] = "Invalid image format. Only JPG, JPEG, PNG, and GIF files are allowed.";
+                $errors['image'] = "Invalid image format. Only JPG, JPEG, PNG, and GIF files are allowed.";
             } elseif ($image['error'] !== UPLOAD_ERR_OK) {
                 // التحقق من أخطاء رفع الصورة
                 $uploadErrors = array(
@@ -88,13 +102,53 @@ class ProductManager
 
                 $errorCode = $image['error'];
                 if (isset($uploadErrors[$errorCode])) {
-                    $errors['imageE'] = $uploadErrors[$errorCode];
+                    $errors['image'] = $uploadErrors[$errorCode];
                 } else {
-                    $errors['imageE'] = 'Unknown error occurred during file upload.';
+                    $errors['image'] = 'Unknown error occurred during file upload.';
+                }
+            } else {
+                // التحقق من حجم الصورة (على سبيل المثال: يجب ألا يتجاوز 5 ميجابايت)
+                $maxFileSize = 5 * 1024 * 1024; // 5MB
+                if ($image['size'] > $maxFileSize) {
+                    $errors['image'] = 'The image file is too large. Maximum size is 5MB.';
                 }
             }
         } else {
-            $errors['imageE'] = "Image is required.";
+            $errors['image'] = "Image is required.";
+        }
+
+        return $errors;
+    }
+
+
+    public function validateProductData($name, $description, $price, $cat_id)
+    {
+        $errors = [];
+
+        // Validate name
+        if (empty($name)) {
+            $errors['name'] = "Name is required";
+        } elseif (!preg_match("/^[a-zA-Z-' ]*$/", $name)) {
+            $errors['name'] = "Only letters and white space allowed";
+        }
+
+        // Validate price
+        if (empty($price)) {
+            $errors['price'] = "Price is required";
+        } elseif (!is_numeric($price)) {
+            $errors['price'] = "Only numeric values are allowed";
+        }
+
+        // Validate category ID
+        if (empty($cat_id)) {
+            $errors['cate'] = "Category is required";
+        }
+
+        // Validate description
+        if (empty($description)) {
+            $errors['description'] = "Description is required";
+        } elseif (!preg_match("/^[a-zA-Z0-9\s.,'-]*$/", $description)) {
+            $errors['description'] = "Only letters, numbers, whitespace, commas, apostrophes, and hyphens allowed";
         }
 
         return $errors;
