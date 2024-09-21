@@ -40,8 +40,8 @@ if (isset($_POST['login'])) {
         // Use UserManager to login the user
         $loginResult = $userManager->loginUser($email, $password);
 
-        $testPassword = '$2y$10$flWsRcaATPyg6Nq5MHm7kO.KVAbzSCNtEqjBcTSQ1x42VEd.NqX8a'; // Replace with a known password
-        $storedHash = $loginResult['password']; // Retrieve the hashed password from the user record
+        // $testPassword = '$2y$10$flWsRcaATPyg6Nq5MHm7kO.KVAbzSCNtEqjBcTSQ1x42VEd.NqX8a'; // Replace with a known password
+        // $storedHash = $loginResult['password']; // Retrieve the hashed password from the user record
 
 
 
@@ -128,33 +128,33 @@ function test_input($data)
     <link rel="stylesheet" href="../../Public/css/style1.css">
 
     <style>
-    #bout {
-        background-color: #3b5d50;
-        border: none;
-        border-radius: 6px;
-        font-size: 20px;
-        font-weight: bold;
-        height: 50px;
-        width: 100px;
-        padding: 0;
-        margin: 10px;
-    }
+        #bout {
+            background-color: #3b5d50;
+            border: none;
+            border-radius: 6px;
+            font-size: 20px;
+            font-weight: bold;
+            height: 50px;
+            width: 100px;
+            padding: 0;
+            margin: 10px;
+        }
 
-    #bout:hover {
+        #bout:hover {
 
-        background-color: black;
-        color: white;
-    }
+            background-color: black;
+            color: white;
+        }
 
-    #cont {
-        box-shadow: 0px 0 30px rgba(5, 1, 5, 0.3);
-        border-radius: 6px;
+        #cont {
+            box-shadow: 0px 0 30px rgba(5, 1, 5, 0.3);
+            border-radius: 6px;
 
-    }
+        }
 
-    #h2 {
-        font-size: 35px;
-    }
+        #h2 {
+            font-size: 35px;
+        }
     </style>
 
 </head>
