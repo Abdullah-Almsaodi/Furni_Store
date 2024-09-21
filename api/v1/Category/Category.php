@@ -19,6 +19,7 @@ $method = $_SERVER['REQUEST_METHOD'];
 $categoryId = isset($_GET['id']) ? intval($_GET['id']) : null;
 $secret_key = "123"; // Secret key for JWT (replace with env variable in production)
 $issuer = "furni-store"; // Issuer of the token
+$Role_type = "Admin"; // Issuer of the token
 
 // JWT Authorization
 $headers = getallheaders();
@@ -73,6 +74,13 @@ switch ($method) {
                     exit();
                 }
 
+                // Check if the user has the Admin role
+                if ($decoded->data->role !== 'Admin') {
+                    http_response_code(403);
+                    $responseHandler->handleError(['errors' => ['authorization']], "Access denied, insufficient permissions");
+                    exit();
+                }
+
                 // Create a new category
                 $result = $categoryManager->addCategory($name, $description);
                 if ($result['success']) {
@@ -106,6 +114,7 @@ switch ($method) {
             exit();
         }
 
+
         // Read incoming data
         $data = json_decode(file_get_contents('php://input'), true);
         $name = $data['name'] ?? '';
@@ -125,6 +134,12 @@ switch ($method) {
                     exit();
                 }
 
+                // Check if the user has the Admin role
+                if ($decoded->data->role !== 'Admin') {
+                    http_response_code(403);
+                    $responseHandler->handleError(['errors' => ['authorization']], "Access denied, insufficient permissions");
+                    exit();
+                }
                 // Update the category
                 $result = $categoryManager->editCategory($categoryId, $name, $description);
                 if ($result['success']) {
@@ -170,6 +185,13 @@ switch ($method) {
                     exit();
                 }
 
+
+                // Check if the user has the Admin role
+                if ($decoded->data->role !== 'Admin') {
+                    http_response_code(403);
+                    $responseHandler->handleError(['errors' => ['authorization']], "Access denied, insufficient permissions");
+                    exit();
+                }
                 // Delete the category
                 $result = $categoryManager->deleteCategory($categoryId);
                 if ($result['success']) {
