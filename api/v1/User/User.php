@@ -20,6 +20,12 @@ $userId = isset($_GET['id']) ? intval($_GET['id']) : null;
 $secret_key = "123"; // Secret key for JWT (replace with env variable in production)
 $issuer = "furni-store"; // Issuer of the token
 
+// JWT Authorization
+$headers = getallheaders();
+$jwt = $headers['Authorization'] ?? '';
+$jwt = str_replace('Bearer ', '', $jwt);  // Remove 'Bearer ' prefix
+
+
 // Initialize Database and UserManager
 $dbInstance = Database::getInstance();
 $conn = $dbInstance->getConnection();
@@ -61,10 +67,6 @@ switch ($method) {
         $password1 = $data['password1'] ?? '';
         $role = $data['role'] ?? 1;
 
-        // JWT Authorization
-        $headers = getallheaders();
-        $jwt = $headers['Authorization'] ?? '';
-        $jwt = str_replace('Bearer ', '', $jwt);  // Remove 'Bearer ' prefix
 
 
         if ($jwt) {
@@ -75,7 +77,7 @@ switch ($method) {
                 // Optionally validate claims like issuer
                 if ($decoded->iss !== $issuer) {
                     http_response_code(401);
-                    echo json_encode(["message" => "Invalid token issuer"]);
+                    $responseHandler->handleError(['errors' => ['token']], "Invalid token issuer");
                     exit();
                 }
 
@@ -83,24 +85,24 @@ switch ($method) {
                 $result = $userManager->addUser($username, $email, $password, $password1, $role);
                 if ($result['success']) {
                     http_response_code(201); // User created
-                    echo json_encode(["message" => "User created successfully"]);
+                    $responseHandler->handleSuccess($result, 'User created successfully');
                 } else {
                     http_response_code(400); // Bad request
-                    echo json_encode($result['errors']);
+                    $responseHandler->handleError($result, "User Not created ");
                 }
             } catch (\Firebase\JWT\ExpiredException $e) {
                 http_response_code(401);
-                echo json_encode(["message" => "Token expired"]);
+                $responseHandler->handleError(['errors' => ['token']], "Token expired");
             } catch (\Firebase\JWT\SignatureInvalidException $e) {
                 http_response_code(401);
-                echo json_encode(["message" => "Invalid signature"]);
+                $responseHandler->handleError(['errors' => ['token']], "Invalid signature");
             } catch (Exception $e) {
                 http_response_code(401); // Unauthorized
-                echo json_encode(["message" => "Access denied, invalid token"]);
+                $responseHandler->handleError(['errors' => ['token']], "Access denied, invalid token");
             }
         } else {
             http_response_code(401);
-            echo json_encode(["message" => "Access denied, token not provided"]);
+            $responseHandler->handleError(['errors' => ['token']], "Access denied, token not provided");
         }
         break;
 
@@ -123,9 +125,6 @@ switch ($method) {
         $role = $data['role'] ?? 1;
         $active = $data['is_active'] ?? 1;
 
-        // JWT Authorization
-        $headers = getallheaders();
-        $jwt = $headers['Authorization'] ?? '';
 
         if ($jwt) {
             try {
@@ -171,9 +170,7 @@ switch ($method) {
             exit();
         }
 
-        // JWT Authorization
-        $headers = getallheaders();
-        $jwt = $headers['Authorization'] ?? '';
+
 
         if ($jwt) {
             try {

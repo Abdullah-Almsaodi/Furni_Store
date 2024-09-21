@@ -18,7 +18,7 @@ switch ($request) {
     case '/v1/product/product':
         require __DIR__ . '/v1/Product/Product.php';
         break;
-    case '/v1/categor/category':
+    case '/v1/category/category':
         require __DIR__ . '/v1/Category/Category.php';
         break;
     default:
