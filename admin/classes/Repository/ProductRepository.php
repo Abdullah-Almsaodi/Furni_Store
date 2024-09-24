@@ -22,15 +22,16 @@ class ProductRepository
         return $stmt->execute();
     }
 
-    public function updateProduct(int $id, string $name, string $description, float $price, string $image): bool
+    public function updateProduct(int $id, string $name, string $description, float $price, int $cat_id, string $image): bool
     {
-        $query = "UPDATE products SET name = :name,  price = :price, description = :description, image = :image WHERE product_id = :product_id";
+        $query = "UPDATE products SET name = :name,  price = :price, description = :description, category_id = :category_id , image = :image WHERE product_id = :product_id";
         $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':product_id', $id);
         $stmt->bindParam(':name', $name);
         $stmt->bindParam(':description', $description);
         $stmt->bindParam(':price', $price);
+        $stmt->bindParam(':category_id', $cat_id);
         $stmt->bindParam(':image', $image);
-        $stmt->bindParam(':id', $id);
         return $stmt->execute();
     }
 
@@ -51,7 +52,7 @@ class ProductRepository
 
     public function getProductById(int $product_id): array
     {
-        $stmt = $this->conn->prepare("SELECT * FROM products WHERE product_id = :product_id");
+        $stmt = $this->conn->prepare("SELECT * FROM products WHERE product_id = :id");
         $stmt->execute(['id' => $product_id]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }

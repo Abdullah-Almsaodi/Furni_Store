@@ -34,18 +34,18 @@ class ProductManager
 
     public function editProduct($id, $name, $description, $price, $cat_id, $image)
     {
-        // التحقق من الصورة
-        $errors = $this->validateProductImage($image);
-        if (!empty($errors)) {
-            return ['success' => false, 'errors' => $errors];
-        }
+        // // التحقق من الصورة
+        // $errors = $this->validateProductImage($image);
+        // if (!empty($errors)) {
+        //     return ['success' => false, 'errors' => $errors];
+        // }
 
-        // Validate product data
-        $errors = $this->validateProductData($name, $description, $price, $cat_id);
+        // // Validate product data
+        // $errors = $this->validateProductData($name, $description, $price, $cat_id);
 
-        if (!empty($errors)) {
-            return ['success' => false, 'errors' => $errors];
-        }
+        // if (!empty($errors)) {
+        //     return ['success' => false, 'errors' => $errors];
+        // }
 
         // Proceed to update product
         $updated = $this->productRepository->updateProduct($id, $name, $description, $price, $cat_id, $image);
@@ -85,11 +85,11 @@ class ProductManager
             $imageFileType = strtolower(pathinfo($image['name'], PATHINFO_EXTENSION));
             $allowedExtensions = array("jpg", "jpeg", "png", "gif");
 
-            // التحقق من نوع الصورة
+            // Check image type
             if (!in_array($imageFileType, $allowedExtensions)) {
                 $errors['image'] = "Invalid image format. Only JPG, JPEG, PNG, and GIF files are allowed.";
             } elseif ($image['error'] !== UPLOAD_ERR_OK) {
-                // التحقق من أخطاء رفع الصورة
+                // Check upload errors
                 $uploadErrors = array(
                     UPLOAD_ERR_INI_SIZE => 'The uploaded file exceeds the upload_max_filesize directive in php.ini.',
                     UPLOAD_ERR_FORM_SIZE => 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form.',
@@ -107,7 +107,7 @@ class ProductManager
                     $errors['image'] = 'Unknown error occurred during file upload.';
                 }
             } else {
-                // التحقق من حجم الصورة (على سبيل المثال: يجب ألا يتجاوز 5 ميجابايت)
+                // Check image size (maximum 5MB)
                 $maxFileSize = 5 * 1024 * 1024; // 5MB
                 if ($image['size'] > $maxFileSize) {
                     $errors['image'] = 'The image file is too large. Maximum size is 5MB.';
@@ -119,7 +119,6 @@ class ProductManager
 
         return $errors;
     }
-
 
     public function validateProductData($name, $description, $price, $cat_id)
     {

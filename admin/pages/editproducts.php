@@ -1,10 +1,27 @@
 <?php
-include('upload/header.php');
-require('db_connect.php');
-// if (isset($_GET['action'], $_GET['id']) && $_GET['action'] == 'edit') {
-//     // $id = $_GET['id'];
-// }
+include('../templates/header.php');
+require_once 'config.php'; // Database configuration
+require_once '../classes/Database.php';
+require_once '../classes/Manager/CategoryManager.php';
+require_once '../classes/Repository/CategoryRepository.php';
+require_once '../classes/Manager/ProductManager.php';
+require_once '../classes/Repository/ProductRepository.php';
 
+// Initialize Database
+$dbInstance = Database::getInstance();
+$conn = $dbInstance->getInstance()->getConnection();
+
+// Initialize repositories with dependencies
+$productRepository = new ProductRepository($conn);
+$productManager = new ProductManager($productRepository);
+
+$categoryRepository = new CategoryRepository($conn);
+$categoryManager = new CategoryManager($categoryRepository);
+
+if (isset($_GET['action'], $_GET['id']) && $_GET['action'] == 'edit') {
+    $id = $_GET['id'];
+    $product = $productManager->getProductById($id);
+}
 ?>
 <!-- /. NAV SIDE  -->
 <div id="page-wrapper">
@@ -25,184 +42,82 @@ require('db_connect.php');
                     </div>
 
                     <?php
-                    $name = $price = $description = "";
-
-                    $product_id = $_GET['id'];
-
-                    // Retrieve the user's information from the database
-                    $query = "SELECT * FROM products WHERE product_id = :product_id";
-                    $stmt = $db->prepare($query);
-                    $stmt->bindParam(':product_id', $product_id);
-                    $stmt->execute();
-
-                    if ($stmt->rowCount() > 0) {
-                        $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-                        $name = $user['name'];
-                        $price = $user['price'];
-                        $description = $user['description'];
-                        $errors = array();
-                    } else {
-                        // Handle the case if the user's information is not found
-                        echo "<div class='alert alert-danger'> Products   not Found </div>";
-                        exit;
-                    }
 
 
-
-
-
-
+                    $name = $price = $description = $cat_id = "";
+                    $errors = [];
+                    $successMessage = '';
 
                     if (isset($_POST['submitProduct'])) {
+                        $name = $_POST['name'] ?? '';
+                        $price = $_POST['price'] ?? '';
+                        $description = $_POST['description'] ?? '';
+                        $cat_id = isset($_POST['cat_id']) ? (int)$_POST['cat_id'] : 0; // Ensure cat_id is an integer
 
-
-                        // echo "<div class='alert alert-success'>Row Update</div>";
-
-
-
-
-
-                        if (empty($_POST["name"])) {
-                            $errors['nameE'] = " Name is required";
-                        } else {
-                            $name = test_input($_POST["name"]);
-                            // check if name only contains letters and whitespace
-                            if (!preg_match("/^[a-zA-Z-' ]*$/", $name)) {
-                                $errors['nameE'] = "Only letters and white space allowed";
-                            }
-                        }
-
-
-
-                        if (empty($_POST["price"])) {
-                            $errors['priceE'] = "price Number is required";
-                        } else {
-                            $price = test_input($_POST["price"]);
-                            // check if phone only contains numbers
-                            if (!is_numeric($price)) {
-                                $errors['priceE'] = "Only numeric values allowed";
-                            }
-                        }
-
-
-
-                        if (empty($_POST["description"])) {
-                            $errors['descriptionE'] = "About me is required";
-                        } else {
-                            $description = test_input($_POST["description"]);
-                            // check if about me only contains letters, whitespace, and numbers
-                            if (!preg_match("/^[a-zA-Z0-9\s.,'-]*$/", $description)) {
-                                $errors['descriptionE'] = "Only letters, numbers, whitespace, commas, apostrophes, and hyphens allowed in the about me field";
-                            }
-                        }
-
-
-
+                        // Validate product data
+                        $errors = $productManager->validateProductData($name, $description, $price, $cat_id);
                         // Validate image
-                        if (!empty($_FILES['image']) && !empty($_FILES['image']['name'])) {
-                            $imageFileType = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
-                            $allowedExtensions = array("jpg", "jpeg", "png", "gif");
-
-                            // Check if the uploaded file is a valid image file
-                            if (!in_array($imageFileType, $allowedExtensions)) {
-                                $errors['imageE'] = "Invalid image format. Only JPG, JPEG, PNG, and GIF files are allowed.";
-                            } elseif ($_FILES['image']['error'] !== UPLOAD_ERR_OK) {
-                                // Check for upload errors
-                                $uploadErrors = array(
-                                    UPLOAD_ERR_INI_SIZE => 'The uploaded file exceeds the upload_max_filesize directive in php.ini.',
-                                    UPLOAD_ERR_FORM_SIZE => 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form.',
-                                    UPLOAD_ERR_PARTIAL => 'The uploaded file was only partially uploaded.',
-                                    UPLOAD_ERR_NO_FILE => 'No file was uploaded.',
-                                    UPLOAD_ERR_NO_TMP_DIR => 'Missing a temporary folder.',
-                                    UPLOAD_ERR_CANT_WRITE => 'Failed to write file to disk.',
-                                    UPLOAD_ERR_EXTENSION => 'A PHP extension stopped the file upload.',
-                                );
-
-                                $errorCode = $_FILES['image']['error'];
-                                if (isset($uploadErrors[$errorCode])) {
-                                    $errors['imageE'] = $uploadErrors[$errorCode];
-                                } else {
-                                    $errors['imageE'] = 'Unknown error occurred during file upload.';
-                                }
-                            }
-                        } else {
-                            $errors['imageE'] = "Image is required";
-                        }
-
+                        $imageErrors = $productManager->validateProductImage($_FILES['image']);
 
                         if (empty($errors)) {
+                            // Image upload directory
+                            $targetDirectory = "../upload/";
+                            // Get the original file name
+                            $originalFileName = basename($_FILES['image']['name']);
+                            // Set the target file path
+                            $targetFile = $targetDirectory . $originalFileName;
 
+                            // Attempt to upload the image
+                            if (move_uploaded_file($_FILES['image']['tmp_name'], $targetFile)) {
+                                $successMessage = "Image uploaded successfully";
 
-
-
-
-
-
-
-                            // Upload the image file to the server
-                            $targetDirectory = "../uploads/";
-                            $targetFile = $targetDirectory . basename($_FILES['image']['name']);
-                            move_uploaded_file($_FILES['image']['tmp_name'], $targetFile);
-
-                            //Updata the user data into the "users" table
-
-
-                            $query = "UPDATE products SET name = :name,  price = :price, description = :description, image = :image WHERE product_id = :product_id";
-                            $stmt = $db->prepare($query);
-                            $stmt->execute(array(
-                                ':name' => $name,
-                                ':price' => $price,
-                                ':description' => $description,
-                                ':image' => $_FILES['image']['name'],
-                                ':product_id' => $product_id
-                            ));
-
-                            // Check if the insertion was successful
-                            if ($stmt->rowCount() > 0) {
-                                // Redirect the user to the login page with a success message
-                                // Set a session variable to indicate successful user update
-
-                                $_SESSION['message'] = "<div class='alert alert-success'>One Row   Updated </div>";
-                                echo "<script>
-
-                                                        window.open('products.php','_self');
-                                                        </script> ";
+                                // Attempt to add the product
+                                $result = $productManager->editProduct($id, $name, $description, $price, $cat_id, $originalFileName);
+                                if ($result['success']) {
+                                    $_SESSION['message'] = "Product Update successfully";
+                                    header('Location: products.php');
+                                } else {
+                                    $errors['general'] = "Failed to add product. Errors: ";
+                                    $errors = array_merge($errors, $result['errors']);
+                                }
                             } else {
-                                echo "<div class='alert alert-danger'>One Row  not Updated </div>";
+                                $errors['image'] = "Failed to upload image.";
                             }
+                        } else {
+                            $errors = array_merge($errors, $imageErrors);
                         }
                     }
-
-
-
-
-
-
-
-
-
-
-
-                    function test_input($data)
-                    {
-                        $data = trim($data);
-                        $data = stripslashes($data);
-                        $data = htmlspecialchars($data);
-                        return $data;
-                    }
-
                     ?>
+
+
+
+
+
+
+
+
+
+
                     <div class="panel-body">
                         <div class="row">
                             <div class="col-md-12">
+
+                                <?php
+                                $name = $product['name'];
+                                $price = $product['price'];
+                                $image = $product['image'];
+                                $description = $product['description'];
+                                $categoryId = $product['category_id'];
+                                ?>
+
+
                                 <form role="form" method="post" enctype="multipart/form-data">
                                     <div class="form-group">
                                         <label>Name</label>
                                         <input type="text" name="name" value="<?php echo $name ?>"
                                             placeholder="Please Enter your Name " class="form-control" />
                                         <i style="color: red;">
-                                            <?php if (isset($errors['nameE'])) echo  $errors['nameE']  ?>
+                                            <?php if (isset($errors['name'])) echo  $errors['name']  ?>
                                         </i>
                                     </div>
                                     <div class="form-group">
@@ -210,7 +125,7 @@ require('db_connect.php');
                                         <input type="text" name="price" value="<?php echo $price ?>"
                                             placeholder="Please Enter your Name " class="form-control" />
                                         <i style="color: red;">
-                                            <?php if (isset($errors['priceE'])) echo  $errors['priceE']  ?>
+                                            <?php if (isset($errors['price'])) echo  $errors['price']  ?>
                                         </i>
                                     </div>
                                     <div class="form-group">
@@ -218,14 +133,45 @@ require('db_connect.php');
                                         <textarea placeholder="Please Enter Description"
                                             value="<?php echo $description ?>" name="description" class="form-control"
                                             cols="30" rows="3"><?php echo $description ?></textarea>
-                                        <!-- <?php if (isset($errors['descriptionE'])) echo  $errors['descriptionE']  ?> -->
+                                        <!-- <?php if (isset($errors['description'])) echo  $errors['description']  ?> -->
 
                                     </div>
                                     <div class="form-group">
                                         <label>images</label>
                                         <input type="file" class="form-control" name="image">
                                         <i style="color: red;">
-                                            <?php if (isset($errors['imageE'])) echo  $errors['imageE']  ?>
+                                            <?php if (isset($errors['image'])) echo  $errors['image']  ?>
+                                        </i>
+                                    </div>
+
+
+
+                                    <div class="form-group">
+                                        <label>Product Type</label>
+                                        <select class="form-control" name="cat_id">
+                                            <?php
+                                            // Fetch categories
+                                            $categories = $categoryManager->getCategories();
+
+                                            if (is_array($categories)) {
+                                                foreach ($categories as $category) {
+                                                    $categoryId = isset($category['category_id']) ? htmlspecialchars($category['category_id']) : '';
+                                                    $categoryName = isset($category['name']) ? htmlspecialchars($category['name']) : 'Unknown Category';
+                                            ?>
+                                                    <option value="<?php echo $categoryId; ?>"
+                                                        <?php if ($cat_id == $categoryId) echo 'selected'; ?>>
+                                                        <?php echo $categoryName; ?>
+                                                    </option>
+                                            <?php
+                                                }
+                                            } else {
+                                                echo '<option value="">No categories available</option>';
+                                            }
+                                            ?>
+                                        </select>
+
+                                        <i style="color: red;">
+                                            <?php if (isset($errors['cat_id'])) echo $errors['cat_id']; ?>
                                         </i>
                                     </div>
 
@@ -256,13 +202,13 @@ require('db_connect.php');
 </div>
 
 <?php
-include('upload/footer.php');
+include('../templates/footer.php');
 ?>
 
 <script>
-$(document).ready(function() {
-    $('.delete').click(function() {
-        return confirm('Are You Sure !!');
+    $(document).ready(function() {
+        $('.delete').click(function() {
+            return confirm('Are You Sure !!');
+        });
     });
-});
 </script>
