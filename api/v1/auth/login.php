@@ -40,7 +40,13 @@ if ($user && $user['success'] && isset($user['user'])) {
     $jwt = JWT::encode($token, $secret_key, 'HS256');
     echo json_encode([
         "message" => "Login successful",
-        "token" => $jwt
+        "token" => $jwt,
+        "user" => array(
+            "id" => $user['user']['id'], // Updated path to 'id'
+            "email" => $user['user']['email'], // Updated path to 'email'
+            "name" => $user['user']['username'], // Updated path to 'email'
+            "role" => $user['user']['role_name'] // Updated to use 'role_name'
+        )
     ]);
 } else {
     http_response_code(401);
