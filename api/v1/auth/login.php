@@ -44,7 +44,7 @@ if ($user && $user['success'] && isset($user['user'])) {
         "user" => array(
             "id" => $user['user']['id'], // Updated path to 'id'
             "email" => $user['user']['email'], // Updated path to 'email'
-            "name" => $user['user']['username'], // Updated path to 'email'
+            "username" => $user['user']['username'], // Updated path to 'email'
             "role" => $user['user']['role_name'] // Updated to use 'role_name'
         )
     ]);

@@ -22,14 +22,35 @@ $userManager = new UserManager($userRepository);
 $result = $userManager->addUser($username, $email, $password, $password1, $role);
 
 if ($result['success']) {
-    http_response_code(200);
+    $userId = $result['user_id'];  // Retrieve the user ID
 
-    $responseHandler->handleSuccess($result, 'User registered successfully');
+    // Generate JWT token after successful registration
+    $payload = [
+        'iss' => 'furni-store',
+        'aud' => 'furni-store-users',
+        'iat' => time(),
+        'exp' => time() + (60 * 60), // Token expiration (1 hour)
+        'data' => [
+            'id' => $userId,  // Use the user ID
+            'email' => $email,
+            'role' => $role,
+        ]
+    ];
 
+    $jwt = \Firebase\JWT\JWT::encode($payload, 'your-secret-key', 'HS256');
 
-    // echo json_encode(["message" => "User registered successfully"]);
+    // Return response with JWT token and user info
+    http_response_code(201);
+    $responseHandler->handleSuccess([
+        'token' => $jwt,
+        'user' => [
+            'id' => $userId,
+            'email' => $email,
+            'username' => $username,
+            'role' => $role,
+        ]
+    ], 'User registered successfully');
 } else {
     http_response_code(400);
-    // Handle case where user is not found
-    $responseHandler->handleError(["errors" => $result['errors']], 'User not found');
+    $responseHandler->handleError(["errors" => $result['errors']], 'Registration failed');
 }

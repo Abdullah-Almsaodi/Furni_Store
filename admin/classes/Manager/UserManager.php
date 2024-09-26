@@ -26,9 +26,10 @@ class UserManager
         $hashedPassword = $this->hashPassword($password);
         $activationToken = $this->generateActivationToken();
 
-        $add = $this->userRepository->addUser($username, $email, $hashedPassword, $activationToken, $role_id);
-        if ($add) {
-            return ['success' => true];
+        // Capture the user ID
+        $userId = $this->userRepository->addUser($username, $email, $hashedPassword, $activationToken, $role_id);
+        if ($userId) {
+            return ['success' => true, 'user_id' => $userId];
         } else {
             return ['success' => false, 'errors' => ['general' => 'Failed to add user']];
         }
