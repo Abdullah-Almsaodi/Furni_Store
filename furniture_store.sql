@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 21, 2024 at 01:18 AM
+-- Generation Time: Sep 29, 2024 at 11:01 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -75,8 +75,8 @@ CREATE TABLE `categories` (
 
 INSERT INTO `categories` (`category_id`, `name`, `description`) VALUES
 (2, 'Dining Set', ' fa-utensils-alk'),
-(17, 'Almsaodi', 'hi'),
-(18, 'Almsaodi', ' ccccc '),
+(17, 'small', 'this is a small'),
+(18, 'Miduim', 'this is miduim'),
 (19, 'Almsaodi', ' zxcvbnm, mscbzxnbcnmzb');
 
 -- --------------------------------------------------------
@@ -120,7 +120,7 @@ CREATE TABLE `products` (
   `product_id` int(11) NOT NULL,
   `name` varchar(100) NOT NULL,
   `description` varchar(255) DEFAULT NULL,
-  `price` decimal(10,2) NOT NULL,
+  `price` double(10,2) NOT NULL,
   `image` varchar(255) DEFAULT NULL,
   `sales` int(100) NOT NULL,
   `stock_quantity` int(11) NOT NULL DEFAULT 0,
@@ -134,10 +134,10 @@ CREATE TABLE `products` (
 --
 
 INSERT INTO `products` (`product_id`, `name`, `description`, `price`, `image`, `sales`, `stock_quantity`, `category_id`, `created_at`, `updated_at`) VALUES
-(14, 'chair', 'this chair', 10000.00, 'product-1.png', 100, 0, 2, '2024-09-06 01:51:33', '2024-09-09 20:31:01'),
-(15, 'chair', 'this chair', 10000.00, 'product-2.png', 50, 0, 2, '2024-09-06 01:52:05', '2024-09-09 20:31:53'),
-(16, 'chair', 'this chair', 10000.00, 'product-3.png', 12, 0, 2, '2024-09-06 01:52:22', '2024-09-09 20:31:53'),
-(17, 'chair', 'this chair', 10000.00, 'product-1.png', 55, 0, 2, '2024-09-06 01:52:28', '2024-09-09 20:32:18');
+(14, 'chair', 'this chair', 10000.00, 'product-3.png', 100, 0, 17, '2024-09-06 01:51:33', '2024-09-29 02:44:18'),
+(15, 'chair', 'this chair', 10000.00, 'product-1.png', 50, 0, 2, '2024-09-06 01:52:05', '2024-09-29 02:44:54'),
+(16, 'chair', 'this chair', 10000.00, 'sofa.png', 12, 0, 18, '2024-09-06 01:52:22', '2024-09-29 02:45:14'),
+(17, 'chair', 'this chair', 10000.00, 'product-2.png', 55, 0, 18, '2024-09-06 01:52:28', '2024-09-29 02:44:34');
 
 -- --------------------------------------------------------
 
@@ -270,14 +270,9 @@ INSERT INTO `users` (`user_id`, `role_id`, `username`, `email`, `password`, `is_
 (72, 2, 'yytow', 'yy2@gmail.com', '$2y$10$gC2YCLV54aTxqE/nqj4a4epoV9RyF4xFHmmXIRTO55C8KXBLJof7m', 1, 'c6a9716d587d8349c686e733281f4697', '2024-09-20 00:02:37', '2024-09-20 00:02:37', '2024-09-20 00:02:37'),
 (73, 2, 'aliali', 'aliali@gmail.com', '$2y$10$e.6t9fVookNukBJ04ap2ye56l3eZre9xYyTqwvuBdJyc77LNbOsga', 1, '0d9cda6b00d190820055fe7bdea3304b', '2024-09-20 00:06:58', '2024-09-20 00:06:58', '2024-09-20 00:06:58'),
 (74, 2, 'm', 'm@gmail.com', '$2y$10$smITtHOp/AWkZIVK/HRzxe.3E9SVwKpZmZRJhNkNFSduN2hfhQ9ZG', 1, '17f634b72435e8bd6bf5fa99233e69b7', '2024-09-20 00:10:55', '2024-09-20 00:10:55', '2024-09-20 00:10:55'),
-(75, 2, 'mm', 'mm@gmail.com', '$2y$10$cJhQglnDvZZFYxop2oeSMOoPKyYXzXfPPUF30N/bkUpyb0R0SYzh6', 1, '278b53fefeb6b06f770ad256b91e4b12', '2024-09-20 00:15:24', '2024-09-20 00:15:24', '2024-09-20 00:15:24'),
-(76, 1, 'newuserr', 'newuser1@example.com', '$2y$10$OQ7r5WhX8bpFszbJRSwhB.dYH/9Gp1T2VT5cF6oBDTMgxL9RzEoGW', 1, '103fbd2322c4beb723134ef2061ba55a', '2024-09-20 03:11:22', '2024-09-20 03:11:22', '2024-09-20 03:11:22'),
-(77, 1, 'newuserr', 'newuser2@example.com', '$2y$10$t6d42KSL8hUqnI1A4XVyNeWG4Wi6PSQ.5XUTGRS8JhURyitAwpYwi', 1, '09c8b7b36de19678396f029a7ec770ea', '2024-09-20 18:15:58', '2024-09-20 18:15:58', '2024-09-20 18:15:58'),
-(78, 1, 'newuserr', 'newuser3@example.com', '$2y$10$hYc8EixLdV11U8H/JAHwbeG6e1InEHvu9OWuwNuIQu4Agin8RUkzO', 1, '08b41515687276009bd70ad8a85a8c39', '2024-09-20 18:17:54', '2024-09-20 18:17:54', '2024-09-20 18:17:54'),
-(79, 1, 'newuserr', 'newuser4@example.com', '$2y$10$5mjr84AdzZdBjNqgLLxwYeZFdE8OHmQsfw800RXJZpOG80pOb5g.G', 1, '12422b1fc22e6a01b0c2fcac70e8a7ff', '2024-09-20 19:05:18', '2024-09-20 19:05:18', '2024-09-20 19:05:18'),
-(80, 1, 'newuserr', 'newuser5@example.com', '$2y$10$MqV0HLFDZVk9KrER9kI44uq8iKa3cqIFDs8Mj2egMjJnArVnvJhD.', 1, '7639017eb332df2921d2b6a0641f6dec', '2024-09-20 20:04:28', '2024-09-20 20:04:28', '2024-09-20 20:04:28'),
-(81, 1, 'newuserr', 'newuser6@example.com', '$2y$10$aoaIsrU10H.5y4J5NtWga.c1eM4iwTG8SVIItajZ2/ksAiBjOAu1C', 1, '9178f0bde21df4e74985d49ef1a2715c', '2024-09-20 20:08:20', '2024-09-20 20:08:20', '2024-09-20 20:08:20'),
-(82, 1, 'newuserr', 'newuser7@example.com', '$2y$10$8cx52tmgkOV2zZvXSt6J/eWQlgBTQSNq71CQ.QTFKtqg0ORdNVXZO', 1, '0ced5edd959713ae6564d0899ee53244', '2024-09-20 20:18:01', '2024-09-20 20:18:01', '2024-09-20 20:18:01');
+(86, 2, 'hhhh', 'hhhh@gmail.com', '$2y$10$93wHOudm/t4T1bEGYIdj1.l01RkNZJbxKXlxQeFAtXWbcTg16IChy', 1, 'ab3a7eac52f1468e1d039fd1c0433d45', '2024-09-29 05:09:34', '2024-09-29 05:09:34', '2024-09-29 05:09:34'),
+(87, 2, 'newuserr', 'newuser9@example.com', '$2y$10$lv8UzrCMVt.8na6mdEOf.uTePSQMmlMpIivFA7utdo4hYtwvTXQp2', 1, 'be07f61358a322be46de8f7f2b0beeb3', '2024-09-29 19:11:33', '2024-09-29 19:11:33', '2024-09-29 19:11:33'),
+(88, 2, 'ali', 'ali2@gmail.com', '$2y$10$mhVn5wLa8ecNGjixqhpz5umTwjq/mgaJ0gipsFqzrAhGrY6RRpGzm', 1, '74579f99437758b61e613462c99e73f9', '2024-09-29 19:33:50', '2024-09-29 19:33:50', '2024-09-29 19:33:50');
 
 -- --------------------------------------------------------
 
@@ -470,7 +465,7 @@ ALTER TABLE `testimonials`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=83;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=89;
 
 --
 -- AUTO_INCREMENT for table `user_profiles`
