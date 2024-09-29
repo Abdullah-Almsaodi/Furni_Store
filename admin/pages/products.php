@@ -94,18 +94,18 @@ $categoryManager = new CategoryManager($categoryRepository);
                             <div class="col-md-12">
                                 <?php if ($successMessage): ?>
 
-                                    <div class='alert alert-success'><?php echo $successMessage; ?></div>
+                                <div class='alert alert-success'><?php echo $successMessage; ?></div>
                                 <?php endif; ?>
 
                                 <?php if (isset($errors['general'])): ?>
-                                    <div class='alert alert-danger'><?php echo $errors['general']; ?>
-                                    </div>
+                                <div class='alert alert-danger'><?php echo $errors['general']; ?>
+                                </div>
                                 <?php endif; ?>
 
 
                                 <?php
                                 if (isset($_SESSION['message'])) : ?>
-                                    <div class='alert alert-success'><?php echo $_SESSION['message'] ?></div>
+                                <div class='alert alert-success'><?php echo $_SESSION['message'] ?></div>
 
                                 <?php unset($_SESSION['message']);
                                 endif; ?>
@@ -154,10 +154,10 @@ $categoryManager = new CategoryManager($categoryRepository);
                                                     $categoryId = isset($category['category_id']) ? htmlspecialchars($category['category_id']) : '';
                                                     $categoryName = isset($category['name']) ? htmlspecialchars($category['name']) : 'Unknown Category';
                                             ?>
-                                                    <option value="<?php echo $categoryId; ?>"
-                                                        <?php if ($cat_id == $categoryId) echo 'selected'; ?>>
-                                                        <?php echo $categoryName; ?>
-                                                    </option>
+                                            <option value="<?php echo $categoryId; ?>"
+                                                <?php if ($cat_id == $categoryId) echo 'selected'; ?>>
+                                                <?php echo $categoryName; ?>
+                                            </option>
                                             <?php
                                                 }
                                             } else {
@@ -180,7 +180,7 @@ $categoryManager = new CategoryManager($categoryRepository);
                             </div>
                         </div>
                         <?php if (!empty($successMessage)): ?>
-                            <div class="alert alert-success"><?php echo $successMessage; ?></div>
+                        <div class="alert alert-success"><?php echo $successMessage; ?></div>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -234,12 +234,12 @@ $categoryManager = new CategoryManager($categoryRepository);
 
                         <?php if ($successM): ?>
 
-                            <div class='alert alert-success'><?php echo $successM; ?></div>
+                        <div class='alert alert-success'><?php echo $successM; ?></div>
                         <?php endif; ?>
 
                         <?php if (isset($errors['general'])): ?>
-                            <div class='alert alert-danger'><?php echo $errors['general']; ?>
-                            </div>
+                        <div class='alert alert-danger'><?php echo $errors['general']; ?>
+                        </div>
                         <?php endif; ?>
 
 
@@ -263,43 +263,23 @@ $categoryManager = new CategoryManager($categoryRepository);
                                         foreach ($products as $product):
                                             $product_id = htmlspecialchars($product['product_id']);
                                     ?>
-                                            <tr class="odd gradeX">
-                                                <td><?php echo htmlspecialchars($product['product_id']); ?></td>
-                                                <td><?php echo htmlspecialchars($product['name']); ?></td>
-                                                <td><?php echo htmlspecialchars($product['description']); ?></td>
-                                                <td><img src="../upload/<?php echo htmlspecialchars($product['image']); ?>"
-                                                        width="100px" class="img-fluid"></td>
-                                                <td><?php echo htmlspecialchars($product['price']); ?></td>
-                                                <td>
-                                                    <?php
-                                                    // Ensure cat_id is an integer and check if it exists in the product array
-                                                    $category_id = isset($product['category_id']) ? (int)$product['category_id'] : 0;
-                                                    // Fetch category only if category_id is valid
-                                                    if ($category_id > 0) {
-                                                        $category = $categoryManager->getCategoryById($category_id);
+                                    <tr class="odd gradeX">
+                                        <td><?php echo htmlspecialchars($product['product_id']); ?></td>
+                                        <td><?php echo htmlspecialchars($product['name']); ?></td>
+                                        <td><?php echo htmlspecialchars($product['description']); ?></td>
+                                        <td><img src="../upload/<?php echo htmlspecialchars($product['image']); ?>"
+                                                width="100px" class="img-fluid"></td>
+                                        <td><?php echo htmlspecialchars($product['price']); ?></td>
+                                        <td><?php echo htmlspecialchars($product['category']); ?></td>
 
-                                                        // Check if the category was found and if 'name' exists
-                                                        if ($category && isset($category['name'])) {
-                                                            $category_name = htmlspecialchars($category['name']);
-                                                        } else {
-                                                            $category_name = 'Unknown Category'; // Default if category not found
-                                                        }
-                                                    } else {
-                                                        $category_name = 'No Category'; // Default if no category_id
-                                                    }
-
-                                                    echo $category_name;
-                                                    ?>
-                                                </td>
-
-                                                <td>
-                                                    <a href="editproducts.php?action=edit&id=<?php echo $product_id; ?>"
-                                                        class='btn btn-success'>Edit</a>
-                                                    <a href="?action=delete&id=<?php echo $product_id; ?>"
-                                                        class='delete btn btn-danger'>Delete</a>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach; ?>
+                                        <td>
+                                            <a href="editproducts.php?action=edit&id=<?php echo $product_id; ?>"
+                                                class='btn btn-success'>Edit</a>
+                                            <a href="?action=delete&id=<?php echo $product_id; ?>"
+                                                class='delete btn btn-danger'>Delete</a>
+                                        </td>
+                                    </tr>
+                                    <?php endforeach; ?>
                                     <?php endif; ?>
                                 </tbody>
                             </table>
@@ -318,9 +298,9 @@ $categoryManager = new CategoryManager($categoryRepository);
 <?php include('../templates/footer.php'); ?>
 
 <script>
-    $(document).ready(function() {
-        $('.delete').click(function() {
-            return confirm('Are You Sure?');
-        });
+$(document).ready(function() {
+    $('.delete').click(function() {
+        return confirm('Are You Sure?');
     });
+});
 </script>

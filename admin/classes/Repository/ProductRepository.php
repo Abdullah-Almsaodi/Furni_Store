@@ -45,7 +45,8 @@ class ProductRepository
 
     public function getAllProducts(): array
     {
-        $query = "SELECT * FROM products";
+        $query = "SELECT products.product_id, products.name, products.description, products.price, products.image, categories.name as category FROM products JOIN categories ON products.category_id = categories.category_id
+ ";
         $stmt = $this->conn->query($query);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }

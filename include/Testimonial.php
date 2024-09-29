@@ -22,7 +22,7 @@
                         try {
                             // Fetch testimonials from the database
                             $sql = "SELECT * FROM testimonials";
-                            $stmt = $db->query($sql);
+                            $stmt = $conn->query($sql);
                             $testimonials = $stmt->fetchAll();
 
                             foreach ($testimonials as $testimonial) {
@@ -32,29 +32,29 @@
                                 $image_url = $testimonial['image_url'];
                         ?>
 
-                        <div class="item">
-                            <div class="row justify-content-center">
-                                <div class="col-lg-8 mx-auto">
+                                <div class="item">
+                                    <div class="row justify-content-center">
+                                        <div class="col-lg-8 mx-auto">
 
-                                    <div class="testimonial-block text-center">
-                                        <blockquote class="mb-5">
-                                            <p>&ldquo;<?php echo $quote; ?>&rdquo;</p>
-                                        </blockquote>
+                                            <div class="testimonial-block text-center">
+                                                <blockquote class="mb-5">
+                                                    <p>&ldquo;<?php echo $quote; ?>&rdquo;</p>
+                                                </blockquote>
 
-                                        <div class="author-info">
-                                            <div class="author-pic">
-                                                <img src="../Public/images/<?php echo $image_url; ?>"
-                                                    alt="<?php echo $author; ?>" class="img-fluid">
+                                                <div class="author-info">
+                                                    <div class="author-pic">
+                                                        <img src="../Public/images/<?php echo $image_url; ?>"
+                                                            alt="<?php echo $author; ?>" class="img-fluid">
+                                                    </div>
+                                                    <h3 class="font-weight-bold"><?php echo $author; ?></h3>
+                                                    <span class="position d-block mb-3"><?php echo $position; ?></span>
+                                                </div>
                                             </div>
-                                            <h3 class="font-weight-bold"><?php echo $author; ?></h3>
-                                            <span class="position d-block mb-3"><?php echo $position; ?></span>
+
                                         </div>
                                     </div>
-
                                 </div>
-                            </div>
-                        </div>
-                        <!-- END item -->
+                                <!-- END item -->
 
                         <?php
                             }

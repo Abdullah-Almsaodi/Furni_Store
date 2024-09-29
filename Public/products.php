@@ -1,12 +1,19 @@
 <!--   ////////.........end Footer tob bar................//////-->
 <?php
 include '../include/Header.php';
-include 'db_connect.php';
+require_once '../admin/pages/config.php';
+require_once '../admin/classes/Database.php';
+
+
+// Initialize Database
+$connInstance = Database::getInstance();
+$conn = $connInstance->getInstance()->getConnection();
+
 
 try {
     // Retrieve data from the "product" table
     $sql = "SELECT * FROM Products";
-    $stmt = $db->query($sql);
+    $stmt = $conn->query($sql);
     $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     echo "Connection failed: " . $e->getMessage();
@@ -43,36 +50,9 @@ try {
 <div class="untree_co-section product-section before-Footer-section">
     <div class="container">
         <div class="row">
-            <?php
-
-            try {
-                // Fetch recent blog posts from the database
-                $sql = "SELECT  * FROM products order by sales DESC LIMIT 8";
-                $stmt = $db->query($sql);
-                $products = $stmt->fetchAll();
-                // Loop through the retrieved data and display products
-                foreach ($products as $row) {
-                    $productName = $row['name'];
-                    $productImage = $row['image'];
-                    $productPrice = $row['price'];
-            ?>
-                    <div class="col-12 col-md-4 col-lg-3 mb-5">
-                        <a class="product-item" href="#">
-                            <img src="images/<?php echo $productImage; ?>" class="img-fluid product-thumbnail">
-                            <h3 class="product-title"><?php echo $productName; ?></h3>
-                            <strong class="product-price"><?php echo $productPrice; ?></strong>
-                            <span class="icon-cross">
-                                <img src="images/cross.svg" class="img-fluid">
-                            </span>
-                        </a>
-                    </div>
-            <?php
-                }
-            } catch (PDOException $e) {
-                // Handle database errors
-                echo "Error: " . $e->getMessage();
-            }
-            ?>
+            <div class="row" id="product-items">
+                <!-- Products will be dynamically inserted here via AJAX -->
+            </div>
         </div>
     </div>
 </div>
@@ -82,7 +62,52 @@ try {
 <!--   ////////.........end Footer tob bar................//////-->
 
 
+
+<script src="jquery/dist/jquery.min.js"></script>
 <script src="js/bootstrap.bundle.min.js"></script>
 <script src="js/tiny-slider.js"></script>
 <script src="js/custom.js"></script>
+
+
+<script>
+$(document).ready(function() {
+    // Fetch all product data using AJAX
+    $.ajax({
+        url: 'http://192.168.1.6/New-Furni/api/v1/product/product', // Replace with your actual API URL
+        method: 'GET',
+        success: function(data) {
+
+            var productItemsContainer = $('#product-items'); // For Product Section
+
+
+            // Add products to the Product Section (Limit to 3)
+            data.slice(0, 8).forEach(function(product) {
+                var productCard = `
+
+                     <div class="col-12 col-md-4 col-lg-3 mb-5">
+                        <a class="product-item" href="#">
+                            <img src="images/${product.image}" class="img-fluid product-thumbnail">
+                            <h3 class="product-title">${product.name}</h3>
+                            <strong class="product-price">${product.price}</strong>
+                            <span class="icon-cross">
+                                <img src="images/cross.svg" class="img-fluid">
+                            </span>
+                        </a>
+                    </div>
+
+                    
+                    `;
+                productItemsContainer.append(
+                    productCard); // Append each product to the Product Section
+            });
+        },
+        error: function(error) {
+            console.log("Error fetching the products", error);
+        }
+    });
+});
+</script>
+
 </body>
+
+</html>

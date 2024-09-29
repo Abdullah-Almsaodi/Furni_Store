@@ -12,6 +12,9 @@
             $isRegistered = true;
         }
 
+
+
+
         ?> -->
 
 
@@ -39,12 +42,10 @@
     <link href="../Public/css/style.css" rel="stylesheet">
     <title>Furni Free Bootstrap 5 Template for Furniture and Interior Design Websites by Untree.co </title>
 
+    <script type="text/javascript">
+        const BASE_URL = "<?php echo BASE_URL; ?>";
+    </script>
 
-    <!-- <style>
-        a {
-            font-size: 17px;
-        }
-    </style> -->
 </head>
 
 <body>

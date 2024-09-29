@@ -71,54 +71,71 @@ $userManager = new UserManager($userRepository);
                     <div class="panel-heading">
                         <i class="fa fa-plus-circle"></i> Add New User
                     </div>
+
                     <?php
-                    // define variables and set to empty values
+                    // Define variables and set to empty values
                     $username = $email = $password = $password1 = $role_type = $active = "";
                     $errors = [];
                     $successMessage = '';
                     $successM = '';
                     $err = '';
 
-
-
                     if (isset($_POST['submitUser'])) {
-
                         // Handle form submission for adding a new user
-
-
                         if ($_SERVER["REQUEST_METHOD"] == "POST") {
-
                             $username = $_POST['name'] ?? '';
                             $email = $_POST['email'] ?? '';
                             $password = $_POST['password'] ?? '';
                             $password1 = $_POST['password1'] ?? '';
                             $role = isset($_POST['role']) ? (int)$_POST['role'] : 0; // Ensure role is an integer
 
-                            // Call the addUser method from UserManager
-                            $result = $userManager->addUser($username, $email, $password, $password1, $role);
+                            // Prepare the data to be sent to the API
+                            $data = [
+                                'username' => $username,
+                                'email' => $email,
+                                'password' => $password,
+                                'password1' => $password1,
+                                'role' => $role
+                            ];
 
-                            // Check if the user was added successfully or if there were errors
-                            if ($result['success']) {
+                            // Set the API endpoint URL
+                            $apiUrl = 'http://192.168.1.6/New-Furni/api/v1/user/user';
 
+                            // Initialize cURL
+                            $ch = curl_init($apiUrl);
+                            $token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJmdXJuaS1zdG9yZSIsImF1ZCI6ImZ1cm5pLXN0b3JlLXVzZXJzIiwiaWF0IjoxNzI3NTg2MjkwLCJleHAiOjE3Mjc1ODk4OTAsImRhdGEiOnsiaWQiOjcsImVtYWlsIjoiQWJkdWxsYWguUWFpZEBvdXRsb29rLmNvbSIsInJvbGUiOiJBZG1pbiJ9fQ.gbDmiB7u8TbcNRbAiEsZL1GxP2T2AIyHOnjGaLquluM";
+
+                            // Set cURL options
+                            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                                'Content-Type: application/json',
+                                'Authorization: Bearer ' . $token
+                            ]);
+                            curl_setopt($ch, CURLOPT_POST, true);
+                            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+
+                            // Execute the request
+                            $response = curl_exec($ch);
+                            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                            curl_close($ch);
+
+                            // Handle the response
+                            if ($httpCode === 201) { // User created successfully
                                 $successMessage = "User added successfully";
                             } else {
-
-                                // Debugging: print errors if necessary
+                                $responseData = json_decode($response, true);
+                                $errors = $responseData['errors'] ?? ['Unable to add user.'];
                                 error_log('Add User Errors: ' . print_r($errors, true));
-                                $errors = $result['errors'];
-                                // $successMessage = "<div class='alert alert-danger'>Cannot add User </div>";
                             }
                         }
                     }
 
-
+                    // Fetch the list of users
                     $users = $userManager->getUsers();
-
-
-
-
-
                     ?>
+
+
+
                     <div class="panel-body">
                         <div class="row">
                             <div class="modal fade" id="successModal" tabindex="-1" role="dialog"
@@ -148,18 +165,18 @@ $userManager = new UserManager($userRepository);
 
                                 <?php if ($successMessage): ?>
 
-                                <div class='alert alert-success'><?php echo $successMessage; ?></div>
+                                    <div class='alert alert-success'><?php echo $successMessage; ?></div>
                                 <?php endif; ?>
 
                                 <?php if (isset($errors['general'])): ?>
-                                <div class='alert alert-danger'><?php echo $errors['general']; ?>
-                                </div>
+                                    <div class='alert alert-danger'><?php echo $errors['general']; ?>
+                                    </div>
                                 <?php endif; ?>
 
 
                                 <?php
                                 if (isset($_SESSION['message'])) : ?>
-                                <div class='alert alert-success'><?php echo $_SESSION['message'] ?></div>
+                                    <div class='alert alert-success'><?php echo $_SESSION['message'] ?></div>
 
                                 <?php unset($_SESSION['message']);
                                 endif; ?>
@@ -285,12 +302,12 @@ $userManager = new UserManager($userRepository);
 
                         <?php if ($successM): ?>
 
-                        <div class='alert alert-success'><?php echo $successM; ?></div>
+                            <div class='alert alert-success'><?php echo $successM; ?></div>
                         <?php endif; ?>
 
                         <?php if (isset($errors['general'])): ?>
-                        <div class='alert alert-danger'><?php echo $errors['general']; ?>
-                        </div>
+                            <div class='alert alert-danger'><?php echo $errors['general']; ?>
+                            </div>
                         <?php endif; ?>
 
                         <div class="table-responsive">
@@ -313,26 +330,26 @@ $userManager = new UserManager($userRepository);
 
 
                                     <?php if (!empty($users)): ?>
-                                    <?php foreach ($users as $user): ?>
-                                    <tr class="odd gradeX">
-                                        <td><?php echo htmlspecialchars($user['user_id']); ?></td>
-                                        <td><?php echo htmlspecialchars($user['username']); ?></td>
-                                        <td><?php echo htmlspecialchars($user['email']); ?></td>
-                                        <td><?php echo htmlspecialchars($user['password']); ?></td>
-                                        <td><?php echo htmlspecialchars($user['is_active']); ?></td>
-                                        <td><?php echo htmlspecialchars($user['role_name']); ?></td>
-                                        <td>
-                                            <a href="editusers.php?action=edit&id=<?php echo $user['user_id']; ?>"
-                                                class='btn btn-success action'>Edit</a>
-                                            <a href="?action=delete&id=<?php echo $user['user_id']; ?>"
-                                                class='delete btn btn-danger '>Delete</a>
-                                        </td>
-                                    </tr>
-                                    <?php endforeach; ?>
+                                        <?php foreach ($users as $user): ?>
+                                            <tr class="odd gradeX">
+                                                <td><?php echo htmlspecialchars($user['user_id']); ?></td>
+                                                <td><?php echo htmlspecialchars($user['username']); ?></td>
+                                                <td><?php echo htmlspecialchars($user['email']); ?></td>
+                                                <td><?php echo htmlspecialchars($user['password']); ?></td>
+                                                <td><?php echo htmlspecialchars($user['is_active']); ?></td>
+                                                <td><?php echo htmlspecialchars($user['role_name']); ?></td>
+                                                <td>
+                                                    <a href="editusers.php?action=edit&id=<?php echo $user['user_id']; ?>"
+                                                        class='btn btn-success action'>Edit</a>
+                                                    <a href="?action=delete&id=<?php echo $user['user_id']; ?>"
+                                                        class='delete btn btn-danger '>Delete</a>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
                                     <?php else: ?>
-                                    <tr>
-                                        <td colspan='5'>No users found.</td>
-                                    </tr>
+                                        <tr>
+                                            <td colspan='5'>No users found.</td>
+                                        </tr>
                                     <?php endif; ?>
 
 
@@ -362,9 +379,9 @@ include('../templates/Footer.php');
 ?>
 
 <script>
-$(document).ready(function() {
-    $('.delete').click(function() {
-        return confirm('Are You Sure !!');
+    $(document).ready(function() {
+        $('.delete').click(function() {
+            return confirm('Are You Sure !!');
+        });
     });
-});
 </script>

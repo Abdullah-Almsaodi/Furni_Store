@@ -67,6 +67,15 @@ switch ($method) {
         $password1 = $data['password1'] ?? '';
         $role = $data['role'] ?? 1;
 
+        // Create a new user
+        // $result = $userManager->addUser($username, $email, $password, $password1, $role);
+        // if ($result['success']) {
+        //     http_response_code(201); // User created
+        //     $responseHandler->handleSuccess($result, 'User created successfully');
+        // } else {
+        //     http_response_code(400); // Bad request
+        //     $responseHandler->handleError($result, "User Not created ");
+        // }
 
 
         if ($jwt) {
@@ -110,9 +119,11 @@ switch ($method) {
         // Ensure user ID is provided
         if (!$userId) {
             http_response_code(400); // Bad request
-            echo json_encode(["message" => "User ID is required"]);
+            $responseHandler->handleError(['errors' => ['User_Id' => 'User ID is required']], "User ID is required");
             exit;
         }
+
+        $errors = array();
 
         // Read incoming data
         $data = json_decode(file_get_contents('php://input'), true);
@@ -125,7 +136,6 @@ switch ($method) {
         $role = $data['role'] ?? 1;
         $active = $data['is_active'] ?? 1;
 
-
         if ($jwt) {
             try {
                 // Decode the JWT
@@ -134,31 +144,32 @@ switch ($method) {
                 // Optionally validate claims like issuer
                 if ($decoded->iss !== $issuer) {
                     http_response_code(401);
-                    echo json_encode(["message" => "Invalid token issuer"]);
+                    $responseHandler->handleError(['errors' => ['token' => 'Invalid token issuer']], "Invalid token issuer");
                     exit();
                 }
 
                 // Update the user
                 $result = $userManager->updateUser($user_id, $username, $email, $password, $password1, $role, $active);
                 if ($result['success']) {
-                    echo json_encode(["message" => "User updated successfully"]);
+                    http_response_code(200); // Success
+                    $responseHandler->handleSuccess($result, 'User updated successfully');
                 } else {
                     http_response_code(400); // Bad request
-                    echo json_encode($result['errors']);
+                    $responseHandler->handleError(['errors' => $result['errors']], "User not updated");
                 }
             } catch (\Firebase\JWT\ExpiredException $e) {
                 http_response_code(401);
-                echo json_encode(["message" => "Token expired"]);
+                $responseHandler->handleError(['errors' => ['token' => 'Token expired']], "Token expired");
             } catch (\Firebase\JWT\SignatureInvalidException $e) {
                 http_response_code(401);
-                echo json_encode(["message" => "Invalid signature"]);
+                $responseHandler->handleError(['errors' => ['token' => 'Invalid signature']], "Invalid signature");
             } catch (Exception $e) {
                 http_response_code(401); // Unauthorized
-                echo json_encode(["message" => "Access denied, invalid token"]);
+                $responseHandler->handleError(['errors' => ['token' => 'Access denied, invalid token']], "Access denied, invalid token");
             }
         } else {
             http_response_code(401);
-            echo json_encode(["message" => "Access denied, token not provided"]);
+            $responseHandler->handleError(['errors' => ['token' => 'Access denied, token not provided']], "Access denied, token not provided");
         }
         break;
 
@@ -171,6 +182,16 @@ switch ($method) {
         }
 
 
+
+
+        // Delete the user
+        $result = $userManager->deleteUser($userId);
+        if ($result) {
+            echo json_encode(["message" => "User deleted successfully"]);
+        } else {
+            http_response_code(404); // User not found
+            echo json_encode(["message" => "User not found"]);
+        }
 
         if ($jwt) {
             try {

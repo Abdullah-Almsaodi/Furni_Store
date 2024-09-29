@@ -1,13 +1,14 @@
 <!--   ////////.........start Footer tob bar................//////-->
 <?php
 include '../include/Header.php';
-require_once '../Public/db_connect.php'; // Database configuration
-// require_once '../admin/pages/config.php'; // Database configuration
-// require_once '../admin/classes/Database.php';
+require_once '../admin/pages/config.php';
+require_once '../admin/classes/Database.php';
 
 
-// $db = new Database();
-// $db->getInstance()->getConnection();
+// Initialize Database
+$connInstance = Database::getInstance();
+$conn = $connInstance->getInstance()->getConnection();
+
 
 
 ?>
@@ -49,7 +50,7 @@ require_once '../Public/db_connect.php'; // Database configuration
             try {
                 // Fetch recent blog posts from the database
                 $sql = "SELECT * FROM blog_posts ORDER BY post_date DESC LIMIT 6";
-                $stmt = $db->query($sql);
+                $stmt = $conn->query($sql);
                 $posts = $stmt->fetchAll();
 
                 foreach ($posts as $post) {
@@ -59,19 +60,19 @@ require_once '../Public/db_connect.php'; // Database configuration
                     $image_url = $post['image_url'];
             ?>
 
-            <div class="col-12 col-sm-6 col-md-4 mb-5">
-                <div class="post-entry">
-                    <a href="#" class="post-thumbnail"><img src="images/<?php echo $image_url; ?>" alt="Image"
-                            class="img-fluid"></a>
-                    <div class="post-content-entry">
-                        <h3><a href="#"><?php echo $title; ?></a></h3>
-                        <div class="meta">
-                            <span>by <a href="#"><?php echo $author; ?></a></span> <span>on <a
-                                    href="#"><?php echo $post_date; ?></a></span>
+                    <div class="col-12 col-sm-6 col-md-4 mb-5">
+                        <div class="post-entry">
+                            <a href="#" class="post-thumbnail"><img src="images/<?php echo $image_url; ?>" alt="Image"
+                                    class="img-fluid"></a>
+                            <div class="post-content-entry">
+                                <h3><a href="#"><?php echo $title; ?></a></h3>
+                                <div class="meta">
+                                    <span>by <a href="#"><?php echo $author; ?></a></span> <span>on <a
+                                            href="#"><?php echo $post_date; ?></a></span>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
 
             <?php
                 }

@@ -1,5 +1,8 @@
 <!--   ////////.........start Footer tob bar................//////-->
-<?php include 'include\Header.php'; ?>
+<?php
+include '../include/Header.php';
+
+?>
 <!--   ////////.........end Footer tob bar................//////-->
 
 <!-- Start Hero Section -->
@@ -36,19 +39,17 @@
                 </span>
                 <h2 class="display-3 text-black">Thank you!</h2>
                 <p class="lead mb-5">You order was successfuly completed.</p>
-                <p><a href="products.html" class="btn btn-sm btn-outline-black">Back to products</a></p>
+                <p><a href="products.php" class="btn btn-sm btn-outline-black">Back to products</a></p>
             </div>
         </div>
     </div>
 </div>
 <!--   ////////.........start Footer tob bar................//////-->
-<?php include 'include\Footer.php'; ?>
+<?php include '../include/Footer.php'; ?>
 <!--   ////////.........end Footer tob bar................//////-->
 
 
-<script src="js/bootstrap.bundle.min.js"></script>
-<script src="js/tiny-slider.js"></script>
-<script src="js/custom.js"></script>
+
 </body>
 
 </html>

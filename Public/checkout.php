@@ -1,5 +1,17 @@
 <!--   ////////.........start Footer tob bar................//////-->
-<?php include 'include\Header.php'; ?>
+<?php
+include '../include/Header.php';
+require_once '../admin/pages/config.php';
+require_once '../admin/classes/Database.php';
+
+
+// Initialize Database
+$connInstance = Database::getInstance();
+$conn = $connInstance->getInstance()->getConnection();
+
+
+
+?>
 <!--   ////////.........end Footer tob bar................//////-->
 
 <!-- Start Hero Section -->
@@ -235,7 +247,7 @@
                             <label for="c_code" class="text-black mb-3">Enter your coupon code if you have one</label>
                             <div class="input-group w-75 couponcode-wrap">
                                 <input type="text" class="form-control me-2" id="c_code" placeholder="Coupon Code"
-                                    aria-label="Coupon Code" aria-describedby="button-addon2">
+                                    aria-label="Coupon Code" aria-describeconny="button-addon2">
                                 <div class="input-group-append">
                                     <button class="btn btn-black btn-sm" type="button" id="button-addon2">Apply</button>
                                 </div>
@@ -318,7 +330,7 @@
 
                             <div class="form-group">
                                 <button class="btn btn-black btn-lg py-3 btn-block"
-                                    onclick="window.location='thankyou.html'">Place Order</button>
+                                    onclick="window.location='thankyou.php'">Place Order</button>
                             </div>
 
                         </div>
@@ -332,13 +344,10 @@
 </div>
 
 <!--   ////////.........start Footer tob bar................//////-->
-<?php include 'include\Footer.php'; ?>
+<?php include '../include/Footer.php'; ?>
 <!--   ////////.........end Footer tob bar................//////-->
 
 
-<script src="js/bootstrap.bundle.min.js"></script>
-<script src="js/tiny-slider.js"></script>
-<script src="js/custom.js"></script>
 </body>
 
 </html>

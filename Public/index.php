@@ -6,11 +6,11 @@ require_once '../admin/classes/Database.php';
 
 
 // Initialize Database
-$dbInstance = Database::getInstance();
-$conn = $dbInstance->getInstance()->getConnection();
+$connInstance = Database::getInstance();
+$conn = $connInstance->getInstance()->getConnection();
 
-// $db = new Database();
-// $db->getInstance()->getConnection();
+// $conn = new Database();
+// $conn->getInstance()->getConnection();
 
 
 include '../include/Header.php';
@@ -45,56 +45,26 @@ include '../include/Header.php';
 <!-- Start Product Section -->
 <div class="product-section">
     <div class="container">
-        <div class="row">
+        <div class="row" id="product-items">
 
             <!-- Start Column 1 -->
             <div class="col-md-12 col-lg-3 mb-5 mb-lg-0">
                 <h2 class="mb-4 section-title">Crafted with excellent material.</h2>
                 <p class="mb-4">Donec vitae odio quis nisl dapibus malesuada. Nullam ac aliquet velit. Aliquam vulputate
-                    velit imperdiet dolor tempor tristique. </p>
+                    velit imperdiet dolor tempor tristique.</p>
                 <p><a href="products.php" class="btn">Explore</a></p>
             </div>
             <!-- End Column 1 -->
 
-            <!-- Start Column 2 -->
-            <?php
-            try {
-                // Fetch distinct product items from the database
-                $sql = "SELECT * FROM products ORDER BY sales DESC LIMIT 3";
-                $stmt = $db->query($sql);
-                $products = $stmt->fetchAll();
+            <!-- Start Column 2 for Product Items -->
 
-                foreach ($products as $product) {
-                    $productImage = $product['image'];
-                    $productName = $product['name'];
-                    $productPrice = $product['price'];
-            ?>
-                    <div class="col-12 col-md-4 col-lg-3 mb-5 mb-md-0">
-                        <a class="product-item" href="cart.php">
-                            <img src="../Public/images/<?php echo $productImage; ?>" class="img-fluid product-thumbnail">
-                            <h3 class="product-title"><?php echo $productName; ?></h3>
-                            <strong class="product-price"><?php echo $productPrice; ?></strong>
-
-                            <span class="icon-cross">
-                                <img src="../Public/images/cross.svg" class="img-fluid">
-                            </span>
-                        </a>
-                    </div>
-            <?php
-                }
-            } catch (PDOException $e) {
-                // Handle database errors
-                echo "Error: " . $e->getMessage();
-            }
-            ?>
             <!-- End Column 2 -->
-
-
 
         </div>
     </div>
 </div>
 <!-- End Product Section -->
+
 
 <!-- Start Why Choose Us Section -->
 <div class="why-choose-section">
@@ -199,47 +169,12 @@ include '../include/Header.php';
 <!-- Start Popular Product -->
 <div class="popular-product">
     <div class="container">
-        <div class="row">
-
-            <?php
-            try {
-                // Fetch products from the database
-                $sql = "SELECT * FROM products LIMIT 3";
-                $stmt = $db->query($sql);
-                $products = $stmt->fetchAll();
-
-                foreach ($products as $product) {
-                    $name = $product['name'];
-                    $description = $product['description'];
-                    $image_url = $product['image'];
-            ?>
-
-                    <div class="col-12 col-md-6 col-lg-4 mb-4 mb-lg-0">
-                        <div class="product-item-sm d-flex">
-                            <div class="thumbnail">
-                                <img src="../public/images/<?php echo $image_url; ?>" alt="Image" class="img-fluid">
-                            </div>
-                            <div class="pt-3">
-                                <h3><?php echo $name; ?></h3>
-                                <p><?php echo $description; ?></p>
-                                <p><a href="#">Read More</a></p>
-                            </div>
-                        </div>
-                    </div>
-
-            <?php
-                }
-            } catch (PDOException $e) {
-                // Handle database errors
-                echo "Error: " . $e->getMessage();
-            }
-            ?>
-
+        <div class="row" id="popular-products">
+            <!-- Product items will be dynamically inserted here via AJAX -->
         </div>
     </div>
 </div>
 <!-- End Popular Product -->
-
 
 
 
@@ -250,7 +185,6 @@ include '../include/Header.php';
 include '../include/Testimonial.php';
 ?>
 <!-- End Testimonial Slider -->
-
 
 
 
@@ -272,7 +206,7 @@ include '../include/Testimonial.php';
             try {
                 // Fetch recent blog posts from the database
                 $sql = "SELECT * FROM blog_posts ORDER BY post_date DESC LIMIT 3";
-                $stmt = $db->query($sql);
+                $stmt = $conn->query($sql);
                 $posts = $stmt->fetchAll();
 
                 foreach ($posts as $post) {
@@ -282,19 +216,19 @@ include '../include/Testimonial.php';
                     $image_url = $post['image_url'];
             ?>
 
-                    <div class="col-12 col-sm-6 col-md-4 mb-4 mb-md-0">
-                        <div class="post-entry">
-                            <a href="#" class="post-thumbnail"><img src="../Public/images/<?php echo $image_url; ?>" alt="Image"
-                                    class="img-fluid"></a>
-                            <div class="post-content-entry">
-                                <h3><a href="#"><?php echo $title; ?></a></h3>
-                                <div class="meta">
-                                    <span>by <a href="#"><?php echo $author; ?></a></span> <span>on <a
-                                            href="#"><?php echo $post_date; ?></a></span>
-                                </div>
-                            </div>
+            <div class="col-12 col-sm-6 col-md-4 mb-4 mb-md-0">
+                <div class="post-entry">
+                    <a href="#" class="post-thumbnail"><img src="../Public/images/<?php echo $image_url; ?>" alt="Image"
+                            class="img-fluid"></a>
+                    <div class="post-content-entry">
+                        <h3><a href="#"><?php echo $title; ?></a></h3>
+                        <div class="meta">
+                            <span>by <a href="#"><?php echo $author; ?></a></span> <span>on <a
+                                    href="#"><?php echo $post_date; ?></a></span>
                         </div>
                     </div>
+                </div>
+            </div>
 
             <?php
                 }
@@ -317,6 +251,64 @@ include '../include/Testimonial.php';
 <script src="js/bootstrap.bundle.min.js"></script>
 <script src="js/tiny-slider.js"></script>
 <script src="js/custom.js"></script>
+
+
+
+<script>
+$(document).ready(function() {
+    // Fetch all product data using AJAX
+    $.ajax({
+        url: BASE_URL + 'product/product', // Replace with your actual API URL
+        method: 'GET',
+        success: function(data) {
+            var productsContainer = $('#popular-products'); // For Popular Products
+            var productItemsContainer = $('#product-items'); // For Product Section
+
+            // Add products to the Popular Product section (Limit to 3)
+            data.slice(0, 3).forEach(function(product) {
+                var productItem = `
+                        <div class="col-12 col-md-6 col-lg-4 mb-4 mb-lg-0">
+                            <div class="product-item-sm d-flex">
+                                <div class="thumbnail">
+                                    <img src="../public/images/${product.image}" alt="Image" class="img-fluid">
+                                </div>
+                                <div class="pt-3">
+                                    <h3>${product.name}</h3>
+                                    <p>${product.description}</p>
+                                    <p><a href="#">Read More</a></p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                productsContainer.append(
+                    productItem); // Append each product to the Popular Product section
+            });
+            // Add products to the Product Section (Vertical Layout, Limit to 3)
+            // Add products to the Product Section (Limit to 3)
+            data.slice(0, 3).forEach(function(product) {
+                var productCard = `
+                        <div class="col-12 col-md-4 col-lg-3 mb-5 mb-md-0">
+                            <a class="product-item" href="cart.php">
+                                <img src="../Public/images/${product.image}" class="img-fluid product-thumbnail">
+                                <h3 class="product-title">${product.name}</h3>
+                                <strong class="product-price">${product.price}</strong>
+                                <span class="icon-cross">
+                                    <img src="../Public/images/cross.svg" class="img-fluid">
+                                </span>
+                            </a>
+                        </div>
+                    `;
+                productItemsContainer.append(
+                    productCard); // Append each product to the Product Section
+            });
+        },
+        error: function(error) {
+            console.log("Error fetching the products", error);
+        }
+    });
+});
+</script>
+
 
 
 </body>

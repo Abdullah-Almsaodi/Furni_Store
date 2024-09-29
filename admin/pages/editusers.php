@@ -23,6 +23,7 @@ $userManager = new UserManager($userRepository);
 
 if (isset($_GET['action'], $_GET['id']) && $_GET['action'] == 'edit') {
     $id = $_GET['id'];
+
     $user = $userManager->getUserById($id);
 }
 
@@ -46,46 +47,80 @@ if (isset($_GET['action'], $_GET['id']) && $_GET['action'] == 'edit') {
                     <div class="panel-heading">
                         <i class="fa fa-plus-circle"></i> Update User
                     </div>
+
+
+
+
+
                     <?php
-                    // define variables and set to empty values
-                    $username = $email = $role_type = $active = $password = $password1 =  "";
+                    // Define variables and set to empty values
+                    $username = $email = $role = $active = $password = $password1 = "";
                     $errors = array();
                     $successMessage = '';
+
                     if (isset($_POST['submitUser'])) {
 
                         if (isset($_GET['action'], $_GET['id']) && $_GET['action'] == 'edit') {
+                            // Get the user ID from the URL parameter
 
 
-                            $username = $_POST['name'] ?? '';
+                            $username = $_POST['username'] ?? '';
                             $email = $_POST['email'] ?? '';
                             $password = $_POST['password'] ?? '';
                             $password1 = $_POST['password1'] ?? '';
                             $role = isset($_POST['role']) ? (int)$_POST['role'] : 0; // Ensure role is an integer
                             $active = $_POST['active'] ?? '';
 
-                            $result = $userManager->updateUser($id, $username, $email, $password, $password, $role, $active);
 
-                            if ($result['success']) {
+                            // Prepare the data to be sent to the API
+                            $data = [
+                                'username' => $username,
+                                'email' => $email,
+                                'password' => $password,
+                                'password1' => $password1,
+                                'role' => $role,
+                                'is_active' => $active
+                            ];
 
-                                $_SESSION['message'] = "User Update successfully";
-                                header('Location: users.php');
+                            // Set the API endpoint URL, including the user ID
+                            $apiUrl = 'http://192.168.1.102/New-Furni/api/v1/user/user?id=' . $id;
+
+                            // Initialize cURL
+                            $ch = curl_init($apiUrl);
+                            $token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJmdXJuaS1zdG9yZSIsImF1ZCI6ImZ1cm5pLXN0b3JlLXVzZXJzIiwiaWF0IjoxNzI3NTg5NDA4LCJleHAiOjE3Mjc1OTMwMDgsImRhdGEiOnsiaWQiOjcsImVtYWlsIjoiQWJkdWxsYWguUWFpZEBvdXRsb29rLmNvbSIsInJvbGUiOiJBZG1pbiJ9fQ.flVwF83OKDZkpBdPPPtM3YWsJikzEzC5rqq0vCSWAa0";
+
+                            // Set cURL options for the PUT request
+                            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT'); // Specify PUT request
+                            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data)); // Send data as JSON
+                            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                                'Content-Type: application/json',
+                                'Authorization: Bearer ' . $token, // Add the JWT token in the header
+                            ]);
+
+                            // Execute the request
+                            $response = curl_exec($ch);
+                            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+                            // Log API response for debugging
+                            error_log('Update User Payload: ' . print_r($data, true));
+                            error_log('API Response: ' . $response);
+
+                            // Close the cURL session
+                            curl_close($ch);
+
+
+                            if ($httpCode === 200) {
+                                $successMessage = $responseData['message'];
                             } else {
-                                $errors = $result['errors'];
+                                if (isset($responseData['errors'])) {
+                                    $errors = $responseData['errors']; // Capture the errors
+                                } else {
+                                    $errors[] = "An unexpected error occurred. Please try again.";
+                                }
                             }
                         }
                     }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
                     ?>
@@ -116,13 +151,19 @@ if (isset($_GET['action'], $_GET['id']) && $_GET['action'] == 'edit') {
 
                                 <?php if ($successMessage): ?>
 
-                                <div class='alert alert-success'><?php echo $successMessage; ?></div>
+                                    <div class='alert alert-success'><?php echo $successMessage; ?></div>
+                                <?php endif; ?>
+                                <?php if ($id): ?>
+
+                                    <div class='alert alert-success'><?php echo $id; ?></div>
                                 <?php endif; ?>
 
                                 <?php if (isset($errors['general'])): ?>
-                                <div class='alert alert-danger'><?php echo $errors['general']; ?>
-                                </div>
+                                    <div class='alert alert-danger'><?php echo $errors['general']; ?>
+                                    </div>
                                 <?php endif; ?>
+
+
                                 <?php
 
                                 $username = $user['username'];
@@ -133,10 +174,11 @@ if (isset($_GET['action'], $_GET['id']) && $_GET['action'] == 'edit') {
 
                                 ?>
 
+
                                 <form role="form" method="post">
                                     <div class="form-group">
                                         <label>Name</label>
-                                        <input type="text" name="name" value="<?php echo $username; ?>"
+                                        <input type="text" name="username" value="<?php echo $username; ?>"
                                             placeholder="Please enter your name" class="form-control" />
                                         <span style="color:red">
                                             <?php

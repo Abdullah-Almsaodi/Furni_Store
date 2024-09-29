@@ -45,3 +45,7 @@ try {
         die("Database connection failed. Please try again later.");
     }
 }
+
+
+// config.php
+define('BASE_URL', 'http://192.168.1.102/New-Furni/api/v1/');

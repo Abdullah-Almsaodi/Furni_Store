@@ -1,6 +1,18 @@
 <!--   ////////.........start Footer tob bar................//////-->
-<?php include '../include/Header.php'; ?>
-<?php include 'db_connect.php'; ?>
+<?php
+
+include '../include/Header.php';
+
+require_once '../admin/pages/config.php';
+require_once '../admin/classes/Database.php';
+
+
+// Initialize Database
+$connInstance = Database::getInstance();
+$conn = $connInstance->getInstance()->getConnection();
+
+?>
+
 <!--   ////////.........end Footer tob bar................//////-->
 <!--   ////////.........end Footer tob bar................//////-->
 
@@ -116,7 +128,7 @@
 
 
             // Prepare and execute the SELECT query
-            $stmt = $db->query("SELECT * FROM team");
+            $stmt = $conn->query("SELECT * FROM team");
             $teamMembers = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             foreach ($teamMembers as $member) {

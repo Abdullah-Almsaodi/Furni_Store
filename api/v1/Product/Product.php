@@ -40,7 +40,20 @@ switch ($method) {
             // Fetch a single product by ID
             $product = $productManager->getProductById($productId);
             if ($product) {
-                $responseHandler->handleSuccess($product, 'Product found');
+
+                // $data = array(
+                //     "product_id" => $product['product_id'], // Updated path to 'id'
+                //     "name" => $product['name'], // Updated path to 'email'
+                //     "description" => $product['description'], // Updated to use 'role_name'
+                //     "price" => $product['price'], // Updated to use 'role_name'
+                //     "catgory_id" => $product['catgory_id'], // Updated to use 'role_name'
+                //     "image" => $product['image'] // Updated to use 'role_name'
+                // );
+
+
+                echo json_encode($product);
+
+                // $responseHandler->handleSuccess($product, 'Product found');
             } else {
                 $responseHandler->handleError(['errors' => ['Product not found']], 'Product not found');
             }
@@ -48,7 +61,10 @@ switch ($method) {
             // Fetch all products
             $products = $productManager->getProducts();
             if (!empty($products)) {
-                $responseHandler->handleSuccess($products, 'Products found');
+
+                echo json_encode($products);
+
+                // $responseHandler->handleSuccess($products, 'Products found');
             } else {
                 $responseHandler->handleError(['errors' => ['No products found']], 'No products found');
             }

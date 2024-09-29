@@ -1,14 +1,13 @@
 <!--   ////////.........start Footer tob bar................//////-->
 <?php
 include '../include/Header.php';
-require_once '../Public/db_connect.php'; // Database configuration
-// require_once '../admin/pages/config.php'; // Database configuration
-// require_once '../admin/classes/Database.php';
+require_once '../admin/pages/config.php';
+require_once '../admin/classes/Database.php';
 
 
-// $db = new Database();
-// $db->getInstance()->getConnection();
-
+// Initialize Database
+$connInstance = Database::getInstance();
+$conn = $connInstance->getInstance()->getConnection();
 
 
 
@@ -138,7 +137,7 @@ require_once '../Public/db_connect.php'; // Database configuration
 <!-- Start Product Section -->
 <div class="product-section pt-0">
     <div class="container">
-        <div class="row">
+        <div class="row" id="product-items">
 
             <!-- Start Column 1 -->
             <div class="col-md-12 col-lg-3 mb-5 mb-lg-0">
@@ -149,37 +148,6 @@ require_once '../Public/db_connect.php'; // Database configuration
             </div>
             <!-- End Column 1 -->
 
-            <?php
-
-
-
-            // Prepare and execute the SELECT query
-            $stmt = $db->query("SELECT * FROM products LIMIT 3");
-            $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-            foreach ($products as $product) {
-                $image_url = $product['image'];
-                $title = $product['name'];
-                $price = $product['price'];
-            ?>
-                <!-- Start Column -->
-                <div class="col-12 col-md-4 col-lg-3 mb-5 mb-md-0">
-                    <a class="product-item" href="#">
-                        <img src="images/<?php echo $image_url; ?>" class="img-fluid product-thumbnail">
-                        <h3 class="product-title"><?php echo $title; ?></h3>
-                        <strong class="product-price">$<?php echo $price; ?></strong>
-
-                        <span class="icon-cross">
-                            <img src="images/cross.svg" class="img-fluid">
-                        </span>
-                    </a>
-                </div>
-                <!-- End Column -->
-            <?php
-            }
-
-
-            ?>
 
         </div>
     </div>
@@ -198,9 +166,47 @@ include '../include/Testimonial.php';
 <!--   ////////.........end Footer tob bar................//////-->
 
 
-<script src="js/bootstrap.bundle.min.js"></script>
-<script src="js/tiny-slider.js"></script>
-<script src="js/custom.js"></script>
+
+
+
+<script>
+$(document).ready(function() {
+    // Fetch all product data using AJAX
+    $.ajax({
+        url: 'http://192.168.1.6/New-Furni/api/v1/product/product', // Replace with your actual API URL
+        method: 'GET',
+        success: function(data) {
+            var productItemsContainer = $('#product-items'); // For Product Section
+
+
+            // Add products to the Product Section (Limit to 3)
+            data.slice(0, 3).forEach(function(product) {
+                var productCard = `
+                        <div class="col-12 col-md-4 col-lg-3 mb-5 mb-md-0">
+                            <a class="product-item" href="cart.php">
+                                <img src="../Public/images/${product.image}" class="img-fluid product-thumbnail">
+                                <h3 class="product-title">${product.name}</h3>
+                                <strong class="product-price">${product.price}</strong>
+                                <span class="icon-cross">
+                                    <img src="../Public/images/cross.svg" class="img-fluid">
+                                </span>
+                            </a>
+                        </div>
+                    `;
+                productItemsContainer.append(
+                    productCard); // Append each product to the Product Section
+            });
+        },
+        error: function(error) {
+            console.log("Error fetching the products", error);
+        }
+    });
+});
+</script>
+
+
+
+
 </body>
 
 </html>
