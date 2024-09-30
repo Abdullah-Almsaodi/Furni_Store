@@ -48,4 +48,4 @@ try {
 
 
 // config.php
-define('BASE_URL', 'http://192.168.1.102/New-Furni/api/v1/');
+define('BASE_URL', 'http://192.168.1.6/Furni_Store/api/v1/');
