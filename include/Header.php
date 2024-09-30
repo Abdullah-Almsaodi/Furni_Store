@@ -1,4 +1,7 @@
 <!-- <?php
+
+
+
         // Check if a session is already active
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
@@ -6,11 +9,27 @@
 
         // Check if the user is registered
         $isRegistered = false; // Replace with your logic to determine if the user is registered
+        $isadmin = false; // Replace with your logic to determine if the user is registered
 
         // Example: Check if the user is logged in
         if (isset($_SESSION['user_id'])) {
             $isRegistered = true;
         }
+
+        if ($_SESSION['role'] == 'Admin') {
+            // Redirect to an unauthorized page or show an error message
+            $isadmin = true; // Replace with your logic to determine if the user is registered
+
+        }
+
+
+        require_once '../admin/pages/config.php';
+        require_once '../admin/classes/Database.php';
+
+
+        // Initialize Database
+        $connInstance = Database::getInstance();
+        $conn = $connInstance->getInstance()->getConnection();
 
 
 
@@ -42,9 +61,7 @@
     <link href="../Public/css/style.css" rel="stylesheet">
     <title>Furni Free Bootstrap 5 Template for Furniture and Interior Design Websites by Untree.co </title>
 
-    <script type="text/javascript">
-        const BASE_URL = "<?php echo BASE_URL; ?>";
-    </script>
+
 
 </head>
 
@@ -89,6 +106,12 @@
                         // User is not registered, display login link
                         echo '<li><a class="nav-link" href="../admin/auth/login.php">Login</a></li>';
                         echo '<li><a class="nav-link" href="../admin/auth/register.php">Register</a></li>';
+                    }
+
+
+                    if ($isadmin) {
+                        // User is registered, display profile link
+                        echo '<li><a class="nav-link" href="../admin/pages/index.php"><i class="fas fa-tachometer-alt"></i></a></li>';
                     }
                     ?>
                 </ul>

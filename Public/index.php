@@ -1,13 +1,7 @@
 <!--   ////////.........start Footer tob bar................//////-->
 
 <?php
-require_once '../admin/pages/config.php';
-require_once '../admin/classes/Database.php';
 
-
-// Initialize Database
-$connInstance = Database::getInstance();
-$conn = $connInstance->getInstance()->getConnection();
 
 // $conn = new Database();
 // $conn->getInstance()->getConnection();
@@ -255,10 +249,12 @@ include '../include/Testimonial.php';
 
 
 <script>
+const base_url = "<?php echo BASE_URL; ?>";
 $(document).ready(function() {
     // Fetch all product data using AJAX
     $.ajax({
-        url: BASE_URL + 'product/product', // Replace with your actual API URL
+        url: base_url +
+            'product/product', // Replace with your actual API URL
         method: 'GET',
         success: function(data) {
             var productsContainer = $('#popular-products'); // For Popular Products
