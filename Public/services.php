@@ -173,7 +173,7 @@ include '../include/Testimonial.php';
 $(document).ready(function() {
     // Fetch all product data using AJAX
     $.ajax({
-        url: 'http://192.168.1.6/New-Furni/api/v1/product/product', // Replace with your actual API URL
+        url: 'http://192.168.1.6/Furni_Store/api/v1/product/product', // Replace with your actual API URL
         method: 'GET',
         success: function(data) {
             var productItemsContainer = $('#product-items'); // For Product Section
