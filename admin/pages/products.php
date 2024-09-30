@@ -1,22 +1,8 @@
 ﻿<?php
 include('../templates/header.php');
-require_once 'config.php'; // Database configuration
-require_once '../classes/Database.php';
-require_once '../classes/Manager/CategoryManager.php';
-require_once '../classes/Repository/CategoryRepository.php';
-require_once '../classes/Manager/ProductManager.php';
-require_once '../classes/Repository/ProductRepository.php';
+require_once '../classes/Manager/StoreFacade.php';
 
-// Initialize Database
-$dbInstance = Database::getInstance();
-$conn = $dbInstance->getInstance()->getConnection();
-
-// Initialize repositories with dependencies
-$productRepository = new ProductRepository($conn);
-$productManager = new ProductManager($productRepository);
-
-$categoryRepository = new CategoryRepository($conn);
-$categoryManager = new CategoryManager($categoryRepository);
+$storeFacade = new StoreFacade();
 ?>
 
 <!-- /. NAV SIDE  -->
@@ -39,7 +25,7 @@ $categoryManager = new CategoryManager($categoryRepository);
                     <!-- Main script for adding a product -->
                     <?php
                     // Assuming $productRepository is already available
-                    $productManager = new ProductManager($productRepository);
+                    // $productManager = new ProductManager($productRepository);
 
                     $name = $price = $description = $cat_id = "";
                     $errors = [];
@@ -53,9 +39,9 @@ $categoryManager = new CategoryManager($categoryRepository);
                         $cat_id = isset($_POST['cat_id']) ? (int)$_POST['cat_id'] : 0; // Ensure cat_id is an integer
 
                         // Validate product data
-                        $errors = $productManager->validateProductData($name, $description, $price, $cat_id);
+                        $errors = $storeFacade->validateProductData($name, $description, $price, $cat_id);
                         // Validate image
-                        $imageErrors = $productManager->validateProductImage($_FILES['image']);
+                        $imageErrors = $storeFacade->validateProductImage($_FILES['image']);
 
                         if (empty($errors)) {
                             // Image upload directory
@@ -70,7 +56,7 @@ $categoryManager = new CategoryManager($categoryRepository);
                                 $successMessage = "Image uploaded successfully";
 
                                 // Attempt to add the product
-                                $result = $productManager->addProduct($name, $description, $price, $cat_id, $originalFileName);
+                                $result = $storeFacade->editProduct($id, $name, $description, $price, $cat_id, $image);
                                 if ($result['success']) {
                                     $successMessage = "Product added successfully";
                                 } else {
@@ -94,18 +80,18 @@ $categoryManager = new CategoryManager($categoryRepository);
                             <div class="col-md-12">
                                 <?php if ($successMessage): ?>
 
-                                <div class='alert alert-success'><?php echo $successMessage; ?></div>
+                                    <div class='alert alert-success'><?php echo $successMessage; ?></div>
                                 <?php endif; ?>
 
                                 <?php if (isset($errors['general'])): ?>
-                                <div class='alert alert-danger'><?php echo $errors['general']; ?>
-                                </div>
+                                    <div class='alert alert-danger'><?php echo $errors['general']; ?>
+                                    </div>
                                 <?php endif; ?>
 
 
                                 <?php
                                 if (isset($_SESSION['message'])) : ?>
-                                <div class='alert alert-success'><?php echo $_SESSION['message'] ?></div>
+                                    <div class='alert alert-success'><?php echo $_SESSION['message'] ?></div>
 
                                 <?php unset($_SESSION['message']);
                                 endif; ?>
@@ -147,17 +133,17 @@ $categoryManager = new CategoryManager($categoryRepository);
                                         <select class="form-control" name="cat_id">
                                             <?php
                                             // Fetch categories
-                                            $categories = $categoryManager->getCategories();
+                                            $categories = $storeFacade->listCategories();
 
                                             if (is_array($categories)) {
                                                 foreach ($categories as $category) {
                                                     $categoryId = isset($category['category_id']) ? htmlspecialchars($category['category_id']) : '';
                                                     $categoryName = isset($category['name']) ? htmlspecialchars($category['name']) : 'Unknown Category';
                                             ?>
-                                            <option value="<?php echo $categoryId; ?>"
-                                                <?php if ($cat_id == $categoryId) echo 'selected'; ?>>
-                                                <?php echo $categoryName; ?>
-                                            </option>
+                                                    <option value="<?php echo $categoryId; ?>"
+                                                        <?php if ($cat_id == $categoryId) echo 'selected'; ?>>
+                                                        <?php echo $categoryName; ?>
+                                                    </option>
                                             <?php
                                                 }
                                             } else {
@@ -180,7 +166,7 @@ $categoryManager = new CategoryManager($categoryRepository);
                             </div>
                         </div>
                         <?php if (!empty($successMessage)): ?>
-                        <div class="alert alert-success"><?php echo $successMessage; ?></div>
+                            <div class="alert alert-success"><?php echo $successMessage; ?></div>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -234,12 +220,12 @@ $categoryManager = new CategoryManager($categoryRepository);
 
                         <?php if ($successM): ?>
 
-                        <div class='alert alert-success'><?php echo $successM; ?></div>
+                            <div class='alert alert-success'><?php echo $successM; ?></div>
                         <?php endif; ?>
 
                         <?php if (isset($errors['general'])): ?>
-                        <div class='alert alert-danger'><?php echo $errors['general']; ?>
-                        </div>
+                            <div class='alert alert-danger'><?php echo $errors['general']; ?>
+                            </div>
                         <?php endif; ?>
 
 
@@ -258,28 +244,28 @@ $categoryManager = new CategoryManager($categoryRepository);
                                 </thead>
                                 <tbody>
                                     <?php
-                                    $products = $productManager->getProducts(); // Fetch products
+                                    $products = $storeFacade->listProducts(); // Fetch products
                                     if (!empty($products)):
                                         foreach ($products as $product):
                                             $product_id = htmlspecialchars($product['product_id']);
                                     ?>
-                                    <tr class="odd gradeX">
-                                        <td><?php echo htmlspecialchars($product['product_id']); ?></td>
-                                        <td><?php echo htmlspecialchars($product['name']); ?></td>
-                                        <td><?php echo htmlspecialchars($product['description']); ?></td>
-                                        <td><img src="../upload/<?php echo htmlspecialchars($product['image']); ?>"
-                                                width="100px" class="img-fluid"></td>
-                                        <td><?php echo htmlspecialchars($product['price']); ?></td>
-                                        <td><?php echo htmlspecialchars($product['category']); ?></td>
+                                            <tr class="odd gradeX">
+                                                <td><?php echo htmlspecialchars($product['product_id']); ?></td>
+                                                <td><?php echo htmlspecialchars($product['name']); ?></td>
+                                                <td><?php echo htmlspecialchars($product['description']); ?></td>
+                                                <td><img src="../upload/<?php echo htmlspecialchars($product['image']); ?>"
+                                                        width="100px" class="img-fluid"></td>
+                                                <td><?php echo htmlspecialchars($product['price']); ?></td>
+                                                <td><?php echo htmlspecialchars($product['category']); ?></td>
 
-                                        <td>
-                                            <a href="editproducts.php?action=edit&id=<?php echo $product_id; ?>"
-                                                class='btn btn-success'>Edit</a>
-                                            <a href="?action=delete&id=<?php echo $product_id; ?>"
-                                                class='delete btn btn-danger'>Delete</a>
-                                        </td>
-                                    </tr>
-                                    <?php endforeach; ?>
+                                                <td>
+                                                    <a href="editproducts.php?action=edit&id=<?php echo $product_id; ?>"
+                                                        class='btn btn-success'>Edit</a>
+                                                    <a href="?action=delete&id=<?php echo $product_id; ?>"
+                                                        class='delete btn btn-danger'>Delete</a>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
                                     <?php endif; ?>
                                 </tbody>
                             </table>
@@ -298,9 +284,9 @@ $categoryManager = new CategoryManager($categoryRepository);
 <?php include('../templates/footer.php'); ?>
 
 <script>
-$(document).ready(function() {
-    $('.delete').click(function() {
-        return confirm('Are You Sure?');
+    $(document).ready(function() {
+        $('.delete').click(function() {
+            return confirm('Are You Sure?');
+        });
     });
-});
 </script>

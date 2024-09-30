@@ -99,7 +99,7 @@ $userManager = new UserManager($userRepository);
                             ];
 
                             // Set the API endpoint URL
-                            $apiUrl = 'http://192.168.1.6/New-Furni/api/v1/user/user';
+                            $apiUrl = BASE_URL . 'user/user';
 
                             // Initialize cURL
                             $ch = curl_init($apiUrl);

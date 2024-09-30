@@ -1,24 +1,9 @@
 <!--   ////////.........end Footer tob bar................//////-->
 <?php
 include '../include/Header.php';
-require_once '../admin/pages/config.php';
-require_once '../admin/classes/Database.php';
 
 
-// Initialize Database
-$connInstance = Database::getInstance();
-$conn = $connInstance->getInstance()->getConnection();
 
-
-try {
-    // Retrieve data from the "product" table
-    $sql = "SELECT * FROM Products";
-    $stmt = $conn->query($sql);
-    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-} catch (PDOException $e) {
-    echo "Connection failed: " . $e->getMessage();
-    die();
-}
 ?>
 
 <!-- Start Hero Section -->
@@ -70,19 +55,20 @@ try {
 
 
 <script>
-$(document).ready(function() {
-    // Fetch all product data using AJAX
-    $.ajax({
-        url: 'http://192.168.1.6/New-Furni/api/v1/product/product', // Replace with your actual API URL
-        method: 'GET',
-        success: function(data) {
+    const base_url = "<?php echo BASE_URL; ?>";
+    $(document).ready(function() {
+        // Fetch all product data using AJAX
+        $.ajax({
+            url: base_url + 'product/product', // Replace with your actual API URL
+            method: 'GET',
+            success: function(data) {
 
-            var productItemsContainer = $('#product-items'); // For Product Section
+                var productItemsContainer = $('#product-items'); // For Product Section
 
 
-            // Add products to the Product Section (Limit to 3)
-            data.slice(0, 8).forEach(function(product) {
-                var productCard = `
+                // Add products to the Product Section (Limit to 3)
+                data.slice(0, 8).forEach(function(product) {
+                    var productCard = `
 
                      <div class="col-12 col-md-4 col-lg-3 mb-5">
                         <a class="product-item" href="#">
@@ -97,15 +83,15 @@ $(document).ready(function() {
 
                     
                     `;
-                productItemsContainer.append(
-                    productCard); // Append each product to the Product Section
-            });
-        },
-        error: function(error) {
-            console.log("Error fetching the products", error);
-        }
+                    productItemsContainer.append(
+                        productCard); // Append each product to the Product Section
+                });
+            },
+            error: function(error) {
+                console.log("Error fetching the products", error);
+            }
+        });
     });
-});
 </script>
 
 </body>
