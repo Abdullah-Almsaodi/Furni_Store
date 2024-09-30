@@ -36,21 +36,21 @@ class UserManager
     }
 
     // Update user
-    public function updateUser($id, $name, $email,  $role_id, $active)
+    public function updateUser($id, $name, $email, $password, $password1,  $role_id, $active)
     {
         // Validate inputs
-        $errors = $this->validateUserData($name, $email,  $role_id, $active);
+        $errors = $this->validateUserData($name, $email, $password, $password1,  $role_id, $active);
         if (!empty($errors)) {
             return ['success' => false, 'errors' => $errors];
         }
 
         // Hash password if provided
-        // if (!empty($password)) {
-        //     $hashedPassword = $this->hashPassword($password);
-        // } else {
-        //     // If password is empty, do not update it
-        //     $hashedPassword = null;
-        // }
+        if (!empty($password)) {
+            $hashedPassword = $this->hashPassword($password);
+        } else {
+            // If password is empty, do not update it
+            $hashedPassword = null;
+        }
 
         // Update user in repository
         $updated = $this->userRepository->updateUser($id, $name, $email,  $role_id, $active);
@@ -109,7 +109,7 @@ class UserManager
 
 
     // Updated to use parameters instead of $_POST
-    public function validateUserData($name, $email,  $role, $active = 1)
+    public function validateUserData($name, $email, $password, $password1,  $role, $active = 1)
     {
         $errors = [];
 
