@@ -3,7 +3,41 @@ include('../templates/header.php');
 require_once '../classes/Manager/StoreFacade.php';
 
 $storeFacade = new StoreFacade();
+// Initialize variables
+$name = $price = $description = $cat_id = "";
+$errors = [];
+$successMessage = $successM = $err = '';
+
+// Handle form submission
+if (isset($_POST['submitProduct'])) {
+    $name = $_POST['name'] ?? '';
+    $price = $_POST['price'] ?? '';
+    $description = $_POST['description'] ?? '';
+    $cat_id = isset($_POST['cat_id']) ? (int)$_POST['cat_id'] : 0;
+    $image = $_FILES['image'] ?? null;
+
+    // Use ProductManager to handle validation and addition
+    $result = $storeFacade->addProduct($name, $description, $price, $cat_id, $image);
+
+    if ($result['success']) {
+        $successMessage = "Product added successfully";
+        // Reset form data after success
+        $name = $price = $description = $cat_id = '';
+    } else {
+        $errors = $result['errors']; // Collect all errors returned from addProduct
+    }
+
+    // Display all errors if they exist
+    if (!empty($errors)) {
+        foreach ($errors as $error) {
+            echo "<div class='error-message'>$error</div>"; // Adjust HTML as needed
+        }
+    }
+}
+
 ?>
+
+
 
 <!-- /. NAV SIDE  -->
 <div id="page-wrapper">
@@ -22,55 +56,6 @@ $storeFacade = new StoreFacade();
                     <div class="panel-heading">
                         <i class="fa fa-plus-circle"></i> Add New Product
                     </div>
-                    <!-- Main script for adding a product -->
-                    <?php
-                    // Assuming $productRepository is already available
-                    // $productManager = new ProductManager($productRepository);
-
-                    $name = $price = $description = $cat_id = "";
-                    $errors = [];
-                    $successMessage = '';
-                    $successM = '';
-
-                    if (isset($_POST['submitProduct'])) {
-                        $name = $_POST['name'] ?? '';
-                        $price = $_POST['price'] ?? '';
-                        $description = $_POST['description'] ?? '';
-                        $cat_id = isset($_POST['cat_id']) ? (int)$_POST['cat_id'] : 0; // Ensure cat_id is an integer
-
-                        // Validate product data
-                        $errors = $storeFacade->validateProductData($name, $description, $price, $cat_id);
-                        // Validate image
-                        $imageErrors = $storeFacade->validateProductImage($_FILES['image']);
-
-                        if (empty($errors)) {
-                            // Image upload directory
-                            $targetDirectory = "../upload/";
-                            // Get the original file name
-                            $originalFileName = basename($_FILES['image']['name']);
-                            // Set the target file path
-                            $targetFile = $targetDirectory . $originalFileName;
-
-                            // Attempt to upload the image
-                            if (move_uploaded_file($_FILES['image']['tmp_name'], $targetFile)) {
-                                $successMessage = "Image uploaded successfully";
-
-                                // Attempt to add the product
-                                $result = $storeFacade->editProduct($id, $name, $description, $price, $cat_id, $image);
-                                if ($result['success']) {
-                                    $successMessage = "Product added successfully";
-                                } else {
-                                    $errors['general'] = "Failed to add product. Errors: ";
-                                    $errors = array_merge($errors, $result['errors']);
-                                }
-                            } else {
-                                $errors['image'] = "Failed to upload image.";
-                            }
-                        } else {
-                            $errors = array_merge($errors, $imageErrors);
-                        }
-                    }
-                    ?>
 
 
 
@@ -194,7 +179,7 @@ $storeFacade = new StoreFacade();
                         switch ($_GET['action']) {
                             case "delete":
 
-                                $result = $productManager->deleteProduct($product_id);
+                                $result = $storeFacade->deleteProduct($product_id);
                                 if ($result['success']) {
                                     // $successM = "User deleted successfully";
                                     $_SESSION['message'] = "Product deleted successfully";

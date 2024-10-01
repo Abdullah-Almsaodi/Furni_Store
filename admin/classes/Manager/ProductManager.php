@@ -10,60 +10,76 @@ class ProductManager
 
     public function addProduct($name, $description, $price, $cat_id, $image)
     {
-        // Validate product data first
-        // $errors = $this->validateProductData($name, $description, $price, $cat_id);
-        // if (!empty($errors)) {
-        //     return ['success' => false, 'errors' => $errors];
-        // }
+        $errors = []; // Initialize an empty array for errors
 
-        // // Validate the image only if there are no data validation errors
-        // $imageErrors = $this->validateProductImage($image);
-        // if (!empty($imageErrors)) {
-        //     return ['success' => false, 'errors' => array_merge($errors, $imageErrors)];
-        // }
-
-        // Proceed to add product
-        $added = $this->productRepository->addProduct($name, $description, $price, $cat_id, $image);
-        if ($added) {
-            return ['success' => true];
-        } else {
-            return ['success' => false, 'errors' => ['general' => 'Failed to add product']];
+        // Image validation
+        $imageErrors = $this->validateProductImage($image);
+        if (!empty($imageErrors)) {
+            $errors = array_merge($errors, $imageErrors); // Collect image errors
         }
+
+        // Validate product data
+        $productErrors = $this->validateProductData($name, $description, $price, $cat_id);
+        if (!empty($productErrors)) {
+            $errors = array_merge($errors, $productErrors); // Collect product data errors
+        }
+
+        // If there are any errors, return them
+        if (!empty($errors)) {
+            return ['success' => false, 'errors' => $errors];
+        }
+
+        // Upload the image
+        $imagePath = $this->uploadProductImage($image);
+
+        // Add product to the repository
+        $added = $this->productRepository->addProduct($name, $description, $price, $cat_id, $imagePath);
+        return $added ? ['success' => true] : ['success' => false, 'errors' => ['general' => 'Failed to add product']];
     }
 
-
-    public function editProduct($id, $name, $description, $price, $cat_id, $image)
+    public function editProduct(int $id, string $name, string $description, float $price, int $cat_id, array $image = null): array
     {
-        // // التحقق من الصورة
-        // $errors = $this->validateProductImage($image);
-        // if (!empty($errors)) {
-        //     return ['success' => false, 'errors' => $errors];
-        // }
+        $errors = []; // مصفوفة لتخزين الأخطاء
 
-        // // Validate product data
-        // $errors = $this->validateProductData($name, $description, $price, $cat_id);
-
-        // if (!empty($errors)) {
-        //     return ['success' => false, 'errors' => $errors];
-        // }
-
-        // Proceed to update product
-        $updated = $this->productRepository->updateProduct($id, $name, $description, $price, $cat_id, $image);
-        if ($updated) {
-            return ['success' => true];
-        } else {
-            return ['success' => false, 'errors' => ['general' => 'Failed to update product']];
+        // التحقق من البيانات
+        $productErrors = $this->validateProductData($name, $description, $price, $cat_id);
+        if (!empty($productErrors)) {
+            $errors = array_merge($errors, $productErrors); // اجمع الأخطاء إذا وجدت
         }
+
+        // التحقق من الصورة (إذا تم تقديم صورة جديدة)
+        $imagePath = null;
+        if ($image && !empty($image['name'])) {
+            $imageErrors = $this->validateProductImage($image);
+            if (!empty($imageErrors)) {
+                $errors = array_merge($errors, $imageErrors); // اجمع الأخطاء إذا وجدت
+            } else {
+                // رفع الصورة
+                $imagePath = $this->uploadProductImage($image);
+                if ($imagePath === null) {
+                    $errors['image'] = "Failed to upload image.";
+                }
+            }
+        } else {
+            // استخدم الصورة القديمة إذا لم يتم تقديم صورة جديدة
+            $currentProduct = $this->productRepository->getProductById($id);
+            $imagePath = $currentProduct['image']; // استخدم الصورة القديمة
+        }
+
+        // إذا كانت هناك أخطاء، أعدها
+        if (!empty($errors)) {
+            return ['success' => false, 'errors' => $errors];
+        }
+
+        // تحديث المنتج في قاعدة البيانات
+        $updated = $this->productRepository->updateProduct($id, $name, $description, $price, $cat_id, $imagePath);
+        return $updated ? ['success' => true] : ['success' => false, 'errors' => ['general' => 'Failed to update product']];
     }
 
     public function deleteProduct($product_id)
     {
-        $delete = $this->productRepository->deleteProduct($product_id);
-        if ($delete) {
-            return ['success' => true];
-        } else {
-            return ['success' => false, 'errors' => ['general' => 'Failed to delete product']];
-        }
+        $deleted = $this->productRepository->deleteProduct($product_id);
+        return $deleted ? ['success' => true] : ['success' => false, 'errors' => ['general' => 'Failed to delete product']];
     }
 
     public function getProducts()
@@ -76,38 +92,22 @@ class ProductManager
         return $this->productRepository->getProductById($id);
     }
 
-    // التحقق من الصورة
-    public function validateProductImage($image)
+    // Validate Image
+    private function validateProductImage($image)
     {
         $errors = [];
-
         if (!empty($image) && !empty($image['name'])) {
             $imageFileType = strtolower(pathinfo($image['name'], PATHINFO_EXTENSION));
-            $allowedExtensions = array("jpg", "jpeg", "png", "gif");
+            $allowedExtensions = ["jpg", "jpeg", "png", "gif"];
 
             // Check image type
             if (!in_array($imageFileType, $allowedExtensions)) {
                 $errors['image'] = "Invalid image format. Only JPG, JPEG, PNG, and GIF files are allowed.";
             } elseif ($image['error'] !== UPLOAD_ERR_OK) {
-                // Check upload errors
-                $uploadErrors = array(
-                    UPLOAD_ERR_INI_SIZE => 'The uploaded file exceeds the upload_max_filesize directive in php.ini.',
-                    UPLOAD_ERR_FORM_SIZE => 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form.',
-                    UPLOAD_ERR_PARTIAL => 'The uploaded file was only partially uploaded.',
-                    UPLOAD_ERR_NO_FILE => 'No file was uploaded.',
-                    UPLOAD_ERR_NO_TMP_DIR => 'Missing a temporary folder.',
-                    UPLOAD_ERR_CANT_WRITE => 'Failed to write file to disk.',
-                    UPLOAD_ERR_EXTENSION => 'A PHP extension stopped the file upload.',
-                );
-
-                $errorCode = $image['error'];
-                if (isset($uploadErrors[$errorCode])) {
-                    $errors['image'] = $uploadErrors[$errorCode];
-                } else {
-                    $errors['image'] = 'Unknown error occurred during file upload.';
-                }
+                // Handle upload errors
+                $errors['image'] = $this->getUploadErrorMessage($image['error']);
             } else {
-                // Check image size (maximum 5MB)
+                // Check image size (e.g., should not exceed 5MB)
                 $maxFileSize = 5 * 1024 * 1024; // 5MB
                 if ($image['size'] > $maxFileSize) {
                     $errors['image'] = 'The image file is too large. Maximum size is 5MB.';
@@ -120,7 +120,8 @@ class ProductManager
         return $errors;
     }
 
-    public function validateProductData($name, $description, $price, $cat_id)
+    // Validate Product Data
+    private function validateProductData($name, $description, $price, $cat_id)
     {
         $errors = [];
 
@@ -140,7 +141,7 @@ class ProductManager
 
         // Validate category ID
         if (empty($cat_id)) {
-            $errors['cate'] = "Category is required";
+            $errors['cat_id'] = "Category is required";
         }
 
         // Validate description
@@ -151,5 +152,43 @@ class ProductManager
         }
 
         return $errors;
+    }
+
+    // Handle image upload
+    private function uploadProductImage($image)
+    {
+        // مسار المجلد الذي سيتم حفظ الصورة فيه
+        $targetDir = "../upload/";
+
+        // استخدام اسم الصورة الأصلي
+        $imageName = basename($image['name']);
+
+        // المسار الكامل الذي سيتم حفظ الصورة فيه
+        $targetFile = $targetDir . $imageName;
+
+        // نقل الصورة إلى المسار المستهدف
+        if (move_uploaded_file($image['tmp_name'], $targetFile)) {
+            // إرجاع اسم الصورة فقط لحفظه في قاعدة البيانات
+            return $imageName;
+        } else {
+            return null;
+        }
+    }
+
+
+    // Error handling for file upload issues
+    private function getUploadErrorMessage($errorCode)
+    {
+        $uploadErrors = [
+            UPLOAD_ERR_INI_SIZE => 'The uploaded file exceeds the upload_max_filesize directive in php.ini.',
+            UPLOAD_ERR_FORM_SIZE => 'The uploaded file exceeds the MAX_FILE_SIZE directive specified in the HTML form.',
+            UPLOAD_ERR_PARTIAL => 'The uploaded file was only partially uploaded.',
+            UPLOAD_ERR_NO_FILE => 'No file was uploaded.',
+            UPLOAD_ERR_NO_TMP_DIR => 'Missing a temporary folder.',
+            UPLOAD_ERR_CANT_WRITE => 'Failed to write file to disk.',
+            UPLOAD_ERR_EXTENSION => 'A PHP extension stopped the file upload.',
+        ];
+
+        return $uploadErrors[$errorCode] ?? 'Unknown error occurred during file upload.';
     }
 }

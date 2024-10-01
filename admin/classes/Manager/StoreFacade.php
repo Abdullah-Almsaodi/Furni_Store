@@ -35,14 +35,14 @@ class StoreFacade
 
     // إدارة المنتجات
 
-    public function editProduct($id, $name, $description, $price, $cat_id, $image)
+    public function addProduct($name, $description, $price, $cat_id, $image)
     {
-        return $this->productManager->addProduct($id, $name, $description, $price, $cat_id, $image);
+        return $this->productManager->addProduct($name, $description, $price, $cat_id, $image);
     }
 
-    public function updateProduct(int $id, string $name, string $description, float $price, int $category_id,  $imageData)
+    public function editProduct($id, $name, $description, $price, $cat_id, $image = null)
     {
-        return $this->productManager->editProduct($id, $name, $description, $price, $category_id, $imageData);
+        return $this->productManager->editProduct($id, $name, $description, $price, $cat_id, $image = null);
     }
 
     public function deleteProduct(int $id)
@@ -60,15 +60,7 @@ class StoreFacade
         return $this->productManager->getProductById($id);
     }
 
-    public function validateProductImage($image)
-    {
-        return $this->productManager->validateProductImage($image);
-    }
 
-    public function validateProductData($name, $description, $price, $cat_id)
-    {
-        return $this->productManager->validateProductData($name, $description, $price, $cat_id);
-    }
 
     // إدارة الفئات
 
