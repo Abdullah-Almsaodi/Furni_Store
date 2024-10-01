@@ -24,6 +24,7 @@ $issuer = "furni-store"; // Issuer of the token
 $headers = getallheaders();
 $jwt = $headers['Authorization'] ?? '';
 $jwt = str_replace('Bearer ', '', $jwt);  // Remove 'Bearer ' prefix
+$errors = array();
 
 
 // Initialize Database and UserManager
@@ -86,7 +87,8 @@ switch ($method) {
                 // Optionally validate claims like issuer
                 if ($decoded->iss !== $issuer) {
                     http_response_code(401);
-                    $responseHandler->handleError(['errors' => ['token']], "Invalid token issuer");
+                    $errors = ['success' => false, 'errors' => ['token' => 'Invalid token issuer']];
+                    $responseHandler->handleError($errors, "Invalid token issuer");
                     exit();
                 }
 
@@ -101,29 +103,36 @@ switch ($method) {
                 }
             } catch (\Firebase\JWT\ExpiredException $e) {
                 http_response_code(401);
-                $responseHandler->handleError(['errors' => ['token']], "Token expired");
+                $errors = ['success' => false, 'errors' => ['token' => 'Token expired']];
+                $responseHandler->handleError($errors, "Token expired");
             } catch (\Firebase\JWT\SignatureInvalidException $e) {
                 http_response_code(401);
-                $responseHandler->handleError(['errors' => ['token']], "Invalid signature");
+                $errors = ['success' => false, 'errors' => ['token' => 'Invalid signature']];
+                $responseHandler->handleError($errors, "Invalid signature");
             } catch (Exception $e) {
                 http_response_code(401); // Unauthorized
-                $responseHandler->handleError(['errors' => ['token']], "Access denied, invalid token");
+                $errors = ['success' => false, 'errors' => ['token' => 'Access denied, invalid token']];
+                $responseHandler->handleError($errors, "Access denied, invalid token");
             }
         } else {
             http_response_code(401);
-            $responseHandler->handleError(['errors' => ['token']], "Access denied, token not provided");
+            $errors = ['success' => false, 'errors' => ['token' => 'Access denied, token not provided']];
+            $responseHandler->handleError($errors, "Access denied, token not provided");
         }
         break;
 
     case 'PUT':
+
+
         // Ensure user ID is provided
         if (!$userId) {
             http_response_code(400); // Bad request
-            $responseHandler->handleError(['errors' => ['User_Id' => 'User ID is required']], "User ID is required");
+            $errors = ['success' => false, 'errors' => ['general' => 'User ID is required']];
+            $responseHandler->handleError($errors, "User ID is required");
             exit;
         }
 
-        $errors = array();
+
 
         // Read incoming data
         $data = json_decode(file_get_contents('php://input'), true);
@@ -139,109 +148,103 @@ switch ($method) {
 
 
 
-        $result = $userManager->updateUser($user_id, $username, $email,  $role, $active);
-        if ($result['success']) {
-            http_response_code(200); // Success
-            $responseHandler->handleSuccess($result, 'User updated successfully');
+
+        if ($jwt) {
+            try {
+                // Decode the JWT with the correct key and algorithm
+                $decoded = JWT::decode($jwt, new Key($secret_key, 'HS256'));
+
+                // Optionally validate claims like issuer
+                if ($decoded->iss !== $issuer) {
+                    http_response_code(401);
+                    $errors = ['success' => false, 'errors' => ['token' => 'Invalid token issuer']];
+                    $responseHandler->handleError($errors, "Invalid token issuer");
+                    exit();
+                }
+
+
+                // Update the user
+                $result = $userManager->updateUser($user_id, $username, $email, $password, $password1, $role, $active);
+                if ($result['success']) {
+                    http_response_code(200); // Success
+                    $responseHandler->handleSuccess($result, 'User updated successfully');
+                } else {
+                    http_response_code(400); // Bad request
+                    $responseHandler->handleError($result, "User not updated");
+                }
+            } catch (\Firebase\JWT\ExpiredException $e) {
+                http_response_code(401);
+                $errors = ['success' => false, 'errors' => ['token' => 'Token expired']];
+                $responseHandler->handleError($errors, "Token expired");
+            } catch (\Firebase\JWT\SignatureInvalidException $e) {
+                http_response_code(401);
+                $errors = ['success' => false, 'errors' => ['token' => 'Invalid signature']];
+                $responseHandler->handleError($errors, "Invalid signature");
+            } catch (Exception $e) {
+                http_response_code(401); // Unauthorized
+                $errors = ['success' => false, 'errors' => ['token' => 'Access denied, invalid token']];
+                $responseHandler->handleError($errors, "Access denied, invalid token");
+            }
         } else {
-            http_response_code(400); // Bad request
-            $responseHandler->handleError(['errors' => $result['errors']], "User not updated");
+            http_response_code(401);
+            $errors = ['success' => false, 'errors' => ['token' => 'Access denied, token not provided']];
+            $responseHandler->handleError($errors, "Access denied, token not provided");
         }
 
 
-        // if ($jwt) {
-        //     try {
-        //         // Decode the JWT
-        //         $decoded = JWT::decode($jwt, new Key($secret_key, 'HS256'));
-
-        //         // Optionally validate claims like issuer
-        //         if ($decoded->iss !== $issuer) {
-        //             http_response_code(401);
-        //             $responseHandler->handleError(['errors' => ['token' => 'Invalid token issuer']], "Invalid token issuer");
-        //             exit();
-        //         }
-
-
-
-
-        //         // Update the user
-        //         $result = $userManager->updateUser($user_id, $username, $email, $password, $password1, $role, $active);
-        //         if ($result['success']) {
-        //             http_response_code(200); // Success
-        //             $responseHandler->handleSuccess($result, 'User updated successfully');
-        //         } else {
-        //             http_response_code(400); // Bad request
-        //             $responseHandler->handleError(['errors' => $result['errors']], "User not updated");
-        //         }
-        //     } catch (\Firebase\JWT\ExpiredException $e) {
-        //         http_response_code(401);
-        //         $responseHandler->handleError(['errors' => ['token' => 'Token expired']], "Token expired");
-        //     } catch (\Firebase\JWT\SignatureInvalidException $e) {
-        //         http_response_code(401);
-        //         $responseHandler->handleError(['errors' => ['token' => 'Invalid signature']], "Invalid signature");
-        //     } catch (Exception $e) {
-        //         http_response_code(401); // Unauthorized
-        //         $responseHandler->handleError(['errors' => ['token' => 'Access denied, invalid token']], "Access denied, invalid token");
-        //     }
-        // } else {
-        //     http_response_code(401);
-        //     $responseHandler->handleError(['errors' => ['token' => 'Access denied, token not provided']], "Access denied, token not provided");
-        // }
         break;
 
     case 'DELETE':
         // Ensure user ID is provided
+
         if (!$userId) {
-            http_response_code(400);
-            $responseHandler->handleError(['errors' => ['User_Id' => 'User ID is required']], "User ID is required");
-            error_log("User ID not provided for deletion attempt.");
-            exit();
+            http_response_code(400); // Bad request
+            $errors = ['success' => false, 'errors' => ['general' => 'User ID is required']];
+            $responseHandler->handleError($errors, "User ID is required");
+            exit;
         }
 
 
+        if ($jwt) {
+            try {
+                // Decode the JWT
+                $decoded = JWT::decode($jwt, new Key($secret_key, 'HS256'));
+                error_log("Decoded JWT: " . print_r($decoded, true));
 
-        $result = $userManager->deleteUser($userId);
-        if ($result['success']) {
-            $responseHandler->handleSuccess($result, 'User deleted successfully');
+                // Optionally validate claims like issuer
+                if ($decoded->iss !== $issuer) {
+                    http_response_code(401);
+                    $errors = ['success' => false, 'errors' => ['token' => 'Invalid token issuer']];
+                    $responseHandler->handleError($errors, "Invalid token issuer");
+                    exit();
+                }
+
+                // Attempt to delete the user
+                $result = $userManager->deleteUser($userId);
+                if ($result['success']) {
+                    $responseHandler->handleSuccess($result, 'User deleted successfully');
+                } else {
+                    http_response_code(404);
+                    $responseHandler->handleError($result, "User Not Deleted Successfully");
+                }
+            } catch (\Firebase\JWT\ExpiredException $e) {
+                http_response_code(401);
+                $errors = ['success' => false, 'errors' => ['token' => 'Token expired']];
+                $responseHandler->handleError($errors, "Token expired");
+            } catch (\Firebase\JWT\SignatureInvalidException $e) {
+                http_response_code(401);
+                $errors = ['success' => false, 'errors' => ['token' => 'Invalid signature']];
+                $responseHandler->handleError($errors, "Invalid signature");
+            } catch (Exception $e) {
+                http_response_code(401); // Unauthorized
+                $errors = ['success' => false, 'errors' => ['token' => 'Access denied, invalid token']];
+                $responseHandler->handleError($errors, "Access denied, invalid token");
+            }
         } else {
-            http_response_code(404);
-            $responseHandler->handleError($result, "User Not Deleted Successfully");
+            http_response_code(401);
+            $errors = ['success' => false, 'errors' => ['token' => 'Access denied, token not provided']];
+            $responseHandler->handleError($errors, "Access denied, token not provided");
         }
-
-        // if ($jwt) {
-        //     try {
-        //         // Decode the JWT
-        //         $decoded = JWT::decode($jwt, new Key($secret_key, 'HS256'));
-        //         error_log("Decoded JWT: " . print_r($decoded, true));
-
-        //         if ($decoded->iss !== $issuer) {
-        //             http_response_code(401);
-        //             $responseHandler->handleError(['errors' => ['token' => 'Invalid token issuer']], "Invalid token issuer");
-        //             exit();
-        //         }
-
-        //         // Attempt to delete the user
-        //         $result = $userManager->deleteUser($userId);
-        //         if ($result['success']) {
-        //             $responseHandler->handleSuccess($result, 'User deleted successfully');
-        //         } else {
-        //             http_response_code(404);
-        //             $responseHandler->handleError($result, "User Not Deleted Successfully");
-        //         }
-        //     } catch (\Firebase\JWT\ExpiredException $e) {
-        //         http_response_code(401);
-        //         $responseHandler->handleError(['errors' => ['token']], "Token expired");
-        //     } catch (\Firebase\JWT\SignatureInvalidException $e) {
-        //         http_response_code(401);
-        //         $responseHandler->handleError(['errors' => ['token']], "Invalid signature");
-        //     } catch (Exception $e) {
-        //         http_response_code(401);
-        //         $responseHandler->handleError(['errors' => ['token']], "Access denied, invalid token");
-        //     }
-        // } else {
-        //     http_response_code(401);
-        //     $responseHandler->handleError(['errors' => ['token']], "Access denied, token not provided");
-        // }
 
         break;
 
