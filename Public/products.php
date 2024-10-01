@@ -55,12 +55,14 @@ include '../include/Header.php';
 
 
 <script>
-$(document).ready(function() {
-    // Fetch all product data using AJAX
-    $.ajax({
-        url: 'http://192.168.1.6/New-Furni/api/v1/product/product', // Replace with your actual API URL
-        method: 'GET',
-        success: function(data) {
+    const base_url = "<?php echo BASE_URL; ?>";
+
+    $(document).ready(function() {
+        // Fetch all product data using AJAX
+        $.ajax({
+            url: base_url + 'product/product', // Replace with your actual API URL
+            method: 'GET',
+            success: function(data) {
 
                 var productItemsContainer = $('#product-items'); // For Product Section
 

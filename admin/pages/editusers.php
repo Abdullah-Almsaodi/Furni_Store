@@ -74,6 +74,7 @@ if (isset($_GET['action'], $_GET['id']) && $_GET['action'] == 'edit') {
 
                             // Prepare the data to be sent to the API
                             $data = [
+                                'user_id' => $id,
                                 'username' => $username,
                                 'email' => $email,
                                 'password' => $password,
@@ -82,45 +83,52 @@ if (isset($_GET['action'], $_GET['id']) && $_GET['action'] == 'edit') {
                                 'is_active' => $active
                             ];
 
-                            // Set the API endpoint URL, including the user ID
-                            $apiUrl = 'http://192.168.1.102/New-Furni/api/v1/user/user?id=' . $id;
+                            // Set the API endpoint URL
+                            $apiUrl = BASE_URL . 'user/user?id=' . $id;
 
                             // Initialize cURL
                             $ch = curl_init($apiUrl);
-                            $token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJmdXJuaS1zdG9yZSIsImF1ZCI6ImZ1cm5pLXN0b3JlLXVzZXJzIiwiaWF0IjoxNzI3NTg5NDA4LCJleHAiOjE3Mjc1OTMwMDgsImRhdGEiOnsiaWQiOjcsImVtYWlsIjoiQWJkdWxsYWguUWFpZEBvdXRsb29rLmNvbSIsInJvbGUiOiJBZG1pbiJ9fQ.flVwF83OKDZkpBdPPPtM3YWsJikzEzC5rqq0vCSWAa0";
+                            $token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJmdXJuaS1zdG9yZSIsImF1ZCI6ImZ1cm5pLXN0b3JlLXVzZXJzIiwiaWF0IjoxNzI3NzQ0MzUzLCJleHAiOjE3Mjc3NDc5NTMsImRhdGEiOnsiaWQiOjcsImVtYWlsIjoiQWJkdWxsYWguUWFpZEBvdXRsb29rLmNvbSIsInJvbGUiOiJBZG1pbiJ9fQ.1eHaTBYt4XpSpi3o75DZnK1VyS-dXC5JauZsEdz5zBg";
 
+
+                            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                                'Content-Type: application/json',
+                                'Authorization: Bearer ' . $token
+                            ]);
                             // Set cURL options for the PUT request
                             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT'); // Specify PUT request
                             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data)); // Send data as JSON
-                            curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                                'Content-Type: application/json',
-                                'Authorization: Bearer ' . $token, // Add the JWT token in the header
-                            ]);
+
+
 
                             // Execute the request
                             $response = curl_exec($ch);
                             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-                            // Log API response for debugging
-                            error_log('Update User Payload: ' . print_r($data, true));
-                            error_log('API Response: ' . $response);
-
-                            // Close the cURL session
                             curl_close($ch);
 
+                            $responseData = json_decode($response, true);
 
-                            if ($httpCode === 200) {
-                                $successMessage = $responseData['message'];
+                            if ($httpCode === 200) { // User created successfully
+                                $_SESSION['message'] = $responseData['message'];
+                                // $successMessage = $responseData['message'];
+                                header('Location: users.php');
                             } else {
-                                if (isset($responseData['errors'])) {
-                                    $errors = $responseData['errors']; // Capture the errors
-                                } else {
-                                    $errors[] = "An unexpected error occurred. Please try again.";
-                                }
+                                $errors = $responseData['errors'] ?? ['Unable to add user.'];
                             }
                         }
+
+                        // if ($httpCode === 201) {
+                        //     $successMessage = $responseData['message'];
+                        // } else {
+                        //     if (isset($responseData['errors'])) {
+                        //         $errors = $responseData['errors']; // Capture the errors
+                        //     } else {
+                        //         $errors[] = "An unexpected error occurred. Please try again.";
+                        //     }
+                        // }
                     }
+
 
 
                     ?>
@@ -153,9 +161,11 @@ if (isset($_GET['action'], $_GET['id']) && $_GET['action'] == 'edit') {
 
                                     <div class='alert alert-success'><?php echo $successMessage; ?></div>
                                 <?php endif; ?>
-                                <?php if ($id): ?>
 
-                                    <div class='alert alert-success'><?php echo $id; ?></div>
+
+                                <?php if (isset($errors['token'])): ?>
+                                    <div class='alert alert-danger'><?php echo $errors['token']; ?>
+                                    </div>
                                 <?php endif; ?>
 
                                 <?php if (isset($errors['general'])): ?>

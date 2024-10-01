@@ -1,28 +1,63 @@
 <?php
 include('../templates/header.php');
-require_once 'config.php'; // Database configuration
-require_once '../classes/Database.php';
-require_once '../classes/Manager/CategoryManager.php';
-require_once '../classes/Repository/CategoryRepository.php';
-require_once '../classes/Manager/ProductManager.php';
-require_once '../classes/Repository/ProductRepository.php';
+require_once '../classes/Manager/StoreFacade.php';
+$storeFacade = new StoreFacade();
 
-// Initialize Database
-$dbInstance = Database::getInstance();
-$conn = $dbInstance->getInstance()->getConnection();
+// Initialize variables
+$id = $_GET['id']; // تأكد من أن لديك الـ ID من الاستعلام
+$name = $price = $description = $cat_id = $image = "";
+$errors = [];
+$successMessage = '';
 
-// Initialize repositories with dependencies
-$productRepository = new ProductRepository($conn);
-$productManager = new ProductManager($productRepository);
+// Fetch product details
+$product = $storeFacade->findProduct($id);
+if (!$product) {
+    die("Product not found");
+}
 
-$categoryRepository = new CategoryRepository($conn);
-$categoryManager = new CategoryManager($categoryRepository);
+// Handle form submission
+if (isset($_POST['submitProduct'])) {
+    $name = $_POST['name'] ?? '';
+    $price = $_POST['price'] ?? '';
+    $description = $_POST['description'] ?? '';
+    $cat_id = isset($_POST['cat_id']) ? (int)$_POST['cat_id'] : 0;
 
-if (isset($_GET['action'], $_GET['id']) && $_GET['action'] == 'edit') {
-    $id = $_GET['id'];
-    $product = $productManager->getProductById($id);
+    // Check if image is uploaded
+    if (isset($_FILES['image']) && $_FILES['image']['error'] == UPLOAD_ERR_OK) {
+        $image = $_FILES['image']['name'];
+        $target_path = "../upload/" . basename($image);
+
+        // Move the uploaded file to the specified directory
+        if (move_uploaded_file($_FILES['image']['tmp_name'], $target_path)) {
+            // File moved successfully
+        } else {
+            $errors['image'] = "Failed to upload image.";
+        }
+    } else {
+        // Use existing image if new image is not uploaded
+        $image = $product['image'];
+    }
+
+    // Call ProductManager to update the product
+    $result = $storeFacade->editProduct($id, $name, $description, $price, $cat_id, $image);
+
+    if ($result['success']) {
+        $_SESSION['message'] = "Product updated successfully";
+        header('Location: products.php');
+        exit();
+    } else {
+        $errors = $result['errors'];
+    }
+}
+
+// Display all errors if they exist
+if (!empty($errors)) {
+    foreach ($errors as $error) {
+        echo "<div class='error-message'>$error</div>"; // Adjust HTML as needed
+    }
 }
 ?>
+
 <!-- /. NAV SIDE  -->
 <div id="page-wrapper">
     <div id="page-inner">
@@ -40,74 +75,28 @@ if (isset($_GET['action'], $_GET['id']) && $_GET['action'] == 'edit') {
                     <div class="panel-heading">
                         <i class="fa fa-plus-circle"></i> Add New Porduct
                     </div>
-
-                    <?php
-
-
-                    $name = $price = $description = $cat_id = "";
-                    $errors = [];
-                    $successMessage = '';
-
-                    if (isset($_POST['submitProduct'])) {
-                        $name = $_POST['name'] ?? '';
-                        $price = $_POST['price'] ?? '';
-                        $description = $_POST['description'] ?? '';
-                        $cat_id = isset($_POST['cat_id']) ? (int)$_POST['cat_id'] : 0; // Ensure cat_id is an integer
-
-                        // Validate product data
-                        $errors = $productManager->validateProductData($name, $description, $price, $cat_id);
-                        // Validate image
-                        $imageErrors = $productManager->validateProductImage($_FILES['image']);
-
-                        if (empty($errors)) {
-                            // Image upload directory
-                            $targetDirectory = "../upload/";
-                            // Get the original file name
-                            $originalFileName = basename($_FILES['image']['name']);
-                            // Set the target file path
-                            $targetFile = $targetDirectory . $originalFileName;
-
-                            // Attempt to upload the image
-                            if (move_uploaded_file($_FILES['image']['tmp_name'], $targetFile)) {
-                                $successMessage = "Image uploaded successfully";
-
-                                // Attempt to add the product
-                                $result = $productManager->editProduct($id, $name, $description, $price, $cat_id, $originalFileName);
-                                if ($result['success']) {
-                                    $_SESSION['message'] = "Product Update successfully";
-                                    header('Location: products.php');
-                                } else {
-                                    $errors['general'] = "Failed to add product. Errors: ";
-                                    $errors = array_merge($errors, $result['errors']);
-                                }
-                            } else {
-                                $errors['image'] = "Failed to upload image.";
-                            }
-                        } else {
-                            $errors = array_merge($errors, $imageErrors);
-                        }
-                    }
-                    ?>
-
-
-
-
-
-
-
-
-
-
                     <div class="panel-body">
                         <div class="row">
                             <div class="col-md-12">
 
                                 <?php
-                                $name = $product['name'];
-                                $price = $product['price'];
-                                $image = $product['image'];
-                                $description = $product['description'];
-                                $categoryId = $product['category_id'];
+                                $id = $_GET['id'] ?? null;
+                                if ($id) {
+                                    $product = $storeFacade->findProduct($id);
+                                    if ($product) {
+                                        $name = $product['name'];
+                                        $price = $product['price'];
+                                        $image = $product['image'];
+                                        $description = $product['description'];
+                                        $categoryId = $product['category_id'];
+                                    } else {
+                                        // Handle case where product is not found
+                                        $errors[] = "Product not found.";
+                                    }
+                                } else {
+                                    // Handle case where no product ID is provided
+                                    $errors[] = "No product ID provided.";
+                                }
                                 ?>
 
 
@@ -151,7 +140,7 @@ if (isset($_GET['action'], $_GET['id']) && $_GET['action'] == 'edit') {
                                         <select class="form-control" name="cat_id">
                                             <?php
                                             // Fetch categories
-                                            $categories = $categoryManager->getCategories();
+                                            $categories = $storeFacade->listCategories();
 
                                             if (is_array($categories)) {
                                                 foreach ($categories as $category) {

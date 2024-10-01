@@ -53,7 +53,7 @@ class UserManager
         }
 
         // Update user in repository
-        $updated = $this->userRepository->updateUser($id, $name, $email,  $role_id, $active);
+        $updated = $this->userRepository->updateUser($id, $name, $email, $hashedPassword,  $role_id, $active);
         if ($updated) {
             return ['success' => true];
         } else {

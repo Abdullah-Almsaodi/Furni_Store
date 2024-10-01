@@ -100,7 +100,7 @@
 
                     if ($isRegistered) {
                         // User is registered, display profile link
-                        echo '<li><a class="nav-link" href="profile.php"><img src="../Public/images/user.svg"></a></li>';
+                        // echo '<li><a class="nav-link" href="profile.php"><img src="../Public/images/user.svg"></a></li>';
                         echo '<li><a class="nav-link" href="../admin/auth/logout.php"><i class="fas fa-sign-out-alt"></i></a></li>';
                     } else {
                         // User is not registered, display login link

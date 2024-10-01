@@ -103,7 +103,7 @@ $userManager = new UserManager($userRepository);
 
                             // Initialize cURL
                             $ch = curl_init($apiUrl);
-                            $token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJmdXJuaS1zdG9yZSIsImF1ZCI6ImZ1cm5pLXN0b3JlLXVzZXJzIiwiaWF0IjoxNzI3NTg2MjkwLCJleHAiOjE3Mjc1ODk4OTAsImRhdGEiOnsiaWQiOjcsImVtYWlsIjoiQWJkdWxsYWguUWFpZEBvdXRsb29rLmNvbSIsInJvbGUiOiJBZG1pbiJ9fQ.gbDmiB7u8TbcNRbAiEsZL1GxP2T2AIyHOnjGaLquluM";
+                            $token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJmdXJuaS1zdG9yZSIsImF1ZCI6ImZ1cm5pLXN0b3JlLXVzZXJzIiwiaWF0IjoxNzI3NzQ0MzUzLCJleHAiOjE3Mjc3NDc5NTMsImRhdGEiOnsiaWQiOjcsImVtYWlsIjoiQWJkdWxsYWguUWFpZEBvdXRsb29rLmNvbSIsInJvbGUiOiJBZG1pbiJ9fQ.1eHaTBYt4XpSpi3o75DZnK1VyS-dXC5JauZsEdz5zBg";
 
                             // Set cURL options
                             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -125,7 +125,6 @@ $userManager = new UserManager($userRepository);
                             } else {
                                 $responseData = json_decode($response, true);
                                 $errors = $responseData['errors'] ?? ['Unable to add user.'];
-                                error_log('Add User Errors: ' . print_r($errors, true));
                             }
                         }
                     }
@@ -165,18 +164,23 @@ $userManager = new UserManager($userRepository);
 
                                 <?php if ($successMessage): ?>
 
-                                    <div class='alert alert-success'><?php echo $successMessage; ?></div>
+                                <div class='alert alert-success'><?php echo $successMessage; ?></div>
                                 <?php endif; ?>
 
                                 <?php if (isset($errors['general'])): ?>
-                                    <div class='alert alert-danger'><?php echo $errors['general']; ?>
-                                    </div>
+                                <div class='alert alert-danger'><?php echo $errors['general']; ?>
+                                </div>
+                                <?php endif; ?>
+
+                                <?php if (isset($errors['token'])): ?>
+                                <div class='alert alert-danger'><?php echo $errors['token']; ?>
+                                </div>
                                 <?php endif; ?>
 
 
                                 <?php
                                 if (isset($_SESSION['message'])) : ?>
-                                    <div class='alert alert-success'><?php echo $_SESSION['message'] ?></div>
+                                <div class='alert alert-success'><?php echo $_SESSION['message'] ?></div>
 
                                 <?php unset($_SESSION['message']);
                                 endif; ?>
@@ -273,41 +277,17 @@ $userManager = new UserManager($userRepository);
                         <i class="fa fa-users"></i> Users
                     </div>
 
-                    <?php
-                    if (isset($_GET['action'], $_GET['id'])) {
-                        $user_id = $_GET['id'];
-                        switch ($_GET['action']) {
-                            case "delete":
 
-                                $result = $userManager->deleteUser($user_id);
-                                if ($result['success']) {
-                                    // $successM = "User deleted successfully";
-                                    $_SESSION['message'] = "User deleted successfully";
-                                    echo " <script> window.open('users.php','_self');
-                                    </script> ";
-                                } else {
-                                    $errors = $result['errors'];
-                                    // $errors = $delete['errors'];
-                                }
-                                break;
-
-                            default:
-                                $errors = $delete['errors'];
-                                break;
-                        }
-                    }
-
-                    ?>
                     <div class="panel-body">
 
                         <?php if ($successM): ?>
 
-                            <div class='alert alert-success'><?php echo $successM; ?></div>
+                        <div class='alert alert-success'><?php echo $successM; ?></div>
                         <?php endif; ?>
 
                         <?php if (isset($errors['general'])): ?>
-                            <div class='alert alert-danger'><?php echo $errors['general']; ?>
-                            </div>
+                        <div class='alert alert-danger'><?php echo $errors['general']; ?>
+                        </div>
                         <?php endif; ?>
 
                         <div class="table-responsive">
@@ -330,26 +310,28 @@ $userManager = new UserManager($userRepository);
 
 
                                     <?php if (!empty($users)): ?>
-                                        <?php foreach ($users as $user): ?>
-                                            <tr class="odd gradeX">
-                                                <td><?php echo htmlspecialchars($user['user_id']); ?></td>
-                                                <td><?php echo htmlspecialchars($user['username']); ?></td>
-                                                <td><?php echo htmlspecialchars($user['email']); ?></td>
-                                                <td><?php echo htmlspecialchars($user['password']); ?></td>
-                                                <td><?php echo htmlspecialchars($user['is_active']); ?></td>
-                                                <td><?php echo htmlspecialchars($user['role_name']); ?></td>
-                                                <td>
-                                                    <a href="editusers.php?action=edit&id=<?php echo $user['user_id']; ?>"
-                                                        class='btn btn-success action'>Edit</a>
-                                                    <a href="?action=delete&id=<?php echo $user['user_id']; ?>"
-                                                        class='delete btn btn-danger '>Delete</a>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach; ?>
+                                    <?php foreach ($users as $user): ?>
+                                    <tr class="odd gradeX">
+                                        <td><?php echo htmlspecialchars($user['user_id']); ?></td>
+                                        <td><?php echo htmlspecialchars($user['username']); ?></td>
+                                        <td><?php echo htmlspecialchars($user['email']); ?></td>
+                                        <td><?php echo htmlspecialchars($user['password']); ?></td>
+                                        <td><?php echo htmlspecialchars($user['is_active']); ?></td>
+                                        <td><?php echo htmlspecialchars($user['role_name']); ?></td>
+                                        <td>
+                                            <a href="editusers.php?action=edit&id=<?php echo $user['user_id']; ?>"
+                                                class='btn btn-success action'>Edit</a>
+                                            <a href="javascript:void(0);"
+                                                onclick="deleteUser(<?php echo $user['user_id']; ?>)"
+                                                class='delete btn btn-danger'>Delete</a>
+
+                                        </td>
+                                    </tr>
+                                    <?php endforeach; ?>
                                     <?php else: ?>
-                                        <tr>
-                                            <td colspan='5'>No users found.</td>
-                                        </tr>
+                                    <tr>
+                                        <td colspan='5'>No users found.</td>
+                                    </tr>
                                     <?php endif; ?>
 
 
@@ -378,10 +360,33 @@ $userManager = new UserManager($userRepository);
 include('../templates/Footer.php');
 ?>
 
+
+
 <script>
-    $(document).ready(function() {
-        $('.delete').click(function() {
-            return confirm('Are You Sure !!');
-        });
-    });
+function deleteUser(userId) {
+    if (confirm('Are you sure you want to delete this user?')) {
+        const token =
+            'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJmdXJuaS1zdG9yZSIsImF1ZCI6ImZ1cm5pLXN0b3JlLXVzZXJzIiwiaWF0IjoxNzI3NzQ4MTIyLCJleHAiOjE3Mjc3NTE3MjIsImRhdGEiOnsiaWQiOjcsImVtYWlsIjoiQWJkdWxsYWguUWFpZEBvdXRsb29rLmNvbSIsInJvbGUiOiJBZG1pbiJ9fQ.QbAe-hZy5CoZXQ9TaQgT-gh1GX80r9UX3WhnwrkR0kk'; // Ensure the token is securely stored and retrieved
+
+        fetch(`<?php echo BASE_URL; ?>user/user?id=${userId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}` // Include the JWT token
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Response Data:', data); // Log response data for debugging
+                if (data.success) {
+                    alert('User deleted successfully');
+                    window.location.href = 'users.php'; // Reload the page or redirect
+                } else {
+                    alert('Error deleting user: ' + data.errors.general || data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error); // Log fetch errors
+            });
+    }
+}
 </script>

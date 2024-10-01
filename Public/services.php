@@ -170,18 +170,19 @@ include '../include/Testimonial.php';
 
 
 <script>
-$(document).ready(function() {
-    // Fetch all product data using AJAX
-    $.ajax({
-        url: 'http://192.168.1.6/Furni_Store/api/v1/product/product', // Replace with your actual API URL
-        method: 'GET',
-        success: function(data) {
-            var productItemsContainer = $('#product-items'); // For Product Section
+    const base_url = "<?php echo BASE_URL; ?>";
+    $(document).ready(function() {
+        // Fetch all product data using AJAX
+        $.ajax({
+            url: base_url + 'product/product', // Replace with your actual API URL
+            method: 'GET',
+            success: function(data) {
+                var productItemsContainer = $('#product-items'); // For Product Section
 
 
-            // Add products to the Product Section (Limit to 3)
-            data.slice(0, 3).forEach(function(product) {
-                var productCard = `
+                // Add products to the Product Section (Limit to 3)
+                data.slice(0, 3).forEach(function(product) {
+                    var productCard = `
                         <div class="col-12 col-md-4 col-lg-3 mb-5 mb-md-0">
                             <a class="product-item" href="cart.php">
                                 <img src="../Public/images/${product.image}" class="img-fluid product-thumbnail">
@@ -193,15 +194,15 @@ $(document).ready(function() {
                             </a>
                         </div>
                     `;
-                productItemsContainer.append(
-                    productCard); // Append each product to the Product Section
-            });
-        },
-        error: function(error) {
-            console.log("Error fetching the products", error);
-        }
+                    productItemsContainer.append(
+                        productCard); // Append each product to the Product Section
+                });
+            },
+            error: function(error) {
+                console.log("Error fetching the products", error);
+            }
+        });
     });
-});
 </script>
 
 
